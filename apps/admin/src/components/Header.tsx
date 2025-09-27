@@ -1,7 +1,31 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import useAuth from '../hooks/useAuth';
 import styles from './Header.module.scss';
 
 const Header = () => {
+  const { user, logout } = useAuth();
+
+  const initials = useMemo(() => {
+    if (!user?.name) {
+      return 'TA';
+    }
+
+    const matches = user.name.trim().split(/\s+/);
+    const first = matches[0]?.[0] ?? '';
+    const last = matches.length > 1 ? matches[matches.length - 1]?.[0] ?? '' : '';
+    const candidate = `${first}${last}`.toUpperCase();
+
+    if (candidate.trim().length > 0) {
+      return candidate;
+    }
+
+    return user.email.slice(0, 2).toUpperCase();
+  }, [user]);
+
+  const handleLogout = React.useCallback(() => {
+    void logout();
+  }, [logout]);
+
   return (
     <header className={styles.header}>
       <div>
@@ -58,15 +82,19 @@ const Header = () => {
 
           <button className={styles.profileButton}>
             <div className={styles.profileAvatar}>
-              AD
+              {initials}
             </div>
             <div className={styles.profileMeta}>
-              <p>Admin User</p>
-              <p>Administrator</p>
+              <p>{user?.name ?? 'Admin User'}</p>
+              <p>{user?.role ?? 'Administrator'}</p>
             </div>
             <svg className={styles.profileIcon} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
+          </button>
+
+          <button className={styles.logoutButton} type="button" onClick={handleLogout}>
+            Sign out
           </button>
         </div>
       </div>
