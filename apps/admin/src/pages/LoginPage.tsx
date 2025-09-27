@@ -6,12 +6,12 @@ import styles from './LoginPage.module.scss';
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, loading, error } = useAuth();
+  const { login, loading, error, clearError } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const user = await login(email, password);
+    const user = await login({ email, password });
     if (user) {
       navigate('/');
     }
@@ -44,7 +44,12 @@ const LoginPage = () => {
                 autoComplete="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  if (error) {
+                    clearError();
+                  }
+                  setEmail(e.target.value);
+                }}
                 className={styles.input}
                 placeholder="admin@example.com"
               />
@@ -60,7 +65,12 @@ const LoginPage = () => {
                 autoComplete="current-password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  if (error) {
+                    clearError();
+                  }
+                  setPassword(e.target.value);
+                }}
                 className={styles.input}
                 placeholder="••••••••"
               />

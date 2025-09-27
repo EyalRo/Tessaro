@@ -9,24 +9,27 @@ import AuditLogsPage from './pages/AuditLogsPage';
 import SettingsPage from './pages/SettingsPage';
 import LoginPage from './pages/LoginPage';
 import AuthWrapper from './components/AuthWrapper';
+import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
   return (
-    <Router>
-      <AuthWrapper>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={<DashboardLayout />}>
-            <Route index element={<DashboardPage />} />
-            <Route path="users" element={<UsersPage />} />
-            <Route path="organizations" element={<OrganizationsPage />} />
-            <Route path="services" element={<ServicesPage />} />
-            <Route path="audit-logs" element={<AuditLogsPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-          </Route>
-        </Routes>
-      </AuthWrapper>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AuthWrapper>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<DashboardLayout />}>
+              <Route index element={<DashboardPage />} />
+              <Route path="users" element={<UsersPage />} />
+              <Route path="organizations" element={<OrganizationsPage />} />
+              <Route path="services" element={<ServicesPage />} />
+              <Route path="audit-logs" element={<AuditLogsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
+          </Routes>
+        </AuthWrapper>
+      </Router>
+    </AuthProvider>
   );
 }
 
