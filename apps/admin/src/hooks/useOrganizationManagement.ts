@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import useApi from './useApi';
 
 interface Organization {
@@ -33,7 +34,7 @@ const useOrganizationManagement = () => {
     return executeRequest(async () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
-      const newOrg = { id: Math.random().toString(36).substr(2, 9), ...orgData };
+      const newOrg = { id: uuidv4(), ...orgData };
       setOrganizations(prev => [...prev, newOrg]);
       return newOrg;
     });

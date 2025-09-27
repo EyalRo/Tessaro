@@ -1,15 +1,16 @@
-import { UserService } from '../../../libs/database/src/user-service';
-import ScyllaClient from '../../../libs/database/src/scylla-client';
+import UserService from '../../../../libs/database/src/user-service';
+import ScyllaClient from '../../../../libs/database/src/scylla-client';
 
 // Mock ScyllaClient
-jest.mock('../../../libs/database/src/scylla-client');
+jest.mock('../../../../libs/database/src/scylla-client');
 
 describe('UserService', () => {
   let userService: UserService;
   let mockDbClient: jest.Mocked<ScyllaClient>;
 
   beforeEach(() => {
-    mockDbClient = new ScyllaClient({} as any) as jest.Mocked<ScyllaClient>;
+    const MockedScyllaClient = ScyllaClient as jest.MockedClass<typeof ScyllaClient>;
+    mockDbClient = new MockedScyllaClient({} as any) as unknown as jest.Mocked<ScyllaClient>;
     userService = new UserService(mockDbClient);
   });
 

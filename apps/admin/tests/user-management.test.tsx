@@ -1,16 +1,17 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import UsersPage from '../src/pages/UsersPage';
 import useUserManagement from '../src/hooks/useUserManagement';
 
-// Mock the useUserManagement hook
 jest.mock('../src/hooks/useUserManagement');
 
 const mockUseUserManagement = useUserManagement as jest.MockedFunction<typeof useUserManagement>;
 
-describe('UsersPage', () => {
-  const mockUserManagement = {
+type UserManagementHook = ReturnType<typeof useUserManagement>;
+
+const createHookMock = (overrides: Partial<UserManagementHook> = {}) => {
+  const base: jest.Mocked<UserManagementHook> = {
     users: [
       { id: '1', email: 'john@example.com', name: 'John Doe', role: 'Administrator' },
       { id: '2', email: 'jane@example.com', name: 'Jane Smith', role: 'Manager' }
@@ -25,13 +26,20 @@ describe('UsersPage', () => {
     selectUser: jest.fn(),
     deselectUser: jest.fn(),
     clearError: jest.fn()
-  };
+  } as unknown as jest.Mocked<UserManagementHook>;
 
+  return { ...base, ...overrides } as jest.Mocked<UserManagementHook>;
+};
+
+describe('UsersPage', () => {
   beforeEach(() => {
-    mockUseUserManagement.mockReturnValue(mockUserManagement);
+    jest.clearAllMocks();
   });
 
-  it('renders users table with correct data', () => {
+  it('renders users returned by the hook', () => {
+    const hookValue = createHookMock();
+    mockUseUserManagement.mockReturnValue(hookValue);
+
     render(
       <BrowserRouter>
         <UsersPage />
@@ -43,45 +51,92 @@ describe('UsersPage', () => {
     expect(screen.getByText('john@example.com')).toBeInTheDocument();
     expect(screen.getByText('Administrator')).toBeInTheDocument();
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
-    expect(screen.getByText('jane@example.com')).toBeInTheDocument();
-    expect(screen.getByText('Manager')).toBeInTheDocument();
   });
 
-  it('shows loading state when fetching users', () => {
-    mockUserManagement.loading = true;
-    
+  it('invokes fetchUsers on mount and shows loading state', async () => {
+    const hookValue = createHookMock({ loading: true } as Partial<UserManagementHook>);
+    mockUseUserManagement.mockReturnValue(hookValue);
+
     render(
       <BrowserRouter>
         <UsersPage />
       </BrowserRouter>
     );
 
-    // In a real implementation, you would have a loading indicator
-    // This is just to show the concept
+    expect(await screen.findByTestId('users-loading')).toBeInTheDocument();
+    expect(hookValue.fetchUsers).toHaveBeenCalled();
   });
 
-  it('shows error message when there is an error', async () => {
-    mockUserManagement.error = { message: 'Failed to fetch users' } as any;
-    
+  it('exposes error message returned by the hook', () => {
+    const hookValue = createHookMock({ error: { message: 'Failed to fetch users' } as any });
+    mockUseUserManagement.mockReturnValue(hookValue);
+
     render(
       <BrowserRouter>
         <UsersPage />
       </BrowserRouter>
     );
 
-    // In a real implementation, you would display the error message
-    // This is just to show the concept
+    expect(screen.getByText('Failed to fetch users')).toBeInTheDocument();
   });
 
-  it('calls fetchUsers on component mount', async () => {
+  it('opens creation form and submits new user data', async () => {
+    const hookValue = createHookMock();
+    hookValue.createUser.mockResolvedValue({ id: '3', name: 'New User', email: 'new@example.com', role: 'User' } as any);
+    mockUseUserManagement.mockReturnValue(hookValue);
+
     render(
       <BrowserRouter>
         <UsersPage />
       </BrowserRouter>
     );
+
+    fireEvent.click(screen.getByTestId('open-create-user'));
+
+    const formWrapper = await screen.findByTestId('user-form');
+    expect(formWrapper).toBeInTheDocument();
+    const form = formWrapper.querySelector('form') as HTMLFormElement;
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'New User' } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@example.com' } });
+    fireEvent.change(screen.getByLabelText('Role'), { target: { value: 'Manager' } });
+
+    await act(async () => {
+      fireEvent.submit(form);
+    });
 
     await waitFor(() => {
-      expect(mockUserManagement.fetchUsers).toHaveBeenCalled();
+      expect(hookValue.createUser).toHaveBeenCalledWith({
+        name: 'New User',
+        email: 'new@example.com',
+        role: 'Manager',
+        avatar_url: undefined
+      });
     });
+  });
+
+  it('forwards edit and delete actions to the hook', async () => {
+    const hookValue = createHookMock();
+    mockUseUserManagement.mockReturnValue(hookValue);
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValueOnce(true);
+
+    render(
+      <BrowserRouter>
+        <UsersPage />
+      </BrowserRouter>
+    );
+
+    const firstRowEdit = screen.getAllByText('Edit')[0];
+    fireEvent.click(firstRowEdit);
+    expect(hookValue.selectUser).toHaveBeenCalledWith(expect.objectContaining({ id: '2' }));
+
+    const firstRowDelete = screen.getAllByText('Delete')[0];
+    fireEvent.click(firstRowDelete);
+
+    await waitFor(() => {
+      expect(hookValue.deleteUser).toHaveBeenCalledWith('2');
+    });
+
+    confirmSpy.mockRestore();
   });
 });

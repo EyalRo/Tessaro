@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import ScyllaClient from './scylla-client';
 import { ScyllaConfig, Organization, Service } from './types';
 
@@ -127,7 +128,7 @@ class ConfigService {
   }
 
   private generateId(): string {
-    return Math.random().toString(36).substr(2, 9);
+    return uuidv4();
   }
 
   private mapRowToOrganization(row: any): Organization {

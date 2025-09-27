@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import ScyllaClient from './scylla-client';
 import { ScyllaConfig, UserProfile, Organization, Service, AuditLog } from './types';
 
@@ -68,7 +69,7 @@ class UserService {
   }
 
   private generateId(): string {
-    return Math.random().toString(36).substr(2, 9);
+    return uuidv4();
   }
 
   private mapRowToUser(row: any): UserProfile {
