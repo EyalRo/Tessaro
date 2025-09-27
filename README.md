@@ -122,6 +122,17 @@ docker compose up
 
 * This will start Admin App, Main App, Functions, ScyllaDB, MinIO, and NATS in one deployment.
 
+#### Admin App (standalone)
+
+For quick UI development you can run the Admin app without Docker:
+
+```bash
+npm install --prefix apps/admin
+npm run admin:dev
+```
+
+The development server listens on <http://localhost:5173> by default. Use `PORT` to override the port when needed.
+
 ### Tests
 
 * Unit tests exist under each app's `tests/` folder.

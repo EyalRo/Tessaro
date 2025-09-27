@@ -3,7 +3,10 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "admin:dev": "npm run dev --prefix apps/admin",
+    "admin:build": "npm run build --prefix apps/admin",
+    "admin:preview": "npm run preview --prefix apps/admin"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
