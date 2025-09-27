@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  scylladb:
+    image: scylladb/scylla:5.2.7
+    container_name: tessaro-scylladb
+    restart: always
+    command: --experimental 1
+    environment:
+      - TZ=UTC
+    volumes:
+      - scylla_data:/var/lib/scylla
+    ports:
+      - "9042:9042"
+    networks:
+      - tessaro-network
+    healthcheck:
+      test: ["CMD", "cqlsh", "--execute", "SELECT * FROM system.local"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  minio:
+    image: minio/minio:RELEASE.2023-05-18T00-05-36Z
+    container_name: tessaro-minio
+    restart: always
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - tessaro-network
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  create-buckets:
+    image: minio/mc:RELEASE.2023-05-18T00-05-36Z
+    container_name: tessaro-create-buckets
+    depends_on:
+      - minio
+    networks:
+      - tessaro-network
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set tessaro-minio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb tessaro-minio/tessaro-profile-pictures;
+      /usr/bin/mc anonymous set download tessaro-minio/tessaro-profile-pictures;
+      exit 0;
+      "
+
+networks:
+  tessaro-network:
+    driver: bridge
+
+volumes:
+  scylla_data:
+    driver: local
+  minio_data:
+    driver: local
