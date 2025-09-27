@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import useApi from './useApi';
 
 interface UserProfile {
@@ -34,7 +35,7 @@ const useUserManagement = () => {
     return executeRequest(async () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
-      const newUser = { id: Math.random().toString(36).substr(2, 9), ...userData };
+      const newUser = { id: uuidv4(), ...userData };
       setUsers(prev => [...prev, newUser]);
       return newUser;
     });

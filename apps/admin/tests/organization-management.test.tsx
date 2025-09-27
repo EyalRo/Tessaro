@@ -1,19 +1,20 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import OrganizationsPage from '../src/pages/OrganizationsPage';
 import useOrganizationManagement from '../src/hooks/useOrganizationManagement';
 
-// Mock the useOrganizationManagement hook
 jest.mock('../src/hooks/useOrganizationManagement');
 
 const mockUseOrganizationManagement = useOrganizationManagement as jest.MockedFunction<typeof useOrganizationManagement>;
 
-describe('OrganizationsPage', () => {
-  const mockOrgManagement = {
+type OrganizationManagementHook = ReturnType<typeof useOrganizationManagement>;
+
+const createHookMock = (overrides: Partial<OrganizationManagementHook> = {}) => {
+  const base: jest.Mocked<OrganizationManagementHook> = {
     organizations: [
       { id: '1', name: 'Acme Corp', plan: 'Enterprise', status: 'Active' },
-      { id: '2', name: 'Globex Inc', plan: 'Professional', status: 'Active' }
+      { id: '2', name: 'Globex Inc', plan: 'Professional', status: 'Suspended' }
     ],
     currentOrganization: null,
     loading: false,
@@ -25,13 +26,20 @@ describe('OrganizationsPage', () => {
     selectOrganization: jest.fn(),
     deselectOrganization: jest.fn(),
     clearError: jest.fn()
-  };
+  } as unknown as jest.Mocked<OrganizationManagementHook>;
 
+  return { ...base, ...overrides } as jest.Mocked<OrganizationManagementHook>;
+};
+
+describe('OrganizationsPage', () => {
   beforeEach(() => {
-    mockUseOrganizationManagement.mockReturnValue(mockOrgManagement);
+    jest.clearAllMocks();
   });
 
-  it('renders organizations table with correct data', () => {
+  it('renders organizations returned by the hook', () => {
+    const hookValue = createHookMock();
+    mockUseOrganizationManagement.mockReturnValue(hookValue);
+
     render(
       <BrowserRouter>
         <OrganizationsPage />
@@ -41,20 +49,75 @@ describe('OrganizationsPage', () => {
     expect(screen.getByText('Organization Management')).toBeInTheDocument();
     expect(screen.getByText('Acme Corp')).toBeInTheDocument();
     expect(screen.getByText('Enterprise')).toBeInTheDocument();
-    expect(screen.getByText('Active')).toBeInTheDocument();
-    expect(screen.getByText('Globex Inc')).toBeInTheDocument();
-    expect(screen.getByText('Professional')).toBeInTheDocument();
+    expect(screen.getByText('Suspended')).toBeInTheDocument();
   });
 
-  it('calls fetchOrganizations on component mount', async () => {
+  it('invokes fetchOrganizations on mount and displays loading state', async () => {
+    const hookValue = createHookMock({ loading: true } as Partial<OrganizationManagementHook>);
+    mockUseOrganizationManagement.mockReturnValue(hookValue);
+
     render(
       <BrowserRouter>
         <OrganizationsPage />
       </BrowserRouter>
     );
 
-    await waitFor(() => {
-      expect(mockOrgManagement.fetchOrganizations).toHaveBeenCalled();
+    expect(await screen.findByTestId('organizations-loading')).toBeInTheDocument();
+    expect(hookValue.fetchOrganizations).toHaveBeenCalled();
+  });
+
+  it('opens creation form and submits organization data', async () => {
+    const hookValue = createHookMock();
+    hookValue.createOrganization.mockResolvedValue({ id: '3', name: 'Wayne Enterprises', plan: 'Enterprise', status: 'Active' } as any);
+    mockUseOrganizationManagement.mockReturnValue(hookValue);
+
+    render(
+      <BrowserRouter>
+        <OrganizationsPage />
+      </BrowserRouter>
+    );
+
+    fireEvent.click(screen.getByTestId('open-create-organization'));
+
+    const formWrapper = await screen.findByTestId('organization-form');
+    const form = formWrapper.querySelector('form') as HTMLFormElement;
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Wayne Enterprises' } });
+    fireEvent.change(screen.getByLabelText('Plan'), { target: { value: 'Enterprise' } });
+    fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'Active' } });
+
+    await act(async () => {
+      fireEvent.submit(form);
     });
+
+    await waitFor(() => {
+      expect(hookValue.createOrganization).toHaveBeenCalledWith({
+        name: 'Wayne Enterprises',
+        plan: 'Enterprise',
+        status: 'Active'
+      });
+    });
+  });
+
+  it('delegates edit and delete actions to the hook', async () => {
+    const hookValue = createHookMock();
+    mockUseOrganizationManagement.mockReturnValue(hookValue);
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValueOnce(true);
+
+    render(
+      <BrowserRouter>
+        <OrganizationsPage />
+      </BrowserRouter>
+    );
+
+    fireEvent.click(screen.getAllByText('Edit')[0]);
+    expect(hookValue.selectOrganization).toHaveBeenCalledWith(hookValue.organizations[0]);
+
+    fireEvent.click(screen.getAllByText('Delete')[0]);
+
+    await waitFor(() => {
+      expect(hookValue.deleteOrganization).toHaveBeenCalledWith('1');
+    });
+
+    confirmSpy.mockRestore();
   });
 });

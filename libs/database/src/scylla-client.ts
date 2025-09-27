@@ -1,4 +1,4 @@
-import { Client } from 'cassandra-driver';
+import { Client, auth } from 'cassandra-driver';
 import { ScyllaConfig } from './types';
 
 class ScyllaClient {
@@ -10,9 +10,9 @@ class ScyllaClient {
       contactPoints: config.contactPoints,
       localDataCenter: config.localDataCenter,
       keyspace: config.keyspace,
-      authProvider: config.authProvider ? 
-        new PlainTextAuthProvider(
-          config.authProvider.username, 
+      authProvider: config.authProvider ?
+        new auth.PlainTextAuthProvider(
+          config.authProvider.username,
           config.authProvider.password
         ) : undefined
     });

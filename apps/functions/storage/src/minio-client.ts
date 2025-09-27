@@ -31,7 +31,7 @@ class MinioClient {
   }
 
   async uploadBuffer(objectName: string, buffer: Buffer, metaData?: Minio.ItemBucketMetadata): Promise<string> {
-    await this.client.putObject(this.bucketName, objectName, buffer, metaData);
+    await this.client.putObject(this.bucketName, objectName, buffer, buffer.length, metaData);
     return this.getFileUrl(objectName);
   }
 
