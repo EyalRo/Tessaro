@@ -1,0 +1,170 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pageHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.headingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.pageTag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: var(--color-text-subtle);
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.pageSubtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  max-width: 32rem;
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(129, 140, 248, 0.6);
+  background: var(--color-indigo-soft);
+  color: var(--color-indigo-lighter);
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-callout);
+  transition: border-color var(--transition-base), background-color var(--transition-base);
+}
+
+.actionButton:hover {
+  border-color: rgba(129, 140, 248, 0.8);
+  background: rgba(99, 102, 241, 0.3);
+}
+
+.actionIndicator {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-emerald-light);
+}
+
+.tableCard {
+  border-radius: 1rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-strong);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+  backdrop-filter: blur(18px);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9rem;
+  min-width: 48rem;
+}
+
+.table thead {
+  background: rgba(255, 255, 255, 0.05);
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  font-size: 0.68rem;
+  color: var(--color-text-subtle);
+}
+
+.table th {
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.table tbody {
+  background: transparent;
+}
+
+.table tr {
+  transition: background-color var(--transition-base);
+}
+
+.table tr:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(203, 213, 225, 0.85);
+}
+
+.table td:first-child {
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-emerald-lighter);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.statusIndicator {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-emerald-light);
+}
+
+.rowActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rowActionEdit {
+  color: var(--color-indigo-light);
+  transition: color var(--transition-base);
+}
+
+.rowActionEdit:hover {
+  color: #fff;
+}
+
+.rowActionDelete {
+  color: var(--color-rose-light);
+  transition: color var(--transition-base);
+}
+
+.rowActionDelete:hover {
+  color: #fecdd3;
+}

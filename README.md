@@ -133,10 +133,27 @@ npm run admin:dev
 
 The development server listens on <http://localhost:5173> by default. Use `PORT` to override the port when needed.
 
+#### Admin App (Docker)
+
+To build and serve the Admin app via Docker, use the helper script:
+
+```bash
+./scripts/admin-docker.sh
+```
+
+Environment variables let you customise container behaviour:
+
+```bash
+IMAGE_NAME=tessaro-admin:dev HOST_PORT=5173 ./scripts/admin-docker.sh
+```
+
+The container exposes Vite preview on the configured host port (default `4173`). The script rebuilds the image before every run and replaces any existing container with the same name.
+
 ### Tests
 
 * Unit tests exist under each app's `tests/` folder.
 * End-to-end tests are located in the root `tests/` directory.
+* When building container images, make sure Dockerfiles execute the test suite (e.g. `RUN npm test`) before the final build command so failures are caught during the image build.
 
 ---
 

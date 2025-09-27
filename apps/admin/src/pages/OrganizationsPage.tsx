@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import useOrganizationManagement from '../hooks/useOrganizationManagement';
+import styles from './OrganizationsPage.module.scss';
 
 type OrganizationFormState = {
   name: string;
@@ -101,107 +102,126 @@ const OrganizationsPage: React.FC = () => {
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Organization Management</h1>
-          <p className="text-sm text-gray-500">
+    <section className={styles.page}>
+      <div className={styles.pageHeader}>
+        <div className={styles.headingGroup}>
+          <p className={styles.pageTag}>Tenants</p>
+          <h1 className={styles.pageTitle}>Organization Management</h1>
+          <p className={styles.pageSubtitle}>
             Configure customer tenants, subscription tiers, and lifecycle states.
           </p>
         </div>
         <button
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+          className={styles.actionButton}
           onClick={openCreateForm}
           data-testid="open-create-organization"
+          type="button"
         >
+          <span className={styles.actionIndicator} />
           Add Organization
         </button>
       </div>
 
       {error && (
-        <div className="rounded-md bg-red-50 p-4">
-          <div className="flex items-start">
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">{error.message}</h3>
-              <button className="mt-2 text-sm text-red-700 underline" onClick={() => clearError()}>
-                Dismiss
-              </button>
-            </div>
+        <div className={styles.errorCard}>
+          <div className={styles.errorContent}>
+            <p>{error.message}</p>
+            <button
+              className={styles.errorDismiss}
+              onClick={() => clearError()}
+              type="button"
+            >
+              Dismiss
+            </button>
           </div>
         </div>
       )}
 
-      <div className="bg-white shadow rounded-lg">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+      <div className={styles.tableCard}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Plan
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th>Name</th>
+                <th>Plan</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200" data-testid="organizations-table-body">
+            <tbody data-testid="organizations-table-body">
               {sortedOrganizations.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan={4} className={styles.emptyState}>
                     No organizations configured yet.
                   </td>
                 </tr>
               )}
-              {sortedOrganizations.map(org => (
-                <tr key={org.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{org.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{org.plan}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      org.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {org.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 space-x-2">
-                    <button className="text-indigo-600 hover:text-indigo-900" onClick={() => selectOrganization(org)}>
-                      Edit
-                    </button>
-                    <button className="text-red-600 hover:text-red-900" onClick={() => handleDelete(org.id)}>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {sortedOrganizations.map((org) => {
+                const isActive = org.status === 'Active';
+                const badgeClass = `${styles.statusBadge} ${
+                  isActive ? styles.statusBadgeActive : styles.statusBadgeSuspended
+                }`;
+                const indicatorClass = `${styles.statusIndicator} ${
+                  isActive ? styles.statusIndicatorActive : styles.statusIndicatorSuspended
+                }`;
+
+                return (
+                  <tr key={org.id}>
+                    <td>{org.name}</td>
+                    <td>{org.plan}</td>
+                    <td>
+                      <span className={badgeClass}>
+                        <span className={indicatorClass} />
+                        {org.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.rowActions}>
+                        <button
+                          className={styles.rowActionEdit}
+                          onClick={() => selectOrganization(org)}
+                          type="button"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className={styles.rowActionDelete}
+                          onClick={() => handleDelete(org.id)}
+                          type="button"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
         {loading && (
-          <div className="px-6 py-4 text-sm text-gray-500" data-testid="organizations-loading">
+          <div className={styles.loadingRow} data-testid="organizations-loading">
             Loading organizations...
           </div>
         )}
       </div>
 
       {isFormOpen && (
-        <div className="bg-white shadow rounded-lg p-6" data-testid="organization-form">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-700">
-              {currentOrganization ? 'Edit Organization' : 'Create Organization'}
-            </h2>
-            <button className="text-sm text-gray-500 underline" onClick={closeForm}>
+        <div className={styles.formCard} data-testid="organization-form">
+          <div className={styles.formHeader}>
+            <div>
+              <p className={styles.formTag}>{currentOrganization ? 'Update' : 'Create'}</p>
+              <h2 className={styles.formTitle}>
+                {currentOrganization ? 'Edit Organization' : 'Create Organization'}
+              </h2>
+            </div>
+            <button className={styles.formDismiss} onClick={closeForm} type="button">
               Cancel
             </button>
           </div>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+          <form className={styles.formGrid} onSubmit={handleSubmit}>
+            <div className={`${styles.formField} ${styles.formFieldWide}`.trim()}>
+              <label htmlFor="name" className={styles.formLabel}>
                 Name
               </label>
               <input
@@ -210,11 +230,11 @@ const OrganizationsPage: React.FC = () => {
                 type="text"
                 value={formState.name}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className={styles.formControl}
               />
             </div>
-            <div>
-              <label htmlFor="plan" className="block text-sm font-medium text-gray-700">
+            <div className={styles.formField}>
+              <label htmlFor="plan" className={styles.formLabel}>
                 Plan
               </label>
               <select
@@ -222,7 +242,7 @@ const OrganizationsPage: React.FC = () => {
                 name="plan"
                 value={formState.plan}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className={styles.formControl}
               >
                 {planOptions.map(option => (
                   <option key={option} value={option}>
@@ -231,8 +251,8 @@ const OrganizationsPage: React.FC = () => {
                 ))}
               </select>
             </div>
-            <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+            <div className={styles.formField}>
+              <label htmlFor="status" className={styles.formLabel}>
                 Status
               </label>
               <select
@@ -240,7 +260,7 @@ const OrganizationsPage: React.FC = () => {
                 name="status"
                 value={formState.status}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className={styles.formControl}
               >
                 {statusOptions.map(option => (
                   <option key={option} value={option}>
@@ -249,25 +269,22 @@ const OrganizationsPage: React.FC = () => {
                 ))}
               </select>
             </div>
-            <div className="flex justify-end space-x-3">
+            <div className={styles.formActions}>
               <button
                 type="button"
                 onClick={closeForm}
-                className="px-4 py-2 rounded-md border border-gray-300 text-gray-700"
+                className={styles.formButtonGhost}
               >
                 Cancel
               </button>
-              <button
-                type="submit"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-              >
+              <button type="submit" className={styles.formButtonPrimary}>
                 {currentOrganization ? 'Save Changes' : 'Create Organization'}
               </button>
             </div>
           </form>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
