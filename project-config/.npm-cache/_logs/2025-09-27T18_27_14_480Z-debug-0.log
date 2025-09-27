@@ -1,0 +1,1042 @@
+0 verbose cli /usr/bin/node /usr/bin/npm
+1 info using npm@11.6.1
+2 info using node@v20.19.5
+3 silly config load:file:/usr/lib/node_modules/npm/npmrc
+4 silly config load:file:/home/stags/Source/Tessaro/apps/admin/.npmrc
+5 silly config load:file:/home/stags/.npmrc
+6 silly config load:file:/etc/npmrc
+7 verbose title npm install
+8 verbose argv "install" "--prefix" "apps/admin" "--cache" "./project-config/.npm-cache"
+9 verbose logfile logs-max:10 dir:/home/stags/Source/Tessaro/project-config/.npm-cache/_logs/2025-09-27T18_27_14_480Z-
+10 verbose logfile /home/stags/Source/Tessaro/project-config/.npm-cache/_logs/2025-09-27T18_27_14_480Z-debug-0.log
+11 silly logfile done cleaning log files
+12 http fetch GET https://registry.npmjs.org/npm attempt 1 failed with EAI_AGAIN
+13 silly packumentCache heap:2197815296 maxSize:549453824 maxEntrySize:274726912
+14 silly idealTree buildDeps
+15 silly reify mark retired [
+15 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/baseline-browser-mapping'
+15 silly reify ]
+16 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/browserslist' ]
+17 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/caniuse-lite' ]
+18 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/debug' ]
+19 silly reify mark retired [
+19 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/electron-to-chromium'
+19 silly reify ]
+20 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/fsevents' ]
+21 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/immutable' ]
+22 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/node-releases' ]
+23 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/postcss' ]
+24 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/react-refresh' ]
+25 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/react-router' ]
+26 silly reify mark retired [
+26 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/react-router-dom'
+26 silly reify ]
+27 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/rollup' ]
+28 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/sass' ]
+29 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/typescript' ]
+30 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/vite' ]
+31 silly reify mark retired [
+31 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/code-frame'
+31 silly reify ]
+32 silly reify mark retired [
+32 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/compat-data'
+32 silly reify ]
+33 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/core' ]
+34 silly reify mark retired [
+34 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/generator'
+34 silly reify ]
+35 silly reify mark retired [
+35 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-compilation-targets'
+35 silly reify ]
+36 silly reify mark retired [
+36 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-globals'
+36 silly reify ]
+37 silly reify mark retired [
+37 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-module-imports'
+37 silly reify ]
+38 silly reify mark retired [
+38 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-module-transforms'
+38 silly reify ]
+39 silly reify mark retired [
+39 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-plugin-utils'
+39 silly reify ]
+40 silly reify mark retired [
+40 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-string-parser'
+40 silly reify ]
+41 silly reify mark retired [
+41 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-validator-identifier'
+41 silly reify ]
+42 silly reify mark retired [
+42 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-validator-option'
+42 silly reify ]
+43 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helpers' ]
+44 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/parser' ]
+45 silly reify mark retired [
+45 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/plugin-transform-react-jsx-self'
+45 silly reify ]
+46 silly reify mark retired [
+46 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/plugin-transform-react-jsx-source'
+46 silly reify ]
+47 silly reify mark retired [
+47 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/template'
+47 silly reify ]
+48 silly reify mark retired [
+48 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/traverse'
+48 silly reify ]
+49 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/types' ]
+50 silly reify mark retired [
+50 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/aix-ppc64'
+50 silly reify ]
+51 silly reify mark retired [
+51 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/android-arm'
+51 silly reify ]
+52 silly reify mark retired [
+52 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/android-arm64'
+52 silly reify ]
+53 silly reify mark retired [
+53 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/android-x64'
+53 silly reify ]
+54 silly reify mark retired [
+54 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/darwin-arm64'
+54 silly reify ]
+55 silly reify mark retired [
+55 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/darwin-x64'
+55 silly reify ]
+56 silly reify mark retired [
+56 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/freebsd-arm64'
+56 silly reify ]
+57 silly reify mark retired [
+57 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/freebsd-x64'
+57 silly reify ]
+58 silly reify mark retired [
+58 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-arm'
+58 silly reify ]
+59 silly reify mark retired [
+59 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-arm64'
+59 silly reify ]
+60 silly reify mark retired [
+60 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-ia32'
+60 silly reify ]
+61 silly reify mark retired [
+61 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-loong64'
+61 silly reify ]
+62 silly reify mark retired [
+62 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-mips64el'
+62 silly reify ]
+63 silly reify mark retired [
+63 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-ppc64'
+63 silly reify ]
+64 silly reify mark retired [
+64 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-riscv64'
+64 silly reify ]
+65 silly reify mark retired [
+65 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-s390x'
+65 silly reify ]
+66 silly reify mark retired [
+66 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/netbsd-x64'
+66 silly reify ]
+67 silly reify mark retired [
+67 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/openbsd-x64'
+67 silly reify ]
+68 silly reify mark retired [
+68 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/sunos-x64'
+68 silly reify ]
+69 silly reify mark retired [
+69 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/win32-arm64'
+69 silly reify ]
+70 silly reify mark retired [
+70 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/win32-ia32'
+70 silly reify ]
+71 silly reify mark retired [
+71 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/win32-x64'
+71 silly reify ]
+72 silly reify mark retired [
+72 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@jridgewell/gen-mapping'
+72 silly reify ]
+73 silly reify mark retired [
+73 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@jridgewell/remapping'
+73 silly reify ]
+74 silly reify mark retired [
+74 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@jridgewell/sourcemap-codec'
+74 silly reify ]
+75 silly reify mark retired [
+75 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@jridgewell/trace-mapping'
+75 silly reify ]
+76 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/@noble/hashes' ]
+77 silly reify mark retired [
+77 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@paralleldrive/cuid2'
+77 silly reify ]
+78 silly reify mark retired [
+78 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-android-arm64'
+78 silly reify ]
+79 silly reify mark retired [
+79 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-darwin-arm64'
+79 silly reify ]
+80 silly reify mark retired [
+80 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-darwin-x64'
+80 silly reify ]
+81 silly reify mark retired [
+81 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-freebsd-x64'
+81 silly reify ]
+82 silly reify mark retired [
+82 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm-glibc'
+82 silly reify ]
+83 silly reify mark retired [
+83 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm-musl'
+83 silly reify ]
+84 silly reify mark retired [
+84 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm64-glibc'
+84 silly reify ]
+85 silly reify mark retired [
+85 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm64-musl'
+85 silly reify ]
+86 silly reify mark retired [
+86 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-win32-arm64'
+86 silly reify ]
+87 silly reify mark retired [
+87 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-win32-ia32'
+87 silly reify ]
+88 silly reify mark retired [
+88 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-win32-x64'
+88 silly reify ]
+89 silly reify mark retired [
+89 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@remix-run/router'
+89 silly reify ]
+90 silly reify mark retired [
+90 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rolldown/pluginutils'
+90 silly reify ]
+91 silly reify mark retired [
+91 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-android-arm-eabi'
+91 silly reify ]
+92 silly reify mark retired [
+92 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-android-arm64'
+92 silly reify ]
+93 silly reify mark retired [
+93 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-darwin-arm64'
+93 silly reify ]
+94 silly reify mark retired [
+94 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-darwin-x64'
+94 silly reify ]
+95 silly reify mark retired [
+95 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-freebsd-arm64'
+95 silly reify ]
+96 silly reify mark retired [
+96 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-freebsd-x64'
+96 silly reify ]
+97 silly reify mark retired [
+97 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm-gnueabihf'
+97 silly reify ]
+98 silly reify mark retired [
+98 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm-musleabihf'
+98 silly reify ]
+99 silly reify mark retired [
+99 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm64-gnu'
+99 silly reify ]
+100 silly reify mark retired [
+100 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm64-musl'
+100 silly reify ]
+101 silly reify mark retired [
+101 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-loong64-gnu'
+101 silly reify ]
+102 silly reify mark retired [
+102 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-ppc64-gnu'
+102 silly reify ]
+103 silly reify mark retired [
+103 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-riscv64-gnu'
+103 silly reify ]
+104 silly reify mark retired [
+104 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-riscv64-musl'
+104 silly reify ]
+105 silly reify mark retired [
+105 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-s390x-gnu'
+105 silly reify ]
+106 silly reify mark retired [
+106 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-x64-gnu'
+106 silly reify ]
+107 silly reify mark retired [
+107 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-x64-musl'
+107 silly reify ]
+108 silly reify mark retired [
+108 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-openharmony-arm64'
+108 silly reify ]
+109 silly reify mark retired [
+109 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-arm64-msvc'
+109 silly reify ]
+110 silly reify mark retired [
+110 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-ia32-msvc'
+110 silly reify ]
+111 silly reify mark retired [
+111 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-x64-gnu'
+111 silly reify ]
+112 silly reify mark retired [
+112 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-x64-msvc'
+112 silly reify ]
+113 silly reify mark retired [
+113 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/babel__generator'
+113 silly reify ]
+114 silly reify mark retired [
+114 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/babel__traverse'
+114 silly reify ]
+115 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/estree' ]
+116 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/node' ]
+117 silly reify mark retired [
+117 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/prop-types'
+117 silly reify ]
+118 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/react' ]
+119 silly reify mark retired [
+119 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/react-dom'
+119 silly reify ]
+120 silly reify mark retired [ '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/uuid' ]
+121 silly reify mark retired [
+121 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@vitejs/plugin-react'
+121 silly reify ]
+122 silly reify mark retired [
+122 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/detect-libc',
+122 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/detect-libc'
+122 silly reify ]
+123 silly reify mark retired [
+123 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/esbuild',
+123 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/esbuild'
+123 silly reify ]
+124 silly reify mark retired [
+124 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/jsesc',
+124 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/jsesc'
+124 silly reify ]
+125 silly reify mark retired [
+125 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/json5',
+125 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/json5'
+125 silly reify ]
+126 silly reify mark retired [
+126 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/loose-envify',
+126 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/loose-envify'
+126 silly reify ]
+127 silly reify mark retired [
+127 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/nanoid',
+127 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/nanoid'
+127 silly reify ]
+128 silly reify mark retired [
+128 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/semver',
+128 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/semver'
+128 silly reify ]
+129 silly reify mark retired [
+129 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/update-browserslist-db',
+129 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/update-browserslist-db'
+129 silly reify ]
+130 silly reify mark retired [
+130 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/uuid',
+130 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/uuid'
+130 silly reify ]
+131 silly reify moves {
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/baseline-browser-mapping': '/home/stags/Source/Tessaro/apps/admin/node_modules/.baseline-browser-mapping-kxfriwsF',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/browserslist': '/home/stags/Source/Tessaro/apps/admin/node_modules/.browserslist-yxSF1jIB',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/caniuse-lite': '/home/stags/Source/Tessaro/apps/admin/node_modules/.caniuse-lite-4VGPeNAI',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/debug': '/home/stags/Source/Tessaro/apps/admin/node_modules/.debug-ax1jBWiU',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/electron-to-chromium': '/home/stags/Source/Tessaro/apps/admin/node_modules/.electron-to-chromium-njbKGNhf',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/fsevents': '/home/stags/Source/Tessaro/apps/admin/node_modules/.fsevents-OA3lgZVe',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/immutable': '/home/stags/Source/Tessaro/apps/admin/node_modules/.immutable-kCBrCJxN',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/node-releases': '/home/stags/Source/Tessaro/apps/admin/node_modules/.node-releases-8gOb9NfL',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/postcss': '/home/stags/Source/Tessaro/apps/admin/node_modules/.postcss-Nhp4Ab66',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/react-refresh': '/home/stags/Source/Tessaro/apps/admin/node_modules/.react-refresh-4hzdm9Lu',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/react-router': '/home/stags/Source/Tessaro/apps/admin/node_modules/.react-router-6CoFd4MP',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/react-router-dom': '/home/stags/Source/Tessaro/apps/admin/node_modules/.react-router-dom-ZJFTvhjo',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/rollup': '/home/stags/Source/Tessaro/apps/admin/node_modules/.rollup-6umSstAP',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/sass': '/home/stags/Source/Tessaro/apps/admin/node_modules/.sass-cB1lt0Cb',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/typescript': '/home/stags/Source/Tessaro/apps/admin/node_modules/.typescript-GTidXi9p',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/vite': '/home/stags/Source/Tessaro/apps/admin/node_modules/.vite-VTfjdeg3',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/code-frame': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.code-frame-zrJfpTVP',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/compat-data': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.compat-data-y4QMoDm7',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/core': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.core-FE23IUrC',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/generator': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.generator-frpabjcm',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-compilation-targets': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.helper-compilation-targets-uqH4Dph6',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-globals': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.helper-globals-xOJd1nnH',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-module-imports': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.helper-module-imports-qu9Xv7Og',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-module-transforms': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.helper-module-transforms-yhQ8jlBY',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-plugin-utils': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.helper-plugin-utils-wW0Rzun2',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-string-parser': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.helper-string-parser-DsfP4H2W',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-validator-identifier': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.helper-validator-identifier-iuUoEOLX',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helper-validator-option': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.helper-validator-option-KoNA4gN4',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/helpers': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.helpers-oLr5PYMV',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/parser': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.parser-DTbtaMhF',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/plugin-transform-react-jsx-self': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.plugin-transform-react-jsx-self-FjgrIaPh',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/plugin-transform-react-jsx-source': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.plugin-transform-react-jsx-source-B2AVkstw',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/template': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.template-lmBNK29l',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/traverse': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.traverse-2Sk1bgaY',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/types': '/home/stags/Source/Tessaro/apps/admin/node_modules/@babel/.types-NblrwHCs',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/aix-ppc64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.aix-ppc64-k7e2l5el',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/android-arm': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.android-arm-VxZKlxa7',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/android-arm64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.android-arm64-ImjyPVGV',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/android-x64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.android-x64-Vs2ct3OP',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/darwin-arm64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.darwin-arm64-CZyCpsP0',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/darwin-x64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.darwin-x64-Lz1nu3CD',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/freebsd-arm64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.freebsd-arm64-GZLl0Jf6',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/freebsd-x64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.freebsd-x64-QgxnIhv5',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-arm': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.linux-arm-tkgS4Q7v',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-arm64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.linux-arm64-eZWtXqWr',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-ia32': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.linux-ia32-6iJf0dOq',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-loong64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.linux-loong64-3aaJeDZh',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-mips64el': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.linux-mips64el-Hqc1Scpg',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-ppc64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.linux-ppc64-nM54X7p2',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-riscv64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.linux-riscv64-omX96P0U',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-s390x': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.linux-s390x-oVfeRsO0',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/netbsd-x64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.netbsd-x64-cQ9L9ait',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/openbsd-x64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.openbsd-x64-J8iJsPRo',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/sunos-x64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.sunos-x64-Mjz9pxoN',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/win32-arm64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.win32-arm64-ludzWpKf',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/win32-ia32': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.win32-ia32-HdlgFrhH',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/win32-x64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/.win32-x64-4PLH5WF2',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@jridgewell/gen-mapping': '/home/stags/Source/Tessaro/apps/admin/node_modules/@jridgewell/.gen-mapping-hngXvOqW',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@jridgewell/remapping': '/home/stags/Source/Tessaro/apps/admin/node_modules/@jridgewell/.remapping-NwHUitf5',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@jridgewell/sourcemap-codec': '/home/stags/Source/Tessaro/apps/admin/node_modules/@jridgewell/.sourcemap-codec-HFovHTzN',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@jridgewell/trace-mapping': '/home/stags/Source/Tessaro/apps/admin/node_modules/@jridgewell/.trace-mapping-Gv4vwyDF',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@noble/hashes': '/home/stags/Source/Tessaro/apps/admin/node_modules/@noble/.hashes-7OKOJNO6',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@paralleldrive/cuid2': '/home/stags/Source/Tessaro/apps/admin/node_modules/@paralleldrive/.cuid2-PbHvLJ8h',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-android-arm64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/.watcher-android-arm64-aM127J8H',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-darwin-arm64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/.watcher-darwin-arm64-s0dpHjNE',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-darwin-x64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/.watcher-darwin-x64-s4VFr1AG',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-freebsd-x64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/.watcher-freebsd-x64-Ss73ezJ2',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm-glibc': '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/.watcher-linux-arm-glibc-Pzkn3C5E',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm-musl': '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/.watcher-linux-arm-musl-hFpbTLRL',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm64-glibc': '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/.watcher-linux-arm64-glibc-z0ONUb1O',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm64-musl': '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/.watcher-linux-arm64-musl-WlwHYOxC',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-win32-arm64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/.watcher-win32-arm64-sDL2DTya',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-win32-ia32': '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/.watcher-win32-ia32-iKvHGscP',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-win32-x64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/.watcher-win32-x64-ZbN165kD',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@remix-run/router': '/home/stags/Source/Tessaro/apps/admin/node_modules/@remix-run/.router-S8FxeYFC',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rolldown/pluginutils': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rolldown/.pluginutils-1xyZsj7v',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-android-arm-eabi': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-android-arm-eabi-SM4LlOSz',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-android-arm64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-android-arm64-LPIt8ylZ',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-darwin-arm64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-darwin-arm64-k0CPPU4o',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-darwin-x64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-darwin-x64-XujEPfAK',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-freebsd-arm64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-freebsd-arm64-7kiiMU2A',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-freebsd-x64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-freebsd-x64-xB0ep7xD',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm-gnueabihf': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-linux-arm-gnueabihf-UDeHF6o6',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm-musleabihf': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-linux-arm-musleabihf-8B9MaHeR',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm64-gnu': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-linux-arm64-gnu-3lugCtwU',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm64-musl': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-linux-arm64-musl-NCL5Q1f8',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-loong64-gnu': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-linux-loong64-gnu-ygdssl0K',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-ppc64-gnu': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-linux-ppc64-gnu-T8HSrY0v',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-riscv64-gnu': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-linux-riscv64-gnu-ZUA6aY1M',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-riscv64-musl': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-linux-riscv64-musl-EALdCWNI',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-s390x-gnu': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-linux-s390x-gnu-TS7qLnI9',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-x64-gnu': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-linux-x64-gnu-OGxuoNCx',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-x64-musl': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-linux-x64-musl-mwrxYEV5',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-openharmony-arm64': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-openharmony-arm64-FqU1m53Y',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-arm64-msvc': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-win32-arm64-msvc-CZxFkCor',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-ia32-msvc': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-win32-ia32-msvc-bgFQcwIA',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-x64-gnu': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-win32-x64-gnu-TzWcvxoy',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-x64-msvc': '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/.rollup-win32-x64-msvc-vevkKslR',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/babel__generator': '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/.babel__generator-korx0fXd',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/babel__traverse': '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/.babel__traverse-mTUYDUfM',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/estree': '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/.estree-2ju6vGoO',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/node': '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/.node-0Ataj2nR',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/prop-types': '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/.prop-types-xG75PTmA',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/react': '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/.react-hrDgi4Za',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/react-dom': '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/.react-dom-mkNm1vho',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/uuid': '/home/stags/Source/Tessaro/apps/admin/node_modules/@types/.uuid-POkpZlpV',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@vitejs/plugin-react': '/home/stags/Source/Tessaro/apps/admin/node_modules/@vitejs/.plugin-react-a0b1Ft4J',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/detect-libc': '/home/stags/Source/Tessaro/apps/admin/node_modules/.detect-libc-CfgZywQw',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/detect-libc': '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/.detect-libc-E8FsoiOc',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/esbuild': '/home/stags/Source/Tessaro/apps/admin/node_modules/.esbuild-Oh06exXh',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/esbuild': '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/.esbuild-2uGBsowh',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/jsesc': '/home/stags/Source/Tessaro/apps/admin/node_modules/.jsesc-EicxMSk0',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/jsesc': '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/.jsesc-5NR5ZXk6',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/json5': '/home/stags/Source/Tessaro/apps/admin/node_modules/.json5-NnvRpV8k',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/json5': '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/.json5-wqyVsAq6',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/loose-envify': '/home/stags/Source/Tessaro/apps/admin/node_modules/.loose-envify-xxcc1awh',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/loose-envify': '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/.loose-envify-2QC8UF2h',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/nanoid': '/home/stags/Source/Tessaro/apps/admin/node_modules/.nanoid-fueU8bss',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/nanoid': '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/.nanoid-wthrYo7P',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/semver': '/home/stags/Source/Tessaro/apps/admin/node_modules/.semver-9U58DGKP',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/semver': '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/.semver-qrOtI2iX',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/update-browserslist-db': '/home/stags/Source/Tessaro/apps/admin/node_modules/.update-browserslist-db-FKtA2T4c',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/update-browserslist-db': '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/.update-browserslist-db-8hamrDj9',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/uuid': '/home/stags/Source/Tessaro/apps/admin/node_modules/.uuid-BNZsEq2k',
+131 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/uuid': '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/.uuid-VmRrqy3Q'
+131 silly reify }
+132 silly audit bulk request {
+132 silly audit   '@babel/code-frame': [ '7.27.1' ],
+132 silly audit   '@babel/compat-data': [ '7.28.4' ],
+132 silly audit   '@babel/core': [ '7.28.4' ],
+132 silly audit   '@babel/generator': [ '7.28.3' ],
+132 silly audit   '@babel/helper-compilation-targets': [ '7.27.2' ],
+132 silly audit   '@babel/helper-globals': [ '7.28.0' ],
+132 silly audit   '@babel/helper-module-imports': [ '7.27.1' ],
+132 silly audit   '@babel/helper-module-transforms': [ '7.28.3' ],
+132 silly audit   '@babel/helper-plugin-utils': [ '7.27.1' ],
+132 silly audit   '@babel/helper-string-parser': [ '7.27.1' ],
+132 silly audit   '@babel/helper-validator-identifier': [ '7.27.1' ],
+132 silly audit   '@babel/helper-validator-option': [ '7.27.1' ],
+132 silly audit   '@babel/helpers': [ '7.28.4' ],
+132 silly audit   '@babel/parser': [ '7.28.4' ],
+132 silly audit   '@babel/plugin-transform-react-jsx-self': [ '7.27.1' ],
+132 silly audit   '@babel/plugin-transform-react-jsx-source': [ '7.27.1' ],
+132 silly audit   '@babel/template': [ '7.27.2' ],
+132 silly audit   '@babel/traverse': [ '7.28.4' ],
+132 silly audit   '@babel/types': [ '7.28.4' ],
+132 silly audit   '@esbuild/aix-ppc64': [ '0.21.5' ],
+132 silly audit   '@esbuild/android-arm': [ '0.21.5' ],
+132 silly audit   '@esbuild/android-arm64': [ '0.21.5' ],
+132 silly audit   '@esbuild/android-x64': [ '0.21.5' ],
+132 silly audit   '@esbuild/darwin-arm64': [ '0.21.5' ],
+132 silly audit   '@esbuild/darwin-x64': [ '0.21.5' ],
+132 silly audit   '@esbuild/freebsd-arm64': [ '0.21.5' ],
+132 silly audit   '@esbuild/freebsd-x64': [ '0.21.5' ],
+132 silly audit   '@esbuild/linux-arm': [ '0.21.5' ],
+132 silly audit   '@esbuild/linux-arm64': [ '0.21.5' ],
+132 silly audit   '@esbuild/linux-ia32': [ '0.21.5' ],
+132 silly audit   '@esbuild/linux-loong64': [ '0.21.5' ],
+132 silly audit   '@esbuild/linux-mips64el': [ '0.21.5' ],
+132 silly audit   '@esbuild/linux-ppc64': [ '0.21.5' ],
+132 silly audit   '@esbuild/linux-riscv64': [ '0.21.5' ],
+132 silly audit   '@esbuild/linux-s390x': [ '0.21.5' ],
+132 silly audit   '@esbuild/linux-x64': [ '0.21.5' ],
+132 silly audit   '@esbuild/netbsd-x64': [ '0.21.5' ],
+132 silly audit   '@esbuild/openbsd-x64': [ '0.21.5' ],
+132 silly audit   '@esbuild/sunos-x64': [ '0.21.5' ],
+132 silly audit   '@esbuild/win32-arm64': [ '0.21.5' ],
+132 silly audit   '@esbuild/win32-ia32': [ '0.21.5' ],
+132 silly audit   '@esbuild/win32-x64': [ '0.21.5' ],
+132 silly audit   '@jridgewell/gen-mapping': [ '0.3.13' ],
+132 silly audit   '@jridgewell/remapping': [ '2.3.5' ],
+132 silly audit   '@jridgewell/resolve-uri': [ '3.1.2' ],
+132 silly audit   '@jridgewell/sourcemap-codec': [ '1.5.5' ],
+132 silly audit   '@jridgewell/trace-mapping': [ '0.3.31' ],
+132 silly audit   '@noble/hashes': [ '1.8.0' ],
+132 silly audit   '@paralleldrive/cuid2': [ '2.2.2' ],
+132 silly audit   '@parcel/watcher': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-android-arm64': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-darwin-arm64': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-darwin-x64': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-freebsd-x64': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-linux-arm-glibc': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-linux-arm-musl': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-linux-arm64-glibc': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-linux-arm64-musl': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-linux-x64-glibc': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-linux-x64-musl': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-win32-arm64': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-win32-ia32': [ '2.5.1' ],
+132 silly audit   '@parcel/watcher-win32-x64': [ '2.5.1' ],
+132 silly audit   '@remix-run/router': [ '1.23.0' ],
+132 silly audit   '@rolldown/pluginutils': [ '1.0.0-beta.27' ],
+132 silly audit   '@rollup/rollup-android-arm-eabi': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-android-arm64': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-darwin-arm64': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-darwin-x64': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-freebsd-arm64': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-freebsd-x64': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-linux-arm-gnueabihf': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-linux-arm-musleabihf': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-linux-arm64-gnu': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-linux-arm64-musl': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-linux-loong64-gnu': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-linux-ppc64-gnu': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-linux-riscv64-gnu': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-linux-riscv64-musl': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-linux-s390x-gnu': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-linux-x64-gnu': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-linux-x64-musl': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-openharmony-arm64': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-win32-arm64-msvc': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-win32-ia32-msvc': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-win32-x64-gnu': [ '4.52.2' ],
+132 silly audit   '@rollup/rollup-win32-x64-msvc': [ '4.52.2' ],
+132 silly audit   '@types/babel__core': [ '7.20.5' ],
+132 silly audit   '@types/babel__generator': [ '7.27.0' ],
+132 silly audit   '@types/babel__template': [ '7.4.4' ],
+132 silly audit   '@types/babel__traverse': [ '7.28.0' ],
+132 silly audit   '@types/estree': [ '1.0.8' ],
+132 silly audit   '@types/node': [ '20.19.17' ],
+132 silly audit   '@types/prop-types': [ '15.7.15' ],
+132 silly audit   '@types/react': [ '18.3.24' ],
+132 silly audit   '@types/react-dom': [ '18.3.7' ],
+132 silly audit   '@types/uuid': [ '10.0.0' ],
+132 silly audit   '@vitejs/plugin-react': [ '4.7.0' ],
+132 silly audit   'baseline-browser-mapping': [ '2.8.7' ],
+132 silly audit   braces: [ '3.0.3' ],
+132 silly audit   browserslist: [ '4.26.2' ],
+132 silly audit   'caniuse-lite': [ '1.0.30001745' ],
+132 silly audit   chokidar: [ '4.0.3' ],
+132 silly audit   'convert-source-map': [ '2.0.0' ],
+132 silly audit   csstype: [ '3.1.3' ],
+132 silly audit   debug: [ '4.4.3' ],
+132 silly audit   'detect-libc': [ '1.0.3' ],
+132 silly audit   'electron-to-chromium': [ '1.5.224' ],
+132 silly audit   esbuild: [ '0.21.5' ],
+132 silly audit   escalade: [ '3.2.0' ],
+132 silly audit   'fill-range': [ '7.1.1' ],
+132 silly audit   fsevents: [ '2.3.3' ],
+132 silly audit   gensync: [ '1.0.0-beta.2' ],
+132 silly audit   immutable: [ '5.1.3' ],
+132 silly audit   'is-extglob': [ '2.1.1' ],
+132 silly audit   'is-glob': [ '4.0.3' ],
+132 silly audit   'is-number': [ '7.0.0' ],
+132 silly audit   'js-tokens': [ '4.0.0' ],
+132 silly audit   jsesc: [ '3.1.0' ],
+132 silly audit   json5: [ '2.2.3' ],
+132 silly audit   'loose-envify': [ '1.4.0' ],
+132 silly audit   'lru-cache': [ '5.1.1' ],
+132 silly audit   micromatch: [ '4.0.8' ],
+132 silly audit   ms: [ '2.1.3' ],
+132 silly audit   nanoid: [ '3.3.11' ],
+132 silly audit   'node-addon-api': [ '7.1.1' ],
+132 silly audit   'node-releases': [ '2.0.21' ],
+132 silly audit   picocolors: [ '1.1.1' ],
+132 silly audit   picomatch: [ '2.3.1' ],
+132 silly audit   postcss: [ '8.5.6' ],
+132 silly audit   react: [ '18.3.1' ],
+132 silly audit   'react-dom': [ '18.3.1' ],
+132 silly audit   'react-refresh': [ '0.17.0' ],
+132 silly audit   'react-router': [ '6.30.1' ],
+132 silly audit   'react-router-dom': [ '6.30.1' ],
+132 silly audit   readdirp: [ '4.1.2' ],
+132 silly audit   rollup: [ '4.52.2' ],
+132 silly audit   sass: [ '1.93.2' ],
+132 silly audit   scheduler: [ '0.23.2' ],
+132 silly audit   semver: [ '6.3.1' ],
+132 silly audit   'source-map-js': [ '1.2.1' ],
+132 silly audit   'to-regex-range': [ '5.0.1' ],
+132 silly audit   typescript: [ '5.9.2' ],
+132 silly audit   'undici-types': [ '6.21.0' ],
+132 silly audit   'update-browserslist-db': [ '1.1.3' ],
+132 silly audit   uuid: [ '9.0.1' ],
+132 silly audit   vite: [ '5.4.20' ],
+132 silly audit   yallist: [ '3.1.1' ]
+132 silly audit }
+133 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-x64-msvc
+134 silly reify mark deleted [
+134 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-x64-msvc'
+134 silly reify ]
+135 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-x64-gnu
+136 silly reify mark deleted [
+136 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-x64-gnu'
+136 silly reify ]
+137 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-ia32-msvc
+138 silly reify mark deleted [
+138 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-ia32-msvc'
+138 silly reify ]
+139 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-arm64-msvc
+140 silly reify mark deleted [
+140 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-win32-arm64-msvc'
+140 silly reify ]
+141 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-openharmony-arm64
+142 silly reify mark deleted [
+142 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-openharmony-arm64'
+142 silly reify ]
+143 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-s390x-gnu
+144 silly reify mark deleted [
+144 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-s390x-gnu'
+144 silly reify ]
+145 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-riscv64-musl
+146 silly reify mark deleted [
+146 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-riscv64-musl'
+146 silly reify ]
+147 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-riscv64-gnu
+148 silly reify mark deleted [
+148 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-riscv64-gnu'
+148 silly reify ]
+149 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-ppc64-gnu
+150 silly reify mark deleted [
+150 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-ppc64-gnu'
+150 silly reify ]
+151 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-loong64-gnu
+152 silly reify mark deleted [
+152 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-loong64-gnu'
+152 silly reify ]
+153 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm64-musl
+154 silly reify mark deleted [
+154 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm64-musl'
+154 silly reify ]
+155 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm64-gnu
+156 silly reify mark deleted [
+156 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm64-gnu'
+156 silly reify ]
+157 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm-musleabihf
+158 silly reify mark deleted [
+158 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm-musleabihf'
+158 silly reify ]
+159 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm-gnueabihf
+160 silly reify mark deleted [
+160 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-linux-arm-gnueabihf'
+160 silly reify ]
+161 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-freebsd-x64
+162 silly reify mark deleted [
+162 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-freebsd-x64'
+162 silly reify ]
+163 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-freebsd-arm64
+164 silly reify mark deleted [
+164 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-freebsd-arm64'
+164 silly reify ]
+165 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-darwin-x64
+166 silly reify mark deleted [
+166 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-darwin-x64'
+166 silly reify ]
+167 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-darwin-arm64
+168 silly reify mark deleted [
+168 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-darwin-arm64'
+168 silly reify ]
+169 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-android-arm64
+170 silly reify mark deleted [
+170 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-android-arm64'
+170 silly reify ]
+171 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-android-arm-eabi
+172 silly reify mark deleted [
+172 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@rollup/rollup-android-arm-eabi'
+172 silly reify ]
+173 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-win32-x64
+174 silly reify mark deleted [
+174 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-win32-x64'
+174 silly reify ]
+175 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-win32-ia32
+176 silly reify mark deleted [
+176 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-win32-ia32'
+176 silly reify ]
+177 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-win32-arm64
+178 silly reify mark deleted [
+178 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-win32-arm64'
+178 silly reify ]
+179 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm64-musl
+180 silly reify mark deleted [
+180 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm64-musl'
+180 silly reify ]
+181 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm64-glibc
+182 silly reify mark deleted [
+182 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm64-glibc'
+182 silly reify ]
+183 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm-musl
+184 silly reify mark deleted [
+184 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm-musl'
+184 silly reify ]
+185 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm-glibc
+186 silly reify mark deleted [
+186 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-linux-arm-glibc'
+186 silly reify ]
+187 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-freebsd-x64
+188 silly reify mark deleted [
+188 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-freebsd-x64'
+188 silly reify ]
+189 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-darwin-x64
+190 silly reify mark deleted [
+190 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-darwin-x64'
+190 silly reify ]
+191 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-darwin-arm64
+192 silly reify mark deleted [
+192 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-darwin-arm64'
+192 silly reify ]
+193 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-android-arm64
+194 silly reify mark deleted [
+194 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher-android-arm64'
+194 silly reify ]
+195 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/win32-x64
+196 silly reify mark deleted [
+196 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/win32-x64'
+196 silly reify ]
+197 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/win32-ia32
+198 silly reify mark deleted [
+198 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/win32-ia32'
+198 silly reify ]
+199 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/win32-arm64
+200 silly reify mark deleted [
+200 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/win32-arm64'
+200 silly reify ]
+201 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/sunos-x64
+202 silly reify mark deleted [
+202 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/sunos-x64'
+202 silly reify ]
+203 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/openbsd-x64
+204 silly reify mark deleted [
+204 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/openbsd-x64'
+204 silly reify ]
+205 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/netbsd-x64
+206 silly reify mark deleted [
+206 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/netbsd-x64'
+206 silly reify ]
+207 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-s390x
+208 silly reify mark deleted [
+208 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-s390x'
+208 silly reify ]
+209 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-riscv64
+210 silly reify mark deleted [
+210 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-riscv64'
+210 silly reify ]
+211 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-ppc64
+212 silly reify mark deleted [
+212 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-ppc64'
+212 silly reify ]
+213 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-mips64el
+214 silly reify mark deleted [
+214 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-mips64el'
+214 silly reify ]
+215 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-loong64
+216 silly reify mark deleted [
+216 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-loong64'
+216 silly reify ]
+217 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-ia32
+218 silly reify mark deleted [
+218 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-ia32'
+218 silly reify ]
+219 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-arm64
+220 silly reify mark deleted [
+220 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-arm64'
+220 silly reify ]
+221 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-arm
+222 silly reify mark deleted [
+222 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/linux-arm'
+222 silly reify ]
+223 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/freebsd-x64
+224 silly reify mark deleted [
+224 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/freebsd-x64'
+224 silly reify ]
+225 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/freebsd-arm64
+226 silly reify mark deleted [
+226 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/freebsd-arm64'
+226 silly reify ]
+227 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/darwin-x64
+228 silly reify mark deleted [
+228 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/darwin-x64'
+228 silly reify ]
+229 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/darwin-arm64
+230 silly reify mark deleted [
+230 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/darwin-arm64'
+230 silly reify ]
+231 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/android-x64
+232 silly reify mark deleted [
+232 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/android-x64'
+232 silly reify ]
+233 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/android-arm64
+234 silly reify mark deleted [
+234 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/android-arm64'
+234 silly reify ]
+235 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/android-arm
+236 silly reify mark deleted [
+236 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/android-arm'
+236 silly reify ]
+237 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/aix-ppc64
+238 silly reify mark deleted [
+238 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@esbuild/aix-ppc64'
+238 silly reify ]
+239 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/fsevents
+240 silly reify mark deleted [ '/home/stags/Source/Tessaro/apps/admin/node_modules/fsevents' ]
+241 verbose audit error FetchError: request to https://registry.npmjs.org/-/npm/v1/security/advisories/bulk failed, reason: getaddrinfo EAI_AGAIN registry.npmjs.org
+241 verbose audit error     at ClientRequest.<anonymous> (/usr/lib/node_modules/npm/node_modules/minipass-fetch/lib/index.js:130:14)
+241 verbose audit error     at ClientRequest.emit (node:events:524:28)
+241 verbose audit error     at emitErrorEvent (node:_http_client:101:11)
+241 verbose audit error     at _destroy (node:_http_client:884:9)
+241 verbose audit error     at onSocketNT (node:_http_client:904:5)
+241 verbose audit error     at process.processTicksAndRejections (node:internal/process/task_queues:83:21) {
+241 verbose audit error   code: 'EAI_AGAIN',
+241 verbose audit error   errno: 'EAI_AGAIN',
+241 verbose audit error   syscall: 'getaddrinfo',
+241 verbose audit error   hostname: 'registry.npmjs.org',
+241 verbose audit error   type: 'system'
+241 verbose audit error }
+242 silly audit error undefined
+243 silly audit report null
+244 http cache uuid@https://registry.npmjs.org/uuid/-/uuid-9.0.1.tgz 1ms (cache hit)
+245 http cache update-browserslist-db@https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.1.3.tgz 0ms (cache hit)
+246 http cache loose-envify@https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz 0ms (cache hit)
+247 http cache json5@https://registry.npmjs.org/json5/-/json5-2.2.3.tgz 0ms (cache hit)
+248 http cache nanoid@https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz 0ms (cache hit)
+249 http cache jsesc@https://registry.npmjs.org/jsesc/-/jsesc-3.1.0.tgz 0ms (cache hit)
+250 http cache esbuild@https://registry.npmjs.org/esbuild/-/esbuild-0.21.5.tgz 0ms (cache hit)
+251 http cache @vitejs/plugin-react@https://registry.npmjs.org/@vitejs/plugin-react/-/plugin-react-4.7.0.tgz 0ms (cache hit)
+252 http cache detect-libc@https://registry.npmjs.org/detect-libc/-/detect-libc-1.0.3.tgz 1ms (cache hit)
+253 http cache @types/uuid@https://registry.npmjs.org/@types/uuid/-/uuid-10.0.0.tgz 0ms (cache hit)
+254 http cache @types/react-dom@https://registry.npmjs.org/@types/react-dom/-/react-dom-18.3.7.tgz 0ms (cache hit)
+255 http cache @types/prop-types@https://registry.npmjs.org/@types/prop-types/-/prop-types-15.7.15.tgz 0ms (cache hit)
+256 http cache semver@https://registry.npmjs.org/semver/-/semver-6.3.1.tgz 0ms (cache hit)
+257 http cache @types/react@https://registry.npmjs.org/@types/react/-/react-18.3.24.tgz 0ms (cache hit)
+258 http cache @types/node@https://registry.npmjs.org/@types/node/-/node-20.19.17.tgz 0ms (cache hit)
+259 http cache @types/estree@https://registry.npmjs.org/@types/estree/-/estree-1.0.8.tgz 0ms (cache hit)
+260 http cache @types/babel__generator@https://registry.npmjs.org/@types/babel__generator/-/babel__generator-7.27.0.tgz 0ms (cache hit)
+261 http cache @rollup/rollup-linux-x64-musl@https://registry.npmjs.org/@rollup/rollup-linux-x64-musl/-/rollup-linux-x64-musl-4.52.2.tgz 0ms (cache hit)
+262 http cache @rolldown/pluginutils@https://registry.npmjs.org/@rolldown/pluginutils/-/pluginutils-1.0.0-beta.27.tgz 0ms (cache hit)
+263 http cache @rollup/rollup-linux-x64-gnu@https://registry.npmjs.org/@rollup/rollup-linux-x64-gnu/-/rollup-linux-x64-gnu-4.52.2.tgz 0ms (cache hit)
+264 http cache @types/babel__traverse@https://registry.npmjs.org/@types/babel__traverse/-/babel__traverse-7.28.0.tgz 0ms (cache hit)
+265 http cache @paralleldrive/cuid2@https://registry.npmjs.org/@paralleldrive/cuid2/-/cuid2-2.2.2.tgz 0ms (cache hit)
+266 http cache @remix-run/router@https://registry.npmjs.org/@remix-run/router/-/router-1.23.0.tgz 0ms (cache hit)
+267 http cache @jridgewell/sourcemap-codec@https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.5.tgz 0ms (cache hit)
+268 http cache @noble/hashes@https://registry.npmjs.org/@noble/hashes/-/hashes-1.8.0.tgz 0ms (cache hit)
+269 http cache @jridgewell/remapping@https://registry.npmjs.org/@jridgewell/remapping/-/remapping-2.3.5.tgz 0ms (cache hit)
+270 http cache @jridgewell/trace-mapping@https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.31.tgz 0ms (cache hit)
+271 http cache @jridgewell/gen-mapping@https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.13.tgz 0ms (cache hit)
+272 http cache @babel/types@https://registry.npmjs.org/@babel/types/-/types-7.28.4.tgz 0ms (cache hit)
+273 http cache @babel/traverse@https://registry.npmjs.org/@babel/traverse/-/traverse-7.28.4.tgz 0ms (cache hit)
+274 http cache @babel/plugin-transform-react-jsx-source@https://registry.npmjs.org/@babel/plugin-transform-react-jsx-source/-/plugin-transform-react-jsx-source-7.27.1.tgz 0ms (cache hit)
+275 http cache @babel/plugin-transform-react-jsx-self@https://registry.npmjs.org/@babel/plugin-transform-react-jsx-self/-/plugin-transform-react-jsx-self-7.27.1.tgz 0ms (cache hit)
+276 http cache @babel/parser@https://registry.npmjs.org/@babel/parser/-/parser-7.28.4.tgz 0ms (cache hit)
+277 http cache @babel/helpers@https://registry.npmjs.org/@babel/helpers/-/helpers-7.28.4.tgz 0ms (cache hit)
+278 http cache @babel/helper-validator-identifier@https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.27.1.tgz 0ms (cache hit)
+279 http cache @babel/helper-string-parser@https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.27.1.tgz 0ms (cache hit)
+280 http cache @babel/helper-validator-option@https://registry.npmjs.org/@babel/helper-validator-option/-/helper-validator-option-7.27.1.tgz 0ms (cache hit)
+281 http cache @babel/helper-plugin-utils@https://registry.npmjs.org/@babel/helper-plugin-utils/-/helper-plugin-utils-7.27.1.tgz 0ms (cache hit)
+282 http cache @babel/helper-module-transforms@https://registry.npmjs.org/@babel/helper-module-transforms/-/helper-module-transforms-7.28.3.tgz 0ms (cache hit)
+283 http cache @babel/template@https://registry.npmjs.org/@babel/template/-/template-7.27.2.tgz 0ms (cache hit)
+284 http cache @babel/helper-globals@https://registry.npmjs.org/@babel/helper-globals/-/helper-globals-7.28.0.tgz 0ms (cache hit)
+285 http cache @babel/helper-compilation-targets@https://registry.npmjs.org/@babel/helper-compilation-targets/-/helper-compilation-targets-7.27.2.tgz 0ms (cache hit)
+286 http cache @babel/helper-module-imports@https://registry.npmjs.org/@babel/helper-module-imports/-/helper-module-imports-7.27.1.tgz 0ms (cache hit)
+287 http cache @babel/core@https://registry.npmjs.org/@babel/core/-/core-7.28.4.tgz 0ms (cache hit)
+288 http cache @babel/compat-data@https://registry.npmjs.org/@babel/compat-data/-/compat-data-7.28.4.tgz 0ms (cache hit)
+289 http cache @babel/generator@https://registry.npmjs.org/@babel/generator/-/generator-7.28.3.tgz 0ms (cache hit)
+290 http cache @babel/code-frame@https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.27.1.tgz 0ms (cache hit)
+291 http cache typescript@https://registry.npmjs.org/typescript/-/typescript-5.9.2.tgz 0ms (cache hit)
+292 http cache vite@https://registry.npmjs.org/vite/-/vite-5.4.20.tgz 0ms (cache hit)
+293 http cache sass@https://registry.npmjs.org/sass/-/sass-1.93.2.tgz 0ms (cache hit)
+294 http cache rollup@https://registry.npmjs.org/rollup/-/rollup-4.52.2.tgz 0ms (cache hit)
+295 http cache react-router-dom@https://registry.npmjs.org/react-router-dom/-/react-router-dom-6.30.1.tgz 0ms (cache hit)
+296 http cache react-router@https://registry.npmjs.org/react-router/-/react-router-6.30.1.tgz 0ms (cache hit)
+297 http cache node-releases@https://registry.npmjs.org/node-releases/-/node-releases-2.0.21.tgz 0ms (cache hit)
+298 http cache react-refresh@https://registry.npmjs.org/react-refresh/-/react-refresh-0.17.0.tgz 0ms (cache hit)
+299 http cache postcss@https://registry.npmjs.org/postcss/-/postcss-8.5.6.tgz 0ms (cache hit)
+300 http cache immutable@https://registry.npmjs.org/immutable/-/immutable-5.1.3.tgz 0ms (cache hit)
+301 http cache electron-to-chromium@https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.224.tgz 0ms (cache hit)
+302 http cache browserslist@https://registry.npmjs.org/browserslist/-/browserslist-4.26.2.tgz 0ms (cache hit)
+303 http cache caniuse-lite@https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001745.tgz 0ms (cache hit)
+304 http cache debug@https://registry.npmjs.org/debug/-/debug-4.4.3.tgz 0ms (cache hit)
+305 http cache baseline-browser-mapping@https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.8.7.tgz 0ms (cache hit)
+306 silly tarball no local data for uuid@https://registry.npmjs.org/uuid/-/uuid-9.0.1.tgz. Extracting by manifest.
+307 silly tarball no local data for update-browserslist-db@https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.1.3.tgz. Extracting by manifest.
+308 silly tarball no local data for loose-envify@https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz. Extracting by manifest.
+309 silly tarball no local data for json5@https://registry.npmjs.org/json5/-/json5-2.2.3.tgz. Extracting by manifest.
+310 silly tarball no local data for nanoid@https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz. Extracting by manifest.
+311 silly tarball no local data for jsesc@https://registry.npmjs.org/jsesc/-/jsesc-3.1.0.tgz. Extracting by manifest.
+312 silly tarball no local data for esbuild@https://registry.npmjs.org/esbuild/-/esbuild-0.21.5.tgz. Extracting by manifest.
+313 silly tarball no local data for @vitejs/plugin-react@https://registry.npmjs.org/@vitejs/plugin-react/-/plugin-react-4.7.0.tgz. Extracting by manifest.
+314 silly tarball no local data for detect-libc@https://registry.npmjs.org/detect-libc/-/detect-libc-1.0.3.tgz. Extracting by manifest.
+315 silly tarball no local data for @types/uuid@https://registry.npmjs.org/@types/uuid/-/uuid-10.0.0.tgz. Extracting by manifest.
+316 silly tarball no local data for @types/react-dom@https://registry.npmjs.org/@types/react-dom/-/react-dom-18.3.7.tgz. Extracting by manifest.
+317 silly tarball no local data for @types/prop-types@https://registry.npmjs.org/@types/prop-types/-/prop-types-15.7.15.tgz. Extracting by manifest.
+318 silly tarball no local data for semver@https://registry.npmjs.org/semver/-/semver-6.3.1.tgz. Extracting by manifest.
+319 silly tarball no local data for @types/react@https://registry.npmjs.org/@types/react/-/react-18.3.24.tgz. Extracting by manifest.
+320 silly tarball no local data for @types/node@https://registry.npmjs.org/@types/node/-/node-20.19.17.tgz. Extracting by manifest.
+321 silly tarball no local data for @types/estree@https://registry.npmjs.org/@types/estree/-/estree-1.0.8.tgz. Extracting by manifest.
+322 silly tarball no local data for @types/babel__generator@https://registry.npmjs.org/@types/babel__generator/-/babel__generator-7.27.0.tgz. Extracting by manifest.
+323 silly tarball no local data for @rollup/rollup-linux-x64-musl@https://registry.npmjs.org/@rollup/rollup-linux-x64-musl/-/rollup-linux-x64-musl-4.52.2.tgz. Extracting by manifest.
+324 silly tarball no local data for @rolldown/pluginutils@https://registry.npmjs.org/@rolldown/pluginutils/-/pluginutils-1.0.0-beta.27.tgz. Extracting by manifest.
+325 silly tarball no local data for @rollup/rollup-linux-x64-gnu@https://registry.npmjs.org/@rollup/rollup-linux-x64-gnu/-/rollup-linux-x64-gnu-4.52.2.tgz. Extracting by manifest.
+326 silly tarball no local data for @types/babel__traverse@https://registry.npmjs.org/@types/babel__traverse/-/babel__traverse-7.28.0.tgz. Extracting by manifest.
+327 silly tarball no local data for @paralleldrive/cuid2@https://registry.npmjs.org/@paralleldrive/cuid2/-/cuid2-2.2.2.tgz. Extracting by manifest.
+328 silly tarball no local data for @remix-run/router@https://registry.npmjs.org/@remix-run/router/-/router-1.23.0.tgz. Extracting by manifest.
+329 silly tarball no local data for @jridgewell/sourcemap-codec@https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.5.tgz. Extracting by manifest.
+330 silly tarball no local data for @noble/hashes@https://registry.npmjs.org/@noble/hashes/-/hashes-1.8.0.tgz. Extracting by manifest.
+331 silly tarball no local data for @jridgewell/remapping@https://registry.npmjs.org/@jridgewell/remapping/-/remapping-2.3.5.tgz. Extracting by manifest.
+332 silly tarball no local data for @jridgewell/trace-mapping@https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.31.tgz. Extracting by manifest.
+333 silly tarball no local data for @jridgewell/gen-mapping@https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.13.tgz. Extracting by manifest.
+334 silly tarball no local data for @babel/types@https://registry.npmjs.org/@babel/types/-/types-7.28.4.tgz. Extracting by manifest.
+335 silly tarball no local data for @babel/traverse@https://registry.npmjs.org/@babel/traverse/-/traverse-7.28.4.tgz. Extracting by manifest.
+336 silly tarball no local data for @babel/plugin-transform-react-jsx-source@https://registry.npmjs.org/@babel/plugin-transform-react-jsx-source/-/plugin-transform-react-jsx-source-7.27.1.tgz. Extracting by manifest.
+337 silly tarball no local data for @babel/plugin-transform-react-jsx-self@https://registry.npmjs.org/@babel/plugin-transform-react-jsx-self/-/plugin-transform-react-jsx-self-7.27.1.tgz. Extracting by manifest.
+338 silly tarball no local data for @babel/parser@https://registry.npmjs.org/@babel/parser/-/parser-7.28.4.tgz. Extracting by manifest.
+339 silly tarball no local data for @babel/helpers@https://registry.npmjs.org/@babel/helpers/-/helpers-7.28.4.tgz. Extracting by manifest.
+340 silly tarball no local data for @babel/helper-validator-identifier@https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.27.1.tgz. Extracting by manifest.
+341 silly tarball no local data for @babel/helper-string-parser@https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.27.1.tgz. Extracting by manifest.
+342 silly tarball no local data for @babel/helper-validator-option@https://registry.npmjs.org/@babel/helper-validator-option/-/helper-validator-option-7.27.1.tgz. Extracting by manifest.
+343 silly tarball no local data for @babel/helper-plugin-utils@https://registry.npmjs.org/@babel/helper-plugin-utils/-/helper-plugin-utils-7.27.1.tgz. Extracting by manifest.
+344 silly tarball no local data for @babel/helper-module-transforms@https://registry.npmjs.org/@babel/helper-module-transforms/-/helper-module-transforms-7.28.3.tgz. Extracting by manifest.
+345 silly tarball no local data for @babel/template@https://registry.npmjs.org/@babel/template/-/template-7.27.2.tgz. Extracting by manifest.
+346 silly tarball no local data for @babel/helper-globals@https://registry.npmjs.org/@babel/helper-globals/-/helper-globals-7.28.0.tgz. Extracting by manifest.
+347 silly tarball no local data for @babel/helper-compilation-targets@https://registry.npmjs.org/@babel/helper-compilation-targets/-/helper-compilation-targets-7.27.2.tgz. Extracting by manifest.
+348 silly tarball no local data for @babel/helper-module-imports@https://registry.npmjs.org/@babel/helper-module-imports/-/helper-module-imports-7.27.1.tgz. Extracting by manifest.
+349 silly tarball no local data for @babel/core@https://registry.npmjs.org/@babel/core/-/core-7.28.4.tgz. Extracting by manifest.
+350 silly tarball no local data for @babel/compat-data@https://registry.npmjs.org/@babel/compat-data/-/compat-data-7.28.4.tgz. Extracting by manifest.
+351 silly tarball no local data for @babel/generator@https://registry.npmjs.org/@babel/generator/-/generator-7.28.3.tgz. Extracting by manifest.
+352 silly tarball no local data for @babel/code-frame@https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.27.1.tgz. Extracting by manifest.
+353 silly tarball no local data for typescript@https://registry.npmjs.org/typescript/-/typescript-5.9.2.tgz. Extracting by manifest.
+354 silly tarball no local data for vite@https://registry.npmjs.org/vite/-/vite-5.4.20.tgz. Extracting by manifest.
+355 silly tarball no local data for sass@https://registry.npmjs.org/sass/-/sass-1.93.2.tgz. Extracting by manifest.
+356 silly tarball no local data for rollup@https://registry.npmjs.org/rollup/-/rollup-4.52.2.tgz. Extracting by manifest.
+357 silly tarball no local data for react-router-dom@https://registry.npmjs.org/react-router-dom/-/react-router-dom-6.30.1.tgz. Extracting by manifest.
+358 silly tarball no local data for react-router@https://registry.npmjs.org/react-router/-/react-router-6.30.1.tgz. Extracting by manifest.
+359 silly tarball no local data for node-releases@https://registry.npmjs.org/node-releases/-/node-releases-2.0.21.tgz. Extracting by manifest.
+360 silly tarball no local data for react-refresh@https://registry.npmjs.org/react-refresh/-/react-refresh-0.17.0.tgz. Extracting by manifest.
+361 silly tarball no local data for postcss@https://registry.npmjs.org/postcss/-/postcss-8.5.6.tgz. Extracting by manifest.
+362 silly tarball no local data for immutable@https://registry.npmjs.org/immutable/-/immutable-5.1.3.tgz. Extracting by manifest.
+363 silly tarball no local data for electron-to-chromium@https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.224.tgz. Extracting by manifest.
+364 silly tarball no local data for browserslist@https://registry.npmjs.org/browserslist/-/browserslist-4.26.2.tgz. Extracting by manifest.
+365 silly tarball no local data for caniuse-lite@https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001745.tgz. Extracting by manifest.
+366 silly tarball no local data for debug@https://registry.npmjs.org/debug/-/debug-4.4.3.tgz. Extracting by manifest.
+367 silly tarball no local data for baseline-browser-mapping@https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.8.7.tgz. Extracting by manifest.
+368 http fetch GET https://registry.npmjs.org/uuid/-/uuid-9.0.1.tgz attempt 1 failed with EAI_AGAIN
+369 http fetch GET https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.1.3.tgz attempt 1 failed with EAI_AGAIN
+370 http fetch GET https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz attempt 1 failed with EAI_AGAIN
+371 http fetch GET https://registry.npmjs.org/json5/-/json5-2.2.3.tgz attempt 1 failed with EAI_AGAIN
+372 http fetch GET https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz attempt 1 failed with EAI_AGAIN
+373 http fetch GET https://registry.npmjs.org/jsesc/-/jsesc-3.1.0.tgz attempt 1 failed with EAI_AGAIN
+374 http fetch GET https://registry.npmjs.org/esbuild/-/esbuild-0.21.5.tgz attempt 1 failed with EAI_AGAIN
+375 http fetch GET https://registry.npmjs.org/@vitejs/plugin-react/-/plugin-react-4.7.0.tgz attempt 1 failed with EAI_AGAIN
+376 http fetch GET https://registry.npmjs.org/detect-libc/-/detect-libc-1.0.3.tgz attempt 1 failed with EAI_AGAIN
+377 http fetch GET https://registry.npmjs.org/@types/uuid/-/uuid-10.0.0.tgz attempt 1 failed with EAI_AGAIN
+378 http fetch GET https://registry.npmjs.org/@types/react-dom/-/react-dom-18.3.7.tgz attempt 1 failed with EAI_AGAIN
+379 http fetch GET https://registry.npmjs.org/@types/prop-types/-/prop-types-15.7.15.tgz attempt 1 failed with EAI_AGAIN
+380 http fetch GET https://registry.npmjs.org/semver/-/semver-6.3.1.tgz attempt 1 failed with EAI_AGAIN
+381 http fetch GET https://registry.npmjs.org/@types/react/-/react-18.3.24.tgz attempt 1 failed with EAI_AGAIN
+382 http fetch GET https://registry.npmjs.org/@types/node/-/node-20.19.17.tgz attempt 1 failed with EAI_AGAIN
+383 http fetch GET https://registry.npmjs.org/npm attempt 2 failed with EAI_AGAIN
+384 http fetch GET https://registry.npmjs.org/uuid/-/uuid-9.0.1.tgz attempt 2 failed with EAI_AGAIN
+385 http fetch GET https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.1.3.tgz attempt 2 failed with EAI_AGAIN
+386 http fetch GET https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz attempt 2 failed with EAI_AGAIN
+387 http fetch GET https://registry.npmjs.org/json5/-/json5-2.2.3.tgz attempt 2 failed with EAI_AGAIN
+388 http fetch GET https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz attempt 2 failed with EAI_AGAIN
+389 http fetch GET https://registry.npmjs.org/jsesc/-/jsesc-3.1.0.tgz attempt 2 failed with EAI_AGAIN
+390 http fetch GET https://registry.npmjs.org/esbuild/-/esbuild-0.21.5.tgz attempt 2 failed with EAI_AGAIN
+391 http fetch GET https://registry.npmjs.org/@vitejs/plugin-react/-/plugin-react-4.7.0.tgz attempt 2 failed with EAI_AGAIN
+392 http fetch GET https://registry.npmjs.org/detect-libc/-/detect-libc-1.0.3.tgz attempt 2 failed with EAI_AGAIN
+393 http fetch GET https://registry.npmjs.org/@types/uuid/-/uuid-10.0.0.tgz attempt 2 failed with EAI_AGAIN
+394 http fetch GET https://registry.npmjs.org/@types/react-dom/-/react-dom-18.3.7.tgz attempt 2 failed with EAI_AGAIN
+395 http fetch GET https://registry.npmjs.org/@types/prop-types/-/prop-types-15.7.15.tgz attempt 2 failed with EAI_AGAIN
+396 http fetch GET https://registry.npmjs.org/semver/-/semver-6.3.1.tgz attempt 2 failed with EAI_AGAIN
+397 http fetch GET https://registry.npmjs.org/@types/react/-/react-18.3.24.tgz attempt 2 failed with EAI_AGAIN
+398 http fetch GET https://registry.npmjs.org/@types/node/-/node-20.19.17.tgz attempt 2 failed with EAI_AGAIN
+399 http fetch GET https://registry.npmjs.org/npm attempt 3 failed with EAI_AGAIN
+400 http fetch GET https://registry.npmjs.org/uuid/-/uuid-9.0.1.tgz attempt 3 failed with EAI_AGAIN
+401 http fetch GET https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.1.3.tgz attempt 3 failed with EAI_AGAIN
+402 http fetch GET https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz attempt 3 failed with EAI_AGAIN
+403 http fetch GET https://registry.npmjs.org/json5/-/json5-2.2.3.tgz attempt 3 failed with EAI_AGAIN
+404 http fetch GET https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz attempt 3 failed with EAI_AGAIN
+405 http fetch GET https://registry.npmjs.org/jsesc/-/jsesc-3.1.0.tgz attempt 3 failed with EAI_AGAIN
+406 http fetch GET https://registry.npmjs.org/esbuild/-/esbuild-0.21.5.tgz attempt 3 failed with EAI_AGAIN
+407 http fetch GET https://registry.npmjs.org/@vitejs/plugin-react/-/plugin-react-4.7.0.tgz attempt 3 failed with EAI_AGAIN
+408 http fetch GET https://registry.npmjs.org/detect-libc/-/detect-libc-1.0.3.tgz attempt 3 failed with EAI_AGAIN
+409 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/detect-libc
+410 silly reify mark deleted [
+410 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/detect-libc',
+410 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/.bin/detect-libc'
+410 silly reify ]
+411 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher
+412 silly reify mark deleted [
+412 silly reify   '/home/stags/Source/Tessaro/apps/admin/node_modules/@parcel/watcher'
+412 silly reify ]
+413 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/is-glob
+414 silly reify mark deleted [ '/home/stags/Source/Tessaro/apps/admin/node_modules/is-glob' ]
+415 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/micromatch
+416 silly reify mark deleted [ '/home/stags/Source/Tessaro/apps/admin/node_modules/micromatch' ]
+417 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/node-addon-api
+418 silly reify mark deleted [ '/home/stags/Source/Tessaro/apps/admin/node_modules/node-addon-api' ]
+419 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/is-extglob
+420 silly reify mark deleted [ '/home/stags/Source/Tessaro/apps/admin/node_modules/is-extglob' ]
+421 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/braces
+422 silly reify mark deleted [ '/home/stags/Source/Tessaro/apps/admin/node_modules/braces' ]
+423 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/picomatch
+424 silly reify mark deleted [ '/home/stags/Source/Tessaro/apps/admin/node_modules/picomatch' ]
+425 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/fill-range
+426 silly reify mark deleted [ '/home/stags/Source/Tessaro/apps/admin/node_modules/fill-range' ]
+427 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/to-regex-range
+428 silly reify mark deleted [ '/home/stags/Source/Tessaro/apps/admin/node_modules/to-regex-range' ]
+429 verbose reify failed optional dependency /home/stags/Source/Tessaro/apps/admin/node_modules/is-number
+430 silly reify mark deleted [ '/home/stags/Source/Tessaro/apps/admin/node_modules/is-number' ]
+431 http fetch GET https://registry.npmjs.org/@types/uuid/-/uuid-10.0.0.tgz attempt 3 failed with EAI_AGAIN
+432 http fetch GET https://registry.npmjs.org/@types/react-dom/-/react-dom-18.3.7.tgz attempt 3 failed with EAI_AGAIN
+433 http fetch GET https://registry.npmjs.org/@types/prop-types/-/prop-types-15.7.15.tgz attempt 3 failed with EAI_AGAIN
+434 http fetch GET https://registry.npmjs.org/semver/-/semver-6.3.1.tgz attempt 3 failed with EAI_AGAIN
+435 http fetch GET https://registry.npmjs.org/@types/react/-/react-18.3.24.tgz attempt 3 failed with EAI_AGAIN
+436 http fetch GET https://registry.npmjs.org/@types/node/-/node-20.19.17.tgz attempt 3 failed with EAI_AGAIN
+437 verbose cwd /home/stags/Source/Tessaro
+438 verbose os Linux 6.16.8-arch3-1
+439 verbose node v20.19.5
+440 verbose npm  v11.6.1
+441 error Exit handler never called!
+442 error This is an error with npm itself. Please report this error at:
+443 error   <https://github.com/npm/cli/issues>
+444 verbose exit 1
+445 verbose code 1
+446 error A complete log of this run can be found in: /home/stags/Source/Tessaro/project-config/.npm-cache/_logs/2025-09-27T18_27_14_480Z-debug-0.log

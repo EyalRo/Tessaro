@@ -1,69 +1,53 @@
 import React from 'react';
+import styles from './SettingsPage.module.scss';
 
 const SettingsPage = () => {
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold text-gray-800 mb-4">System Settings</h1>
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">General Settings</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  System Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  defaultValue="Tessaro Admin"
-                />
+    <section className={styles.page}>
+      <div className={styles.headerGroup}>
+        <p className={styles.pageTag}>Configuration</p>
+        <h1 className={styles.pageTitle}>System Settings</h1>
+        <p className={styles.pageSubtitle}>Fine-tune the Tessaro control plane and platform defaults.</p>
+      </div>
+
+      <div className={styles.settingsCard}>
+        <div className={styles.settingsGrid}>
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>General Settings</h2>
+            <p className={styles.sectionSubtitle}>Update platform identity and default communication channels.</p>
+            <div className={styles.fieldGroup}>
+              <div className={styles.field}>
+                <label className={styles.label}>System Name</label>
+                <input className={styles.control} type="text" defaultValue="Tessaro Admin" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Admin Email
-                </label>
-                <input
-                  type="email"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  defaultValue="admin@tessaro.example"
-                />
+              <div className={styles.field}>
+                <label className={styles.label}>Admin Email</label>
+                <input className={styles.control} type="email" defaultValue="admin@tessaro.example" />
               </div>
             </div>
           </div>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">Profile Picture Settings</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Max File Size (MB)
-                </label>
-                <input
-                  type="number"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  defaultValue="5"
-                />
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Profile Picture Settings</h2>
+            <p className={styles.sectionSubtitle}>Control avatar upload policies and supported formats.</p>
+            <div className={styles.fieldGroup}>
+              <div className={styles.field}>
+                <label className={styles.label}>Max File Size (MB)</label>
+                <input className={styles.control} type="number" defaultValue="5" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Allowed Formats
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  defaultValue="JPG, PNG, GIF"
-                />
+              <div className={styles.field}>
+                <label className={styles.label}>Allowed Formats</label>
+                <input className={styles.control} type="text" defaultValue="JPG, PNG, GIF" />
               </div>
             </div>
           </div>
         </div>
-        <div className="mt-6">
-          <button className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
+        <div className={styles.actions}>
+          <button className={styles.saveButton} type="button">
             Save Settings
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

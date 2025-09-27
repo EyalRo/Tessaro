@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import UsersPage from '../src/pages/UsersPage';
 import useUserManagement from '../src/hooks/useUserManagement';
 
@@ -9,6 +9,18 @@ jest.mock('../src/hooks/useUserManagement');
 const mockUseUserManagement = useUserManagement as jest.MockedFunction<typeof useUserManagement>;
 
 type UserManagementHook = ReturnType<typeof useUserManagement>;
+
+const routerFutureFlags = {
+  v7_startTransition: true,
+  v7_relativeSplatPath: true
+} as const;
+
+const renderWithRouter = () =>
+  render(
+    <MemoryRouter future={routerFutureFlags}>
+      <UsersPage />
+    </MemoryRouter>
+  );
 
 const createHookMock = (overrides: Partial<UserManagementHook> = {}) => {
   const base: jest.Mocked<UserManagementHook> = {
@@ -40,11 +52,7 @@ describe('UsersPage', () => {
     const hookValue = createHookMock();
     mockUseUserManagement.mockReturnValue(hookValue);
 
-    render(
-      <BrowserRouter>
-        <UsersPage />
-      </BrowserRouter>
-    );
+    renderWithRouter();
 
     expect(screen.getByText('User Management')).toBeInTheDocument();
     expect(screen.getByText('John Doe')).toBeInTheDocument();
@@ -57,11 +65,7 @@ describe('UsersPage', () => {
     const hookValue = createHookMock({ loading: true } as Partial<UserManagementHook>);
     mockUseUserManagement.mockReturnValue(hookValue);
 
-    render(
-      <BrowserRouter>
-        <UsersPage />
-      </BrowserRouter>
-    );
+    renderWithRouter();
 
     expect(await screen.findByTestId('users-loading')).toBeInTheDocument();
     expect(hookValue.fetchUsers).toHaveBeenCalled();
@@ -71,11 +75,7 @@ describe('UsersPage', () => {
     const hookValue = createHookMock({ error: { message: 'Failed to fetch users' } as any });
     mockUseUserManagement.mockReturnValue(hookValue);
 
-    render(
-      <BrowserRouter>
-        <UsersPage />
-      </BrowserRouter>
-    );
+    renderWithRouter();
 
     expect(screen.getByText('Failed to fetch users')).toBeInTheDocument();
   });
@@ -85,11 +85,7 @@ describe('UsersPage', () => {
     hookValue.createUser.mockResolvedValue({ id: '3', name: 'New User', email: 'new@example.com', role: 'User' } as any);
     mockUseUserManagement.mockReturnValue(hookValue);
 
-    render(
-      <BrowserRouter>
-        <UsersPage />
-      </BrowserRouter>
-    );
+    renderWithRouter();
 
     fireEvent.click(screen.getByTestId('open-create-user'));
 
@@ -120,11 +116,7 @@ describe('UsersPage', () => {
     mockUseUserManagement.mockReturnValue(hookValue);
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValueOnce(true);
 
-    render(
-      <BrowserRouter>
-        <UsersPage />
-      </BrowserRouter>
-    );
+    renderWithRouter();
 
     const firstRowEdit = screen.getAllByText('Edit')[0];
     fireEvent.click(firstRowEdit);

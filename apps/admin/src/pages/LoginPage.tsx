@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import styles from './LoginPage.module.scss';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -17,21 +18,23 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Tessaro Admin Portal
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to your administrator account
-          </p>
+    <div className={styles.wrapper}>
+      <div className={styles.background}>
+        <div className={styles.backgroundPrimary} />
+        <div className={styles.backgroundSecondary} />
+      </div>
+
+      <div className={styles.card}>
+        <div className={styles.brand}>
+          <div className={styles.brandMark}>TA</div>
+          <h2 className={styles.brandTitle}>Tessaro Admin Portal</h2>
+          <p className={styles.brandSubtitle}>Sign in to orchestrate organizations, services, and access.</p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <input type="hidden" name="remember" value="true" />
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
+
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <div className={styles.formFields}>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="email-address">
                 Email address
               </label>
               <input
@@ -42,12 +45,12 @@ const LoginPage = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                className={styles.input}
+                placeholder="admin@example.com"
               />
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="password">
                 Password
               </label>
               <input
@@ -58,34 +61,23 @@ const LoginPage = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                className={styles.input}
+                placeholder="••••••••"
               />
             </div>
           </div>
 
-          {error && (
-            <div className="text-red-500 text-sm text-center">
-              {error}
-            </div>
-          )}
+          {error && <div className={styles.error}>{error}</div>}
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {loading ? (
-                <span>Signing in...</span>
-              ) : (
-                <span>Sign in</span>
-              )}
-            </button>
-          </div>
+          <button type="submit" disabled={loading} className={styles.submitButton}>
+            <span className={styles.submitHighlight} />
+            <span className={styles.submitLabel}>{loading ? 'Signing in…' : 'Sign in'}</span>
+          </button>
         </form>
-        <div className="text-sm text-gray-600 text-center">
-          <p>Demo credentials: admin@example.com / password</p>
+
+        <div className={styles.demoNote}>
+          Demo credentials: <span className={styles.demoStrong}>admin@example.com</span> /{' '}
+          <span className={styles.demoStrong}>password</span>
         </div>
       </div>
     </div>

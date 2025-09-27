@@ -2,15 +2,22 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import styles from './DashboardLayout.module.scss';
 
 const DashboardLayout = () => {
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className={styles.layout}>
+      <div className={styles.background}>
+        <div className={styles.backgroundPrimary} />
+        <div className={styles.backgroundSecondary} />
+      </div>
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className={styles.content}>
         <Header />
-        <main className="flex-1 overflow-y-auto p-4">
-          <Outlet />
+        <main className={styles.main}>
+          <div className={styles.mainInner}>
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

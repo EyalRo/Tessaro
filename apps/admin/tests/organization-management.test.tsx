@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import OrganizationsPage from '../src/pages/OrganizationsPage';
 import useOrganizationManagement from '../src/hooks/useOrganizationManagement';
 
@@ -9,6 +9,18 @@ jest.mock('../src/hooks/useOrganizationManagement');
 const mockUseOrganizationManagement = useOrganizationManagement as jest.MockedFunction<typeof useOrganizationManagement>;
 
 type OrganizationManagementHook = ReturnType<typeof useOrganizationManagement>;
+
+const routerFutureFlags = {
+  v7_startTransition: true,
+  v7_relativeSplatPath: true
+} as const;
+
+const renderWithRouter = () =>
+  render(
+    <MemoryRouter future={routerFutureFlags}>
+      <OrganizationsPage />
+    </MemoryRouter>
+  );
 
 const createHookMock = (overrides: Partial<OrganizationManagementHook> = {}) => {
   const base: jest.Mocked<OrganizationManagementHook> = {
@@ -40,11 +52,7 @@ describe('OrganizationsPage', () => {
     const hookValue = createHookMock();
     mockUseOrganizationManagement.mockReturnValue(hookValue);
 
-    render(
-      <BrowserRouter>
-        <OrganizationsPage />
-      </BrowserRouter>
-    );
+    renderWithRouter();
 
     expect(screen.getByText('Organization Management')).toBeInTheDocument();
     expect(screen.getByText('Acme Corp')).toBeInTheDocument();
@@ -56,11 +64,7 @@ describe('OrganizationsPage', () => {
     const hookValue = createHookMock({ loading: true } as Partial<OrganizationManagementHook>);
     mockUseOrganizationManagement.mockReturnValue(hookValue);
 
-    render(
-      <BrowserRouter>
-        <OrganizationsPage />
-      </BrowserRouter>
-    );
+    renderWithRouter();
 
     expect(await screen.findByTestId('organizations-loading')).toBeInTheDocument();
     expect(hookValue.fetchOrganizations).toHaveBeenCalled();
@@ -71,11 +75,7 @@ describe('OrganizationsPage', () => {
     hookValue.createOrganization.mockResolvedValue({ id: '3', name: 'Wayne Enterprises', plan: 'Enterprise', status: 'Active' } as any);
     mockUseOrganizationManagement.mockReturnValue(hookValue);
 
-    render(
-      <BrowserRouter>
-        <OrganizationsPage />
-      </BrowserRouter>
-    );
+    renderWithRouter();
 
     fireEvent.click(screen.getByTestId('open-create-organization'));
 
@@ -103,11 +103,7 @@ describe('OrganizationsPage', () => {
     mockUseOrganizationManagement.mockReturnValue(hookValue);
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValueOnce(true);
 
-    render(
-      <BrowserRouter>
-        <OrganizationsPage />
-      </BrowserRouter>
-    );
+    renderWithRouter();
 
     fireEvent.click(screen.getAllByText('Edit')[0]);
     expect(hookValue.selectOrganization).toHaveBeenCalledWith(hookValue.organizations[0]);

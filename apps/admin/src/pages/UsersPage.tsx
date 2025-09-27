@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import useUserManagement from '../hooks/useUserManagement';
+import styles from './UsersPage.module.scss';
 
 type UserFormState = {
   name: string;
@@ -109,90 +110,82 @@ const UsersPage: React.FC = () => {
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
-          <p className="text-sm text-gray-500">Manage administrator access and organization owners.</p>
+    <section className={styles.page}>
+      <div className={styles.pageHeader}>
+        <div className={styles.headingGroup}>
+          <p className={styles.pageTag}>People</p>
+          <h1 className={styles.pageTitle}>User Management</h1>
+          <p className={styles.pageSubtitle}>Manage administrator access and organization owners.</p>
         </div>
         <button
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+          className={styles.actionButton}
           onClick={openCreateForm}
           data-testid="open-create-user"
+          type="button"
         >
+          <span className={styles.actionIndicator} />
           Add User
         </button>
       </div>
 
       {(error || formError) && (
-        <div className="rounded-md bg-red-50 p-4">
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">{formError || error?.message}</h3>
-              {error && (
-                <button
-                  className="mt-2 text-sm text-red-700 underline"
-                  onClick={() => clearError()}
-                >
-                  Dismiss
-                </button>
-              )}
-            </div>
+        <div className={styles.errorCard}>
+          <div className={styles.errorContent}>
+            <p>{formError || error?.message}</p>
+            {error && (
+              <button
+                className={styles.errorDismiss}
+                onClick={() => clearError()}
+                type="button"
+              >
+                Dismiss
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      <div className="bg-white shadow rounded-lg">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+      <div className={styles.tableCard}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200" data-testid="users-table-body">
+            <tbody data-testid="users-table-body">
               {sortedUsers.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan={4} className={styles.emptyState}>
                     No users found. Create the first administrator to get started.
                   </td>
                 </tr>
               )}
-              {sortedUsers.map(user => (
+              {sortedUsers.map((user) => (
                 <tr key={user.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {user.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.role}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 space-x-2">
-                    <button
-                      className="text-indigo-600 hover:text-indigo-900"
-                      onClick={() => selectUser(user)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="text-red-600 hover:text-red-900"
-                      onClick={() => handleDelete(user.id)}
-                    >
-                      Delete
-                    </button>
+                  <td>{user.name}</td>
+                  <td>{user.email}</td>
+                  <td>{user.role}</td>
+                  <td>
+                    <div className={styles.rowActions}>
+                      <button
+                        className={styles.rowActionEdit}
+                        onClick={() => selectUser(user)}
+                        type="button"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className={styles.rowActionDelete}
+                        onClick={() => handleDelete(user.id)}
+                        type="button"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -200,25 +193,26 @@ const UsersPage: React.FC = () => {
           </table>
         </div>
         {loading && (
-          <div className="px-6 py-4 text-sm text-gray-500" data-testid="users-loading">
+          <div className={styles.loadingRow} data-testid="users-loading">
             Loading users...
           </div>
         )}
       </div>
 
       {isFormOpen && (
-        <div className="bg-white shadow rounded-lg p-6" data-testid="user-form">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-700">
-              {currentUser ? 'Edit User' : 'Create New User'}
-            </h2>
-            <button className="text-sm text-gray-500 underline" onClick={closeForm}>
+        <div className={styles.formCard} data-testid="user-form">
+          <div className={styles.formHeader}>
+            <div>
+              <p className={styles.formTag}>{currentUser ? 'Update' : 'Create'}</p>
+              <h2 className={styles.formTitle}>{currentUser ? 'Edit User' : 'Create New User'}</h2>
+            </div>
+            <button className={styles.formDismiss} onClick={closeForm} type="button">
               Cancel
             </button>
           </div>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+          <form className={styles.formGrid} onSubmit={handleSubmit}>
+            <div className={styles.formField}>
+              <label htmlFor="name" className={styles.formLabel}>
                 Name
               </label>
               <input
@@ -227,11 +221,11 @@ const UsersPage: React.FC = () => {
                 type="text"
                 value={formState.name}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className={styles.formControl}
               />
             </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <div className={styles.formField}>
+              <label htmlFor="email" className={styles.formLabel}>
                 Email
               </label>
               <input
@@ -240,11 +234,11 @@ const UsersPage: React.FC = () => {
                 type="email"
                 value={formState.email}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className={styles.formControl}
               />
             </div>
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+            <div className={styles.formField}>
+              <label htmlFor="role" className={styles.formLabel}>
                 Role
               </label>
               <select
@@ -252,15 +246,15 @@ const UsersPage: React.FC = () => {
                 name="role"
                 value={formState.role}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className={styles.formControl}
               >
                 <option value="Administrator">Administrator</option>
                 <option value="Manager">Manager</option>
                 <option value="User">User</option>
               </select>
             </div>
-            <div>
-              <label htmlFor="avatar_url" className="block text-sm font-medium text-gray-700">
+            <div className={styles.formField}>
+              <label htmlFor="avatar_url" className={styles.formLabel}>
                 Avatar URL (optional)
               </label>
               <input
@@ -269,28 +263,25 @@ const UsersPage: React.FC = () => {
                 type="url"
                 value={formState.avatar_url || ''}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className={styles.formControl}
               />
             </div>
-            <div className="flex justify-end space-x-3">
+            <div className={styles.formActions}>
               <button
                 type="button"
                 onClick={closeForm}
-                className="px-4 py-2 rounded-md border border-gray-300 text-gray-700"
+                className={styles.formButtonGhost}
               >
                 Cancel
               </button>
-              <button
-                type="submit"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-              >
+              <button type="submit" className={styles.formButtonPrimary}>
                 {currentUser ? 'Save Changes' : 'Create User'}
               </button>
             </div>
           </form>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 

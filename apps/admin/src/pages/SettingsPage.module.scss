@@ -1,0 +1,130 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.headerGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.pageTag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: var(--color-text-subtle);
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.pageSubtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  max-width: 40rem;
+}
+
+.settingsCard {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-strong);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(18px);
+}
+
+.settingsGrid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .settingsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.sectionSubtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  font-weight: 600;
+  color: var(--color-text-subtle);
+}
+
+.control {
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: rgba(226, 232, 240, 0.95);
+  font-size: 0.9rem;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.control:focus {
+  border-color: var(--color-border-strong);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.saveButton {
+  padding: 0.6rem 1.3rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(129, 140, 248, 0.7);
+  background: var(--color-indigo-soft);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-indigo-lighter);
+  transition: border-color var(--transition-base), background-color var(--transition-base);
+}
+
+.saveButton:hover {
+  border-color: rgba(129, 140, 248, 0.85);
+  background: rgba(99, 102, 241, 0.3);
+}
