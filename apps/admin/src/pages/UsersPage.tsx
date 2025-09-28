@@ -42,8 +42,24 @@ const UsersPage: React.FC = () => {
     };
   }, [fetchUsers, clearError]);
 
+  const getSafeName = (userName: unknown, fallback: unknown): string => {
+    if (typeof userName === 'string' && userName.trim().length > 0) {
+      return userName;
+    }
+
+    if (typeof fallback === 'string' && fallback.trim().length > 0) {
+      return fallback;
+    }
+
+    return 'Unnamed user';
+  };
+
   const sortedUsers = useMemo(() => {
-    return [...users].sort((a, b) => a.name.localeCompare(b.name));
+    return [...users].sort((a, b) => {
+      const safeA = getSafeName(a.name, a.email);
+      const safeB = getSafeName(b.name, b.email);
+      return safeA.localeCompare(safeB);
+    });
   }, [users]);
 
   useEffect(() => {
@@ -164,31 +180,34 @@ const UsersPage: React.FC = () => {
                   </td>
                 </tr>
               )}
-              {sortedUsers.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{user.role}</td>
-                  <td>
-                    <div className={styles.rowActions}>
-                      <button
-                        className={styles.rowActionEdit}
-                        onClick={() => selectUser(user)}
-                        type="button"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className={styles.rowActionDelete}
-                        onClick={() => handleDelete(user.id)}
-                        type="button"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {sortedUsers.map((user) => {
+                const displayName = getSafeName(user.name, user.email);
+                return (
+                  <tr key={user.id}>
+                    <td>{displayName}</td>
+                    <td>{user.email}</td>
+                    <td>{user.role}</td>
+                    <td>
+                      <div className={styles.rowActions}>
+                        <button
+                          className={styles.rowActionEdit}
+                          onClick={() => selectUser(user)}
+                          type="button"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className={styles.rowActionDelete}
+                          onClick={() => handleDelete(user.id)}
+                          type="button"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

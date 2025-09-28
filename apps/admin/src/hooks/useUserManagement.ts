@@ -10,6 +10,22 @@ type UpdateUserPayload = Partial<CreateUserPayload>;
 
 const userApiClient = new UserApiClient(USERS_API_BASE_URL);
 
+const normalizeUserProfile = (user: UserProfile): UserProfile => {
+  const safeEmail = typeof user.email === 'string' && user.email.trim().length > 0 ? user.email : '';
+  const safeName = typeof user.name === 'string' && user.name.trim().length > 0
+    ? user.name
+    : (safeEmail || 'Unnamed user');
+  const safeRole = typeof user.role === 'string' && user.role.trim().length > 0 ? user.role : 'User';
+
+  return {
+    ...user,
+    email: safeEmail,
+    name: safeName,
+    role: safeRole,
+    avatar_url: user.avatar_url ?? undefined
+  };
+};
+
 const useUserManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
@@ -18,25 +34,28 @@ const useUserManagement = () => {
   const fetchUsers = useCallback(async () => {
     await executeRequest(async () => {
       const remoteUsers = await userApiClient.listUsers();
-      setUsers(remoteUsers);
-      return remoteUsers;
+      const normalizedUsers = remoteUsers.map(normalizeUserProfile);
+      setUsers(normalizedUsers);
+      return normalizedUsers;
     });
   }, [executeRequest]);
 
   const createUser = useCallback(async (userData: CreateUserPayload) => {
     return executeRequest(async () => {
       const newUser = await userApiClient.createUser(userData);
-      setUsers(prev => [...prev, newUser]);
-      return newUser;
+      const normalizedUser = normalizeUserProfile(newUser);
+      setUsers(prev => [...prev, normalizedUser]);
+      return normalizedUser;
     });
   }, [executeRequest]);
 
   const updateUser = useCallback(async (id: string, userData: UpdateUserPayload) => {
     return executeRequest(async () => {
       const updatedUser = await userApiClient.updateUser(id, userData);
-      setUsers((prev: UserProfile[]) => prev.map(user => user.id === id ? updatedUser : user));
-      setCurrentUser((prev: UserProfile | null) => prev?.id === id ? updatedUser : prev);
-      return updatedUser;
+      const normalizedUser = normalizeUserProfile(updatedUser);
+      setUsers((prev: UserProfile[]) => prev.map(user => user.id === id ? normalizedUser : user));
+      setCurrentUser((prev: UserProfile | null) => prev?.id === id ? normalizedUser : prev);
+      return normalizedUser;
     });
   }, [executeRequest]);
 
