@@ -13,10 +13,12 @@ export default defineConfig({
     port: Number(process.env.PORT ?? 4173)
   },
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      libs: path.resolve(__dirname, '../../libs'),
-      apps: path.resolve(__dirname, '..')
-    }
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, './src') },
+      { find: /^libs\/(.*)$/, replacement: path.resolve(__dirname, '../../libs') + '/$1/src' },
+      { find: 'libs', replacement: path.resolve(__dirname, '../../libs') },
+      { find: /^apps\/(.*)$/, replacement: path.resolve(__dirname, '..') + '/$1/src' },
+      { find: 'apps', replacement: path.resolve(__dirname, '..') }
+    ]
   }
 });
