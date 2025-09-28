@@ -1,14 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { UserApiClient, UserProfile as ApiUserProfile } from 'libs/api-client';
 import useApi from './useApi';
+import { USERS_API_BASE_URL } from '../config/api';
 
-interface UserProfile {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  avatar_url?: string;
-}
+type UserProfile = ApiUserProfile;
+
+type CreateUserPayload = Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>;
+type UpdateUserPayload = Partial<CreateUserPayload>;
+
+const userApiClient = new UserApiClient(USERS_API_BASE_URL);
 
 const useUserManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -16,46 +16,34 @@ const useUserManagement = () => {
   const { loading, error, executeRequest, clearError } = useApi();
 
   const fetchUsers = useCallback(async () => {
-    // In a real app, this would call the API
-    // For now, we'll use mock data
-    const mockUsers: UserProfile[] = [
-      { id: '1', email: 'john@example.com', name: 'John Doe', role: 'Administrator', avatar_url: 'https://example.com/avatar1.jpg' },
-      { id: '2', email: 'jane@example.com', name: 'Jane Smith', role: 'Manager' },
-      { id: '3', email: 'bob@example.com', name: 'Bob Johnson', role: 'User', avatar_url: 'https://example.com/avatar2.jpg' }
-    ];
-    
     await executeRequest(async () => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setUsers(mockUsers);
+      const remoteUsers = await userApiClient.listUsers();
+      setUsers(remoteUsers);
+      return remoteUsers;
     });
   }, [executeRequest]);
 
-  const createUser = useCallback(async (userData: Omit<UserProfile, 'id'>) => {
+  const createUser = useCallback(async (userData: CreateUserPayload) => {
     return executeRequest(async () => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const newUser = { id: uuidv4(), ...userData };
+      const newUser = await userApiClient.createUser(userData);
       setUsers(prev => [...prev, newUser]);
       return newUser;
     });
   }, [executeRequest]);
 
-  const updateUser = useCallback(async (id: string, userData: Partial<UserProfile>) => {
+  const updateUser = useCallback(async (id: string, userData: UpdateUserPayload) => {
     return executeRequest(async () => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setUsers(prev => prev.map(user => user.id === id ? { ...user, ...userData } : user));
-      setCurrentUser(prev => prev?.id === id ? { ...prev, ...userData } : prev);
-      return { id, ...userData };
+      const updatedUser = await userApiClient.updateUser(id, userData);
+      setUsers((prev: UserProfile[]) => prev.map(user => user.id === id ? updatedUser : user));
+      setCurrentUser((prev: UserProfile | null) => prev?.id === id ? updatedUser : prev);
+      return updatedUser;
     });
   }, [executeRequest]);
 
   const deleteUser = useCallback(async (id: string) => {
     return executeRequest(async () => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setUsers(prev => prev.filter(user => user.id !== id));
+      await userApiClient.deleteUser(id);
+      setUsers((prev: UserProfile[]) => prev.filter(user => user.id !== id));
       if (currentUser?.id === id) {
         setCurrentUser(null);
       }

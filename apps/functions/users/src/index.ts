@@ -22,6 +22,16 @@ type UserRouteParams = {
   id: string;
 };
 
+// List users endpoint
+app.get('/users', async (_req: Request, res: Response) => {
+  try {
+    const users = await userService.listUsers();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
 // Create user endpoint
 app.post(
   '/users',

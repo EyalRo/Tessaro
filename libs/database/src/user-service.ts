@@ -38,6 +38,13 @@ class UserService {
     return this.mapRowToUser(result.rows[0]);
   }
 
+  async listUsers(): Promise<UserProfile[]> {
+    const query = 'SELECT * FROM users';
+    const result = await this.dbClient.executeQuery(query);
+
+    return result.rows.map((row: any) => this.mapRowToUser(row));
+  }
+
   async updateUser(id: string, updates: Partial<Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>>): Promise<UserProfile | null> {
     const user = await this.getUserById(id);
     if (!user) {

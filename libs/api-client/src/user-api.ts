@@ -28,6 +28,11 @@ class UserApiClient {
     return response.data;
   }
 
+  async listUsers(): Promise<UserProfile[]> {
+    const response = await this.client.get<UserProfile[]>('/users');
+    return response.data;
+  }
+
   async getUserById(id: string): Promise<UserProfile> {
     const response = await this.client.get<UserProfile>(`/users/${id}`);
     return response.data;

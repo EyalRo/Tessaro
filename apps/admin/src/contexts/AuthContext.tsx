@@ -22,12 +22,12 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const resolveErrorMessage = (error: unknown): string => {
-  if (error instanceof AuthError) {
+  if (error instanceof AuthError || error instanceof Error) {
     return error.message;
   }
 
-  if (error instanceof Error) {
-    return error.message;
+  if (typeof error === 'string') {
+    return error;
   }
 
   return 'Unable to sign in - please try again.';
@@ -40,7 +40,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = authService.subscribe((nextSession) => {
+    const unsubscribe = authService.subscribe((nextSession: AuthSession | null) => {
       setSession(nextSession);
     });
 

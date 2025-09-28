@@ -1,23 +1,5 @@
 import React, { useState, useCallback } from 'react';
 
-// Mock API clients
-const userApiClient = {
-  createUser: (userData: any) => Promise.resolve({ id: '1', ...userData }),
-  updateUser: (id: string, userData: any) => Promise.resolve({ id, ...userData }),
-  deleteUser: (id: string) => Promise.resolve(),
-  getUserById: (id: string) => Promise.resolve({ id, name: 'John Doe', email: 'john@example.com', role: 'admin' })
-};
-
-const configApiClient = {
-  createOrganization: (orgData: any) => Promise.resolve({ id: '1', ...orgData }),
-  updateOrganization: (id: string, orgData: any) => Promise.resolve({ id, ...orgData }),
-  deleteOrganization: (id: string) => Promise.resolve()
-};
-
-const storageApiClient = {
-  uploadUserProfilePicture: (userId: string, file: File) => Promise.resolve('https://example.com/avatar.jpg')
-};
-
 interface ApiError {
   message: string;
   code?: string;

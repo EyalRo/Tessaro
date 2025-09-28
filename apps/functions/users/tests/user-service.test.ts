@@ -79,6 +79,38 @@ describe('UserService', () => {
     });
   });
 
+  describe('listUsers', () => {
+    it('should return a list of users', async () => {
+      const users = [
+        {
+          id: '1',
+          email: 'one@example.com',
+          name: 'User One',
+          role: 'user',
+          avatar_url: null,
+          created_at: new Date(),
+          updated_at: new Date()
+        },
+        {
+          id: '2',
+          email: 'two@example.com',
+          name: 'User Two',
+          role: 'admin',
+          avatar_url: null,
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      ];
+
+      mockDbClient.executeQuery.mockResolvedValueOnce({ rows: users });
+
+      const result = await userService.listUsers();
+
+      expect(result).toEqual(users);
+      expect(mockDbClient.executeQuery).toHaveBeenCalledWith('SELECT * FROM users');
+    });
+  });
+
   describe('updateUser', () => {
     it('should update and return the user when found', async () => {
       const userId = '123';

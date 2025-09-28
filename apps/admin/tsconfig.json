@@ -2,8 +2,13 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "baseUrl": "./src",
-    "outDir": "dist"
+    "baseUrl": "../..",
+    "outDir": "dist",
+    "paths": {
+      "@/*": ["apps/admin/src/*"],
+      "libs/*": ["libs/*/src", "libs/*"],
+      "apps/*": ["apps/*/src", "apps/*"]
+    }
   },
   "include": ["src"]
 }

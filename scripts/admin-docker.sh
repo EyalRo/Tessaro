@@ -20,7 +20,14 @@ echo "Building admin application bundle..."
 npm run admin:build
 
 echo "Building admin Docker image (${IMAGE_NAME})..."
-docker build -t "${IMAGE_NAME}" -f apps/admin/Dockerfile .
+if docker buildx version >/dev/null 2>&1; then
+  export DOCKER_BUILDKIT="${DOCKER_BUILDKIT:-1}"
+  export COMPOSE_DOCKER_CLI_BUILD="${COMPOSE_DOCKER_CLI_BUILD:-1}"
+  docker buildx build --load -t "${IMAGE_NAME}" -f apps/admin/Dockerfile .
+else
+  echo "docker buildx not found; falling back to legacy builder (install buildx to enable BuildKit)." >&2
+  docker build -t "${IMAGE_NAME}" -f apps/admin/Dockerfile .
+fi
 
 if docker ps -a --format '{{.Names}}' | grep -Eq "^${CONTAINER_NAME}"; then
   echo "Removing existing container ${CONTAINER_NAME}..."

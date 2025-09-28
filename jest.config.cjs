@@ -9,8 +9,8 @@ module.exports = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '^react$': '<rootDir>/node_modules/react',
     '^react-dom$': '<rootDir>/node_modules/react-dom',
-    '^libs/(.*)$': '<rootDir>/libs/$1',
-    '^apps/(.*)$': '<rootDir>/apps/$1'
+    '^libs/(.*)$': '<rootDir>/libs/$1/src',
+    '^apps/(.*)$': '<rootDir>/apps/$1/src'
   },
   collectCoverage: true,
   collectCoverageFrom: [

@@ -11,7 +11,12 @@
     "resolveJsonModule": true,
     "jsx": "react-jsx",
     "types": ["jest", "node", "@testing-library/jest-dom"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "libs/*": ["libs/*/src", "libs/*"],
+      "apps/*": ["apps/*/src", "apps/*"],
+      "@/*": ["apps/admin/src/*"]
+    }
   },
   "include": [
     "apps/**/*.ts",
