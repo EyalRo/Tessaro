@@ -32,5 +32,6 @@ module.exports = {
       lines: 35,
       statements: 35
     }
-  }
+  },
+  reporters: ['<rootDir>/project-config/jest/colorized-reporter.js']
 };
