@@ -3,7 +3,6 @@ services:
     image: scylladb/scylla:2025.3
     container_name: tessaro-scylladb
     restart: always
-    command: --experimental 1
     environment:
       - TZ=UTC
     volumes:
