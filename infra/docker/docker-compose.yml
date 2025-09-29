@@ -53,6 +53,27 @@ services:
       exit 0;
       "
 
+  users-api:
+    build:
+      context: ../..
+      dockerfile: apps/functions/users/Dockerfile
+    container_name: tessaro-users-api
+    restart: always
+    environment:
+      - PORT=4000
+    depends_on:
+      scylladb:
+        condition: service_healthy
+    networks:
+      - tessaro-network
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "-", "http://127.0.0.1:4000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
   nats:
     image: nats:2.10.14-alpine
     container_name: tessaro-nats

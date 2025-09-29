@@ -6,6 +6,10 @@ import { UserProfile } from '../../../../libs/database/src/types';
 const app = express();
 app.use(express.json());
 
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok' });
+});
+
 // Initialize database client
 const dbClient = new ScyllaClient({
   contactPoints: ['scylladb:9042'],
@@ -89,5 +93,30 @@ app.delete('/users/:id', async (req: Request<UserRouteParams>, res: Response) =>
     res.status(500).json({ error: 'Failed to delete user' });
   }
 });
+
+const resolvePort = (value: string | undefined): number => {
+  const parsed = Number(value);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+  return 4000;
+};
+
+const resolveHost = (value: string | undefined): string => {
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value;
+  }
+  return '0.0.0.0';
+};
+
+const port = resolvePort(process.env.PORT);
+const host = resolveHost(process.env.HOST);
+
+if (require.main === module) {
+  app.listen(port, host, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Users service listening on http://${host}:${port}`);
+  });
+}
 
 export default app;
