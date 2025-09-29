@@ -5,6 +5,8 @@ IMAGE_NAME=${IMAGE_NAME:-tessaro-admin:latest}
 CONTAINER_NAME=${CONTAINER_NAME:-tessaro-admin}
 HOST_PORT=${HOST_PORT:-4173}
 CONTAINER_PORT=${CONTAINER_PORT:-4173}
+USERS_API_HOST=${USERS_API_HOST:-users-api}
+USERS_API_PORT=${USERS_API_PORT:-4000}
 COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-tessaro}
 COMPOSE_FILE=${COMPOSE_FILE:-infra/docker/docker-compose.yml}
 ADMIN_COMPOSE_FILE=${ADMIN_COMPOSE_FILE:-infra/docker/docker-compose.admin.yml}
@@ -26,6 +28,7 @@ export IMAGE_NAME
 export CONTAINER_NAME
 export HOST_PORT
 export CONTAINER_PORT
+export VITE_USERS_API_URL=${VITE_USERS_API_URL:-http://${USERS_API_HOST}:${USERS_API_PORT}}
 
 COMPOSE_ARGS=(
   compose
@@ -41,7 +44,7 @@ echo "Building admin Docker image (${IMAGE_NAME}) via docker compose..."
 docker "${COMPOSE_ARGS[@]}" build admin
 
 echo "Starting ScyllaDB and MinIO dependencies..."
-docker "${COMPOSE_ARGS[@]}" up -d scylladb minio create-buckets
+docker "${COMPOSE_ARGS[@]}" up -d scylladb users-api minio create-buckets
 
 echo "Starting admin container ${CONTAINER_NAME} on port ${HOST_PORT}..."
 docker "${COMPOSE_ARGS[@]}" up -d admin
