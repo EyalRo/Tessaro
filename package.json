@@ -9,10 +9,11 @@
     "admin:preview": "npm run preview --prefix apps/admin"
   },
   "dependencies": {
-    "axios": "^1.7.7",
-    "express": "^4.19.2",
     "@paralleldrive/cuid2": "^2.2.2",
+    "axios": "^1.7.7",
     "cassandra-driver": "^4.7.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
     "minio": "^8.0.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -20,9 +21,10 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
     "@testing-library/jest-dom": "^6.2.1",
     "@testing-library/react": "^14.2.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.30",
     "@types/react": "^18.2.43",
