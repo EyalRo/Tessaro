@@ -5,14 +5,14 @@ This monorepo separates UI shells, shared libraries, and platform tooling. Keep 
 - `apps/admin` hosts the Vite-powered admin UI; pull components from `libs/ui` and data helpers from `libs/utils`.
 - `apps/main` delivers the customer shell and reuses auth/API adapters from `libs/auth` and `libs/api-client`.
 - `apps/functions` contains serverless handlers grouped by domain (auth, users, orgs, services, audit, storage, messaging) with their contracts alongside.
-- Platform assets live in `infra/docker` (compose stacks), `tests/` (cross-app flows), `docs/`, and `scripts/` (automation like `admin-docker.sh`).
+- Platform assets live in `infra/k8s` (Flux + Knative manifests), `tests/` (cross-app flows), `docs/`, and `scripts/` (automation and database seeding).
 
 ## Build, Test, and Development Commands
 Move fast by leaning on package scripts:
 - `npm run admin:dev` serves the admin UI at `http://localhost:5173` (override with `PORT=5000 npm run admin:dev`).
 - `npm run admin:build` followed by `npm run admin:preview` validates production bundles in `apps/admin/dist`.
 - `npm test` runs the Jest suite across apps and libs; append `-- --coverage` for a report.
-- From `infra/docker`, `docker compose up` starts the full stack (apps, ScyllaDB, MinIO, NATS); use `docker compose down -v` to reset volumes.
+- After modifying infrastructure manifests run `flux reconcile kustomization home` to apply the change. Use `kubectl port-forward service/users-api-get -n apps 8080:80` (or the `kn` CLI) to exercise Knative services locally.
 
 ## Coding Style & Naming Conventions
 Two-space indentation, semicolons, and single quotes are standard. TypeScript runs in strict mode—favor `.tsx` for React views and `.ts` for supporting logic. Export interfaces for API contracts. Components use `PascalCase`, hooks/utilities use `camelCase`, and shared constants stay `ALL_CAPS`. Run the project formatter before committing.
@@ -24,4 +24,4 @@ Jest with Testing Library (`jest.setup.ts`) drives unit and integration tests. P
 Follow Conventional Commits (`feat:`, `fix:`, `chore:`) with concise scopes and revert-friendly changes. Pull requests should include a summary, linked issues, verification steps (tests, coverage, docker), and UI screenshots when relevant. Squash noisy branches before merge, but keep history readable.
 
 ## Security & Configuration Tips
-Never commit secrets—copy sample env files into ignored `.env` variants. Treat `infra/docker` as the deployment source of truth; update docs when services or ports change. Run scripts in `scripts/` with GNU `bash` or WSL to avoid platform-specific quirks.
+Never commit secrets—copy sample env files into ignored `.env` variants. Treat `infra/k8s` as the deployment source of truth; update docs when services or ports change. Run scripts in `scripts/` with GNU `bash` or WSL to avoid platform-specific quirks.

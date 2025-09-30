@@ -27,9 +27,9 @@ Tessaro is a SaaS platform providing multiple services under one umbrella. Custo
 
 * **Serverless functions and microservices** power API endpoints for user, organization, and service management.
 * **Event-Driven Architecture (EDA)**: NATS is used as the messaging backbone for asynchronous communication and queueing.
-* **ScyllaDB** is the primary database, optimized for high throughput and low latency.
-* **MinIO** provides S3-compatible object storage.
-* **Every component runs as a container and is orchestrated together with Docker Compose.**
+* **ScyllaDB** is the primary database, optimized for high throughput and low latency, and now runs inside Kubernetes via FluxCD.
+* **MinIO** provides S3-compatible object storage and is also managed inside Kubernetes with FluxCD, persisting data to the shared NFS backend.
+* **Knative** now hosts the stateless API surface; use port-forwarding or the `kn` CLI for rapid feedback loops.
 
 ### Shared Libraries
 
@@ -40,9 +40,9 @@ Tessaro is a SaaS platform providing multiple services under one umbrella. Custo
 
 ### Infrastructure
 
-* **Docker Compose** is used to orchestrate all components: Admin App, Main App, Functions, ScyllaDB, MinIO, and NATS.
+* **FluxCD + Kubernetes** reconcile stateful platform dependencies (ScyllaDB, MinIO) against this repository and persist them on the NAS-backed NFS share.
+* **FluxCD + Knative** keep the fleet reconciled; local overrides happen via namespace-scoped Kustomizations or temporary `kn` revisions.
 * CI/CD pipelines are defined in GitHub Actions.
-* Migration path toward Kubernetes exists for scaling needs, but **initial rollout is Docker-first**.
 
 ---
 
@@ -90,7 +90,7 @@ Tessaro is a SaaS platform providing multiple services under one umbrella. Custo
 │   └── utils/                # Common utilities
 │
 ├── infra/                    # Infrastructure-as-Code
-│   ├── docker/               # Docker Compose configs for local/dev
+│   ├── k8s/                  # FluxCD-managed Kubernetes manifests (including Knative)
 │   └── ci-cd/                # CI/CD pipelines & deployment workflows
 │
 ├── docs/                     # Developer & admin documentation
@@ -106,48 +106,27 @@ Tessaro is a SaaS platform providing multiple services under one umbrella. Custo
 
 ### Prerequisites
 
-* Docker & Docker Compose
-* ScyllaDB (database)
-* MinIO (object storage)
-* NATS (messaging)
+* kubectl with access to the Flux-managed Kubernetes cluster (ScyllaDB, MinIO, Knative)
+* Flux CLI (for reconciliation when testing module updates)
+* Optional: Knative CLI (`kn`) for direct service inspection and invocation
 
 ### Running Locally
 
-* Use Docker Compose to spin up all services:
+Knative now hosts the serverless APIs. Deployments flow through Flux, so local workflows typically involve:
 
-```bash
-cd infra/docker
-docker compose up
-```
+* Triggering a reconciliation (`flux reconcile kustomization home`) after changing manifests.
+* Using `kubectl port-forward svc/users-api-get -n apps 8080:80` (or `kn service proxy`) to exercise functions locally.
 
-* This will start Admin App, Main App, Functions, ScyllaDB, MinIO, and NATS in one deployment.
+#### Admin App
 
-#### Admin App (standalone)
-
-For quick UI development you can run the Admin app without Docker:
+For quick UI development you can run the Admin app directly:
 
 ```bash
 npm install --prefix apps/admin
 npm run admin:dev
 ```
 
-The development server listens on <http://localhost:5173> by default. Use `PORT` to override the port when needed.
-
-#### Admin App (Docker)
-
-To build and serve the Admin app via Docker, use the helper script:
-
-```bash
-./scripts/admin-docker.sh
-```
-
-Environment variables let you customise container behaviour:
-
-```bash
-IMAGE_NAME=tessaro-admin:dev HOST_PORT=5173 ./scripts/admin-docker.sh
-```
-
-The container exposes Vite preview on the configured host port (default `4173`). The script rebuilds the image before every run and replaces any existing container with the same name.
+The development server listens on <http://localhost:5173> by default. Use `PORT` to override the port when needed. For mocked API interactions during UI work, point `VITE_USERS_API_URL` at a port-forwarded Knative service or a local stub.
 
 ### Tests
 
@@ -162,8 +141,9 @@ The container exposes Vite preview on the configured host port (default `4173`).
 * CI/CD pipelines are defined in **.github/workflows/**.
 * Each push to `main` triggers build, test, and deploy steps.
 * GitOps ensures infrastructure and services are synced with repo state.
-* All components (Admin App, Main App, Functions, ScyllaDB, MinIO, NATS) are deployed together using **Docker Compose**.
-* Kubernetes migration will be considered for scaling in future phases.
+* Stateful dependencies (ScyllaDB, MinIO) are deployed using FluxCD into Kubernetes with persistent storage on the NAS share.
+* Flux bootstrap jobs seed the `tessaro_admin` keyspace/tables in Scylla and create the shared MinIO bucket so fresh clusters come up ready for the Admin UI.
+* Knative services (e.g. `users-api-get`, `users-api-post`) deploy continuously via Flux—inspect revisions with `kn service list` when validating rollouts.
 
 ---
 
@@ -175,5 +155,5 @@ The container exposes Vite preview on the configured host port (default `4173`).
 
 ---
 
-**Summary**: This monorepo hosts everything needed to run Tessaro at scale — apps, microservices, functions, shared libraries, and infrastructure — with a secure, GitHub-driven CI/CD pipeline. Tessaro leverages **Docker Compose deployments, microservices, event-driven architecture (NATS), ScyllaDB, and MinIO** to deliver scalable, reliable services.
+**Summary**: This monorepo hosts everything needed to run Tessaro at scale — apps, microservices, functions, shared libraries, and infrastructure — with a secure, GitHub-driven CI/CD pipeline. Tessaro leverages **FluxCD-managed Kubernetes resources (ScyllaDB, MinIO backed by NFS), Knative for serverless ingress, microservices, and event-driven architecture (NATS)** to deliver scalable, reliable services.
 # Tessaro
