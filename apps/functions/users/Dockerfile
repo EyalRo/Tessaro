@@ -8,6 +8,7 @@ RUN npm install --no-save ts-node
 COPY . .
 
 ENV NODE_ENV=production
-ENV PORT=4000
+ENV PORT=8080
+ENV FUNCTION_ENTRY=apps/functions/users/src/index.ts
 
-CMD ["node", "-r", "ts-node/register/transpile-only", "apps/functions/users/src/index.ts"]
+CMD ["sh", "-c", "node -r ts-node/register/transpile-only ${FUNCTION_ENTRY}"]
