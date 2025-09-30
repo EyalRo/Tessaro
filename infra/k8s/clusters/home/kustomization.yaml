@@ -6,5 +6,6 @@ resources:
   - ../../modules/databases/scylla
   - ../../modules/object-storage/minio
   - ../../modules/platform/coredns
+  - ../../modules/platform/knative
   - ../../modules/apps/users-api
   - ../../modules/apps/admin
