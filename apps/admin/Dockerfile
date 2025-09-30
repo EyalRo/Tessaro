@@ -22,6 +22,9 @@ COPY --from=builder /workspace/apps/admin/package.json ./package.json
 COPY --from=builder /workspace/apps/admin/package-lock.json ./package-lock.json
 COPY --from=builder /workspace/apps/admin/node_modules ./node_modules
 COPY --from=builder /workspace/apps/admin/dist ./dist
+COPY --from=builder /workspace/apps/admin/vite.config.ts ./vite.config.ts
+COPY --from=builder /workspace/apps/admin/tsconfig.json ./tsconfig.json
+COPY --from=builder /workspace/tsconfig.json /workspace/tsconfig.json
 EXPOSE 4173
 ENV PORT=4173
 CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "4173"]
