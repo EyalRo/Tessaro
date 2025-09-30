@@ -1,20 +1,74 @@
 import express, { Request, Response } from 'express';
+import cors, { CorsOptions } from 'cors';
 import ScyllaClient from '../../../../libs/database/src/scylla-client';
 import UserService from '../../../../libs/database/src/user-service';
 import { UserProfile } from '../../../../libs/database/src/types';
 
 const app = express();
+
+const resolveCorsOptions = (): CorsOptions => {
+  const rawOrigins = process.env.CORS_ALLOWED_ORIGINS;
+  if (!rawOrigins) {
+    return { origin: true };
+  }
+
+  const origins = rawOrigins
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(origin => origin.length > 0);
+
+  if (origins.length === 0) {
+    return { origin: true };
+  }
+
+  if (origins.length === 1) {
+    return { origin: origins[0] };
+  }
+
+  return { origin: origins };
+};
+
+app.use(cors(resolveCorsOptions()));
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
+const resolveContactPoints = (): string[] => {
+  const raw = process.env.SCYLLA_CONTACT_POINTS;
+  if (raw) {
+    return raw
+      .split(',')
+      .map(point => point.trim())
+      .filter(point => point.length > 0);
+  }
+  return ['scylla-client.databases.svc.cluster.local'];
+};
+
+const resolveLocalDataCenter = (): string => {
+  return process.env.SCYLLA_LOCAL_DC?.trim() || 'datacenter1';
+};
+
+const resolveKeyspace = (): string => {
+  return process.env.SCYLLA_KEYSPACE?.trim() || 'tessaro_admin';
+};
+
+const resolveAuthProvider = () => {
+  const username = process.env.SCYLLA_USERNAME;
+  const password = process.env.SCYLLA_PASSWORD;
+  if (username && password) {
+    return { username, password };
+  }
+  return undefined;
+};
+
 // Initialize database client
 const dbClient = new ScyllaClient({
-  contactPoints: ['scylladb:9042'],
-  localDataCenter: 'datacenter1',
-  keyspace: 'tessaro_admin'
+  contactPoints: resolveContactPoints(),
+  localDataCenter: resolveLocalDataCenter(),
+  keyspace: resolveKeyspace(),
+  authProvider: resolveAuthProvider()
 });
 
 const userService = new UserService(dbClient);
