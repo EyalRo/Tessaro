@@ -11,4 +11,4 @@ spec:
       kind: Rule
       services:
         - name: admin-web
-          port: 80
+          port: 30330
