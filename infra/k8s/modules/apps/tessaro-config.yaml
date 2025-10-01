@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tessaro-config
+  namespace: apps
+data:
+  cors-allowed-origins: "http://admin-web.apps.svc.cluster.local"
+  users-api-url: "http://users-api.apps.svc.cluster.local"
