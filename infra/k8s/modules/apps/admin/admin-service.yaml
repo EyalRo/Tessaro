@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: admin-web
     app.kubernetes.io/part-of: tessaro-admin
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app.kubernetes.io/name: admin-web
     app.kubernetes.io/part-of: tessaro-admin
@@ -14,4 +14,3 @@ spec:
     - name: http
       port: 80
       targetPort: http
-      nodePort: 31173
