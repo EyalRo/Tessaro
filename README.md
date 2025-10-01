@@ -1,5 +1,9 @@
 # Tessaro Monorepo
 
+> ⚠️ **IMPORTANT**: This repository uses GitOps with FluxCD for all infrastructure and application management. 
+> **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository 
+> and let FluxCD reconcile the changes. Once you've made changes, push to a new branch and create a PR.
+
 This repository contains all code and infrastructure for the **Tessaro platform**, including the **Admin Interface** and the **Main App** (customer-facing). It is organized as a monorepo to enable shared libraries, consistent CI/CD, and Infrastructure-as-Code management.
 
 ---
@@ -112,6 +116,10 @@ Tessaro is a SaaS platform providing multiple services under one umbrella. Custo
 
 ### Running Locally
 
+> ⚠️ **IMPORTANT**: This repository uses GitOps with FluxCD for all infrastructure and application management. 
+> **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository 
+> and let FluxCD reconcile the changes. Once you've made changes, push to a new branch and create a PR.
+
 Knative now hosts the serverless APIs. Deployments flow through Flux, so local workflows typically involve:
 
 * Triggering a reconciliation (`flux reconcile kustomization home`) after changing manifests.
@@ -145,6 +153,10 @@ Then set `VITE_USERS_API_URL=http://localhost:8080` when starting the admin app.
 ---
 
 ## Deployment
+
+> ⚠️ **IMPORTANT**: This repository uses GitOps with FluxCD for all infrastructure and application management. 
+> **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository 
+> and let FluxCD reconcile the changes. Once you've made changes, push to a new branch and create a PR.
 
 * CI/CD pipelines are defined in **.github/workflows/**.
 * Each push to `main` triggers build, test, and deploy steps.

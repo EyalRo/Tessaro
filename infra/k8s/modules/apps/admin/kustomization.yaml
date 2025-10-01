@@ -5,3 +5,4 @@ resources:
   - tessaro-config.yaml
   - admin-deployment.yaml
   - admin-service.yaml
+  - admin-ingressroute.yaml

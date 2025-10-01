@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+> ⚠️ **IMPORTANT**: This repository uses GitOps with FluxCD for all infrastructure and application management. 
+> **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository 
+> and let FluxCD reconcile the changes. Once you've made changes, push to a new branch and create a PR.
+
 ## Project Structure & Module Organization
 This monorepo separates UI shells, shared libraries, and platform tooling. Keep feature logic in reusable libs and keep app folders thin.
 - `apps/admin` hosts the Vite-powered admin UI; pull components from `libs/ui` and data helpers from `libs/utils`.
@@ -12,7 +16,7 @@ Move fast by leaning on package scripts:
 - `npm run admin:dev` serves the admin UI at `http://localhost:5173` (override with `PORT=5000 npm run admin:dev`).
 - `npm run admin:build` followed by `npm run admin:preview` validates production bundles in `apps/admin/dist`.
 - `npm test` runs the Jest suite across apps and libs; append `-- --coverage` for a report.
-- After modifying infrastructure manifests run `flux reconcile kustomization home` to apply the change. Use `kubectl port-forward service/users-api-get -n apps 8080:80` (or the `kn` CLI) to exercise Knative services locally.
+- After modifying infrastructure manifests, push your changes to a new branch and create a PR. Let FluxCD reconcile the changes automatically.
 
 ## Coding Style & Naming Conventions
 Two-space indentation, semicolons, and single quotes are standard. TypeScript runs in strict mode—favor `.tsx` for React views and `.ts` for supporting logic. Export interfaces for API contracts. Components use `PascalCase`, hooks/utilities use `camelCase`, and shared constants stay `ALL_CAPS`. Run the project formatter before committing.
