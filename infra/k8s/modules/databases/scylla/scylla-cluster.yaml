@@ -1,0 +1,55 @@
+apiVersion: scylla.scylladb.com/v1
+kind: ScyllaCluster
+metadata:
+  name: tessaro-scylla
+  namespace: databases
+  labels:
+    app.kubernetes.io/name: tessaro-scylla
+spec:
+  version: 2025.1.5
+  repository: docker.io/scylladb/scylla
+  agentRepository: docker.io/scylladb/scylla-manager-agent
+  developerMode: true
+  cpuset: true
+  sysctls:
+    - fs.aio-max-nr=30000000
+  datacenter:
+    name: home-dc
+    racks:
+      - name: rack-0
+        members: 1
+        resources:
+          requests:
+            cpu: "2"
+            memory: 4Gi
+          limits:
+            cpu: "2"
+            memory: 4Gi
+        storage:
+          capacity: 200Gi
+          storageClassName: local-path
+        placement:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 1
+                preference:
+                  matchExpressions:
+                    - key: scylla.scylladb.com/node-role
+                      operator: In
+                      values:
+                        - storage
+        podTemplateSpec:
+          spec:
+            securityContext:
+              fsGroup: 65534
+            containers:
+              - name: scylla
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                      - ALL
