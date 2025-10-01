@@ -20,12 +20,24 @@ infra/k8s/
     ├── namespaces
     │   ├── kustomization.yaml
     │   └── namespaces.yaml
-    └── storage
-        └── nfs
-            ├── base
-            │   ├── kustomization.yaml
-            │   ├── pvc.yaml
-            │   └── storageclass.yaml
+    ├── databases
+    │   └── scylla
+    │       ├── kustomization.yaml
+    │       ├── scylla-client-service.yaml
+    │       ├── scylla-schema-job.yaml
+    │       ├── scylla-service.yaml
+    │       └── scylla-statefulset.yaml
+    ├── object-storage
+    │   └── minio
+    │       ├── kustomization.yaml
+    │       ├── minio-bucket-job.yaml
+    │       ├── minio-console-service.yaml
+    │       ├── minio-pvc.yaml
+    │       ├── minio-service.yaml
+    │       └── minio-statefulset.yaml
+    └── platform
+        └── coredns
+            ├── coredns-configmap.yaml
             └── kustomization.yaml
 ```
 
@@ -35,7 +47,7 @@ Add new shared components under `modules/` and reference them from the appropria
 
 1. Generate or reuse an SSH deploy key with write access to the Tessaro repository and store the public key in the Git provider.
 2. Create an Age key pair for SOPS decryption and keep the generated secret material safe (`age-keygen -o age.agekey`).
-3. Populate a `.env` file in the repository root (see *Local Secrets* below) with NAS credentials and Flux deploy key material.
+3. Populate a `.env` file in the repository root (see *Local Secrets* below) with Flux deploy key material and MinIO credentials.
 4. Run `scripts/bootstrap-flux.sh <cluster-name> <git-url>` from the repository root. The script will:
     - install the Flux controllers (`v2.2.3`) into the `flux-system` namespace,
     - configure Flux to sync from the provided Git repository and branch,
@@ -57,30 +69,27 @@ kubectl -n flux-system create secret generic sops-age \
 
 ## Local Secrets (.env)
 
-Secrets that should not be committed (NAS credentials, Flux deploy key) live in a root-level `.env` file that is excluded from Git. The bootstrap script sources this file and renders Kubernetes secrets on demand.
+Secrets that should not be committed (Flux deploy key, MinIO root credentials) live in a root-level `.env` file that is excluded from Git. The bootstrap script sources this file and renders Kubernetes secrets on demand.
 
 Expected keys:
 
 ```
-NAS_USERNAME=<nas user>
-NAS_PASSWORD='<nas password>'
+MINIO_ROOT_USER=<minio root user>
+MINIO_ROOT_PASSWORD='<minio root password>'
 FLUX_DEPLOY_KEY_B64=<base64 encoded private key>
 FLUX_DEPLOY_KEY_PUB='<public key to register in GitHub>'
 FLUX_KNOWN_HOSTS_B64=<base64 encoded ssh-keyscan output for github.com>
 ```
 
-The script decodes these values to create the `nas-nfs-credentials` secret in the `storage` namespace and the `flux-system` deploy key secret in `flux-system`. Regenerate the secrets by rerunning the bootstrap script after updating the `.env` contents.
+The script decodes these values to create the `minio-root-credentials` secret in `object-storage` and the `flux-system` deploy key secret in `flux-system`. Regenerate the secrets by rerunning the bootstrap script after updating the `.env` contents.
 
-## NAS Backed Storage
+## Cluster Storage
 
-The `modules/storage/nfs` package provisions:
+Cluster workloads now rely on the default storage classes available inside the Kubernetes cluster itself:
 
-- a `storage` namespace used to isolate storage configuration,
-- an automatically generated `nas-nfs-credentials` secret populated from `.env`,
-- a `nas-nfs-csi` storage class targeting `nfs://nas.dino.home/volume1/k8s` via the NFS CSI driver,
-- a reusable `nas-shared-pvc` claim (`ReadWriteMany`, 100Gi) for workloads that need shared persistent storage.
-
-Ensure that the [Kubernetes NFS CSI Driver](https://github.com/kubernetes-csi/csi-driver-nfs) is deployed in the target cluster; Flux can manage it as another module once you add the manifests here.
+- `modules/databases/scylla` deploys a single-node ScyllaDB `StatefulSet`, exposes a client service, and runs a bootstrap Job that creates the `tessaro_admin` keyspace and core tables. Its `PersistentVolumeClaim` omits `storageClassName` and is compatible with standard `ReadWriteOnce` provisioners.
+- `modules/object-storage/minio` deploys MinIO with `ReadWriteOnce` storage, root credentials sourced from `.env`, and a bootstrap job to create the `tessaro-profile-pictures` bucket with anonymous download access.
+- `modules/platform/coredns` patches CoreDNS for custom host entries needed by the home cluster (edit the ConfigMap to match your LAN as required).
 
 ## Environments
 
