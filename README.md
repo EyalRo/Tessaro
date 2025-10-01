@@ -117,6 +117,8 @@ Knative now hosts the serverless APIs. Deployments flow through Flux, so local w
 * Triggering a reconciliation (`flux reconcile kustomization home`) after changing manifests.
 * Using `kubectl port-forward svc/users-api-get -n apps 8080:80` (or `kn service proxy`) to exercise functions locally.
 
+For configuration management, the platform now uses Kubernetes ConfigMaps. When running locally, ensure that the `tessaro-config` ConfigMap is deployed to your cluster. This ConfigMap contains environment-specific configuration such as service URLs and CORS origins.
+
 #### Admin App
 
 For quick UI development you can run the Admin app directly:
@@ -127,6 +129,12 @@ npm run admin:dev
 ```
 
 The development server listens on <http://localhost:5173> by default. Use `PORT` to override the port when needed. For mocked API interactions during UI work, point `VITE_USERS_API_URL` at a port-forwarded Knative service or a local stub.
+
+To point to a Knative service via port-forwarding:
+```bash
+kubectl port-forward svc/users-api-get -n apps 8080:80
+```
+Then set `VITE_USERS_API_URL=http://localhost:8080` when starting the admin app.
 
 ### Tests
 

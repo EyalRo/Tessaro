@@ -59,15 +59,15 @@ create_flux_secret() {
   rm -f "${tmp_identity}" "${tmp_identity_pub}" "${tmp_known}"
 }
 
-create_nfs_secret() {
-  if [[ -z "${NAS_USERNAME:-}" || -z "${NAS_PASSWORD:-}" ]]; then
-    echo "Warning: NAS credentials not set; skipping nas-nfs-credentials secret" >&2
+create_minio_secret() {
+  if [[ -z "${MINIO_ROOT_USER:-}" || -z "${MINIO_ROOT_PASSWORD:-}" ]]; then
+    echo "Warning: MinIO credentials not set; skipping minio-root-credentials secret" >&2
     return
   fi
 
-  kubectl -n storage create secret generic nas-nfs-credentials \
-    --from-literal=username="${NAS_USERNAME}" \
-    --from-literal=password="${NAS_PASSWORD}" \
+  kubectl -n object-storage create secret generic minio-root-credentials \
+    --from-literal=username="${MINIO_ROOT_USER}" \
+    --from-literal=password="${MINIO_ROOT_PASSWORD}" \
     --dry-run=client -o yaml | kubectl apply -f -
 }
 
@@ -162,12 +162,12 @@ else
   echo "Age key not found at ${AGE_KEY_PATH}; skip sops-age secret creation" >&2
 fi
 
-# Apply the cluster state handled by Flux (namespaces, storage, etc.).
+# Apply the cluster state handled by Flux (namespaces, workloads, etc.).
 echo "Applying cluster kustomization..."
 kubectl apply -k "${CLUSTER_ROOT}"
 
 # Create runtime secrets that are sourced from the local environment.
-create_nfs_secret
+create_minio_secret
 create_flux_secret
 
 # Trigger an initial reconciliation.
