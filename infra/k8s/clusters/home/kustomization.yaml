@@ -3,4 +3,9 @@ kind: Kustomization
 resources:
   - flux-system
   - ../../modules/namespaces
-  - ../../modules/storage/nfs
+  - ../../modules/databases/scylla
+  - ../../modules/object-storage/minio
+  - ../../modules/platform/coredns
+  - ../../modules/platform/knative
+  - ../../modules/apps/users-api
+  - ../../modules/apps/admin

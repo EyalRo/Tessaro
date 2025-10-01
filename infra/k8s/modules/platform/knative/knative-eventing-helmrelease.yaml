@@ -1,0 +1,31 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: knative-eventing
+  namespace: flux-system
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: knative-eventing
+      version: 1.13.0
+      sourceRef:
+        kind: HelmRepository
+        name: knative-repo
+        namespace: flux-system
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  targetNamespace: knative-eventing
+  values:
+    namespaceOverride: knative-eventing
+    controller:
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
