@@ -3,8 +3,6 @@ kind: Kustomization
 resources:
   - flux-system
   - ../../namespaces
-  - ../../databases/scylla
-  - ../../object-storage/minio
   - platform-kustomization.yaml
-  - users-api-kustomization.yaml
-  - admin-app-kustomization.yaml
+  - public-services-kustomization.yaml
+  - applications-kustomization.yaml

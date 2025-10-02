@@ -71,6 +71,42 @@ create_minio_secret() {
     --dry-run=client -o yaml | kubectl apply -f -
 }
 
+create_registry_secret() {
+  if [[ -z "${REGISTRY_USERNAME:-}" || -z "${REGISTRY_PASSWORD:-}" ]]; then
+    echo "Warning: Registry credentials not set; skipping registry-basic-auth secret" >&2
+    return
+  fi
+
+  local htpasswd
+  if ! htpasswd="$(
+    python - "${REGISTRY_USERNAME}" "${REGISTRY_PASSWORD}" <<'PY'
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+import crypt
+import sys
+
+username = sys.argv[1]
+password = sys.argv[2]
+
+hashed = crypt.crypt(password, crypt.mksalt(crypt.METHOD_SHA512))
+if hashed is None:
+    raise SystemExit('failed to create htpasswd entry')
+
+print(f"{username}:{hashed}")
+PY
+  )"; then
+    echo "Error: failed to generate registry htpasswd entry" >&2
+    return
+  fi
+
+  htpasswd="${htpasswd%$'\n'}"
+
+  kubectl -n registry create secret generic registry-basic-auth \
+    --from-literal=htpasswd="${htpasswd}" \
+    --dry-run=client -o yaml | kubectl apply -f -
+}
+
 usage() {
   cat <<USAGE
 Usage: $0 <cluster-name> <git-url> [branch]
@@ -221,6 +257,7 @@ kubectl apply -k "${CLUSTER_ROOT}"
 
 # Create runtime secrets that are sourced from the local environment.
 create_minio_secret
+create_registry_secret
 create_flux_secret
 
 # Trigger an initial reconciliation.
