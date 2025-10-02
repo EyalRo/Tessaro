@@ -13,16 +13,21 @@
     "types": ["jest", "node", "@testing-library/jest-dom"],
     "baseUrl": ".",
     "paths": {
-      "libs/*": ["libs/*/src", "libs/*"],
-      "apps/*": ["apps/*/src", "apps/*"],
-      "@/*": ["apps/admin/src/*"]
+      "shared/libs/database": ["shared/libs/database/src"],
+      "shared/libs/database/*": ["shared/libs/database/src/*"],
+      "shared/libs/*/*": ["shared/libs/*/src/*"],
+      "shared/libs/*": ["shared/libs/*/src", "shared/libs/*"],
+      "shared/config/*": ["shared/config/*"],
+      "@/*": ["services/admin-app/app/src/*"]
     }
   },
   "include": [
-    "apps/**/*.ts",
-    "apps/**/*.tsx",
-    "libs/**/*.ts",
-    "libs/**/*.tsx",
-    "infra/**/*.ts"
+    "services/**/*.ts",
+    "services/**/*.tsx",
+    "services/**/*.d.ts",
+    "shared/**/*.ts",
+    "shared/**/*.tsx",
+    "shared/**/*.d.ts",
+    "platform/**/*.ts"
   ]
 }

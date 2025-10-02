@@ -54,54 +54,44 @@ Tessaro is a SaaS platform providing multiple services under one umbrella. Custo
 
 ```bash
 📦 tessaro/
-├── apps/
-│   ├── admin/                # Tessaro Admin Interface (restricted)
-│   │   ├── src/
-│   │   │   ├── components/   # Admin UI components
-│   │   │   ├── pages/        # Routes: /users, /orgs, /services
-│   │   │   ├── layouts/      # Dashboard & navigation
-│   │   │   ├── hooks/        # Admin-specific hooks (RBAC, audit)
-│   │   │   └── utils/
-│   │   ├── public/           # Static assets
-│   │   ├── tests/            # Unit & integration tests
-│   │   └── project-config
-│   │
-│   ├── main/                 # Customer-facing Main App
-│   │   ├── src/
-│   │   │   ├── components/   # Landing, login, org picker, services
-│   │   │   ├── pages/        # / (landing), /dashboard, /services
-│   │   │   ├── layouts/      # Header, sidebar, footer
-│   │   │   ├── hooks/        # Org context, entitlement checks
-│   │   │   └── utils/
-│   │   ├── public/
-│   │   ├── tests/
-│   │   └── project-config
-│   │
-│   └── functions/            # Serverless backend & microservices
-│       ├── auth/             # Login, token exchange
-│       ├── users/            # CRUD users
-│       ├── orgs/             # CRUD organizations
-│       ├── services/         # CRUD services
-│       ├── audit/            # Logging & compliance
-│       ├── storage/          # MinIO integration
-│       ├── database/         # ScyllaDB access
-│       └── messaging/        # NATS event consumers/producers
+├── services/                     # Deployable surfaces own their code, tests, and manifests
+│   ├── admin-app/
+│   │   ├── app/                  # Vite-powered admin UI
+│   │   └── deploy/flux/          # Flux kustomization for the admin web app
+│   ├── users-api/
+│   │   ├── functions/            # Knative functions for user CRUD
+│   │   └── deploy/flux/          # Flux definitions for the users API services
+│   ├── orgs-api/
+│   │   ├── functions/            # Knative functions for organization CRUD
+│   │   └── deploy/flux/          # Reserved for future org API manifests
+│   ├── services-api/
+│   │   ├── functions/            # Knative functions for service catalog CRUD
+│   │   └── deploy/flux/          # Reserved for future service API manifests
+│   └── storage-service/
+│       ├── functions/            # Storage handlers and asset workflows
+│       └── deploy/flux/          # Reserved for storage deployment manifests
 │
-├── libs/                     # Shared libraries
-│   ├── ui/                   # Shared UI components
-│   ├── auth/                 # Identity provider helpers & context
-│   ├── api-client/           # Typed service clients
-│   └── utils/                # Common utilities
+├── shared/
+│   ├── libs/                     # Reusable TypeScript packages (auth, database, API clients)
+│   ├── config/                   # Cross-service configuration helpers
+│   └── testing/                  # Shared Jest reporters and utilities
 │
-├── infra/                    # Infrastructure-as-Code
-│   ├── k8s/                  # FluxCD-managed Kubernetes manifests (including Knative)
-│   └── ci-cd/                # CI/CD pipelines & deployment workflows
+├── platform/
+│   └── flux/                     # GitOps source of truth for infrastructure
+│       ├── clusters/             # Cluster bootstrap and Flux sync manifests
+│       ├── databases/            # ScyllaDB stateful set and schema jobs
+│       ├── namespaces/           # Namespace definitions
+│       ├── object-storage/       # MinIO deployment, services, and bootstrap jobs
+│       └── platform/             # Knative, Scylla operator, and supporting components
 │
-├── docs/                     # Developer & admin documentation
-├── tests/                    # End-to-end integration tests
-├── scripts/                  # Dev scripts & database migrations
-├── .github/                  # GitHub Actions workflows
-└── project-config            # Root workspace configuration
+├── tools/
+│   └── scripts/                  # Flux reconciliation, bootstrap, and data seeding helpers
+│
+├── jest.config.cjs
+├── jest.setup.ts
+├── package.json
+├── package-lock.json
+└── tsconfig.json
 ```
 
 ---
@@ -122,7 +112,7 @@ Tessaro is a SaaS platform providing multiple services under one umbrella. Custo
 
 Knative now hosts the serverless APIs. Deployments flow through Flux, so local workflows typically involve:
 
-* Triggering a reconciliation with `./scripts/reconcile-flux.sh` (or `flux reconcile kustomization home`) after changing manifests.
+* Triggering a reconciliation with `./tools/scripts/reconcile-flux.sh` (or `flux reconcile kustomization home`) after changing manifests.
 * Using `kubectl port-forward svc/users-api-get -n apps 8080:80` (or `kn service proxy`) to exercise functions locally.
 
 For configuration management, the platform now uses Kubernetes ConfigMaps. When running locally, ensure that the `tessaro-config` ConfigMap is deployed to your cluster. This ConfigMap contains environment-specific configuration such as service URLs and CORS origins.
@@ -132,7 +122,7 @@ For configuration management, the platform now uses Kubernetes ConfigMaps. When 
 For quick UI development you can run the Admin app directly:
 
 ```bash
-npm install --prefix apps/admin
+npm install --prefix services/admin-app/app
 npm run admin:dev
 ```
 
@@ -146,7 +136,7 @@ Then set `VITE_USERS_API_URL=http://localhost:8080` when starting the admin app.
 
 ### Tests
 
-* Unit tests exist under each app's `tests/` folder.
+* Unit tests exist under each service's `tests/` folder.
 * End-to-end tests are located in the root `tests/` directory.
 * When building container images, make sure Dockerfiles execute the test suite (e.g. `RUN npm test`) before the final build command so failures are caught during the image build.
 
@@ -160,15 +150,15 @@ Then set `VITE_USERS_API_URL=http://localhost:8080` when starting the admin app.
 
 ### Reconciliation workflow
 
-1. Update the desired manifests under `infra/k8s`.
+1. Update the desired manifests under `platform/flux`.
 2. Commit the change to Git.
 3. Run the Flux reconciliation script to apply the desired state:
 
    ```bash
-   ./scripts/reconcile-flux.sh
+   ./tools/scripts/reconcile-flux.sh
    ```
 
-   Pass a custom kustomization name if required: `./scripts/reconcile-flux.sh tessaro-cluster`.
+   Pass a custom kustomization name if required: `./tools/scripts/reconcile-flux.sh tessaro-cluster`.
 4. Use the script output (or rerun `flux get kustomizations`) to confirm the reconciliation completed successfully.
 
 * CI/CD pipelines are defined in **.github/workflows/**.
