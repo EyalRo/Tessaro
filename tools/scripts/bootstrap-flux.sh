@@ -97,7 +97,7 @@ if [[ $# -ge 3 ]]; then
   BRANCH="$3"
 fi
 
-CLUSTER_ROOT="platform/flux/clusters/${CLUSTER}"
+CLUSTER_ROOT="${ROOT_DIR}/platform/flux/clusters/${CLUSTER}"
 SYNC_FILE="${CLUSTER_ROOT}/flux-system/gotk-sync.yaml"
 
 if ! command -v kubectl >/dev/null 2>&1; then
@@ -144,6 +144,59 @@ if count == 0:
 path.write_text(text)
 PY
 
+# Determine the Flux kustomization name from the sync manifest so we can
+# trigger the correct reconciliation even if the name changes.
+KUSTOMIZATION_NAME="$(python - <<'PY' "${SYNC_FILE}"
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+content = path.read_text()
+
+def extract_name(block):
+    lines = block.strip().splitlines()
+    if not lines:
+        return None
+
+    kind = None
+    metadata_name = None
+    in_metadata = False
+
+    for raw_line in lines:
+        stripped = raw_line.strip()
+
+        if stripped.startswith('kind:'):
+            kind = stripped.split(':', 1)[1].strip()
+        elif stripped.startswith('metadata:'):
+            in_metadata = True
+        elif in_metadata:
+            if not raw_line.startswith(' '):
+                in_metadata = False
+            elif stripped.startswith('name:'):
+                metadata_name = stripped.split(':', 1)[1].strip()
+                break
+
+    if kind == 'Kustomization':
+        return metadata_name
+
+    return None
+
+for section in content.split('---'):
+    name = extract_name(section)
+    if name:
+        print(name)
+        sys.exit(0)
+
+sys.exit('Failed to locate Kustomization metadata.name in gotk-sync.yaml')
+PY
+)"
+
+# Ensure the name was discovered successfully.
+if [[ -z "${KUSTOMIZATION_NAME}" ]]; then
+  echo "Failed to determine the Flux kustomization name from ${SYNC_FILE}" >&2
+  exit 1
+fi
+
 # Install (or upgrade) the Flux controllers.
 echo "Installing Flux controllers ${FLUX_VERSION}..."
 kubectl apply -f "https://github.com/fluxcd/flux2/releases/download/${FLUX_VERSION}/install.yaml"
@@ -171,7 +224,7 @@ create_minio_secret
 create_flux_secret
 
 # Trigger an initial reconciliation.
-echo "Triggering Flux reconciliation..."
-flux reconcile kustomization tessaro-cluster --namespace=flux-system --with-source
+echo "Triggering Flux reconciliation for '${KUSTOMIZATION_NAME}'..."
+flux reconcile kustomization "${KUSTOMIZATION_NAME}" --namespace=flux-system --with-source
 
 echo "Flux bootstrap for cluster '${CLUSTER}' complete."
