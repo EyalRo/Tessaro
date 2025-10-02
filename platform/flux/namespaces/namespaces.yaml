@@ -53,3 +53,10 @@ metadata:
   name: kourier-system
   labels:
     app.kubernetes.io/name: kourier-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kubernetes-dashboard
+  labels:
+    app.kubernetes.io/name: kubernetes-dashboard
