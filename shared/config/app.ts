@@ -8,25 +8,7 @@ type CorsOptions = {
 };
 
 export const resolveCorsOptions = (): CorsOptions => {
-  const rawOrigins = process.env.CORS_ALLOWED_ORIGINS;
-  if (!rawOrigins) {
-    return { origin: true };
-  }
-
-  const origins = rawOrigins
-    .split(',')
-    .map(origin => origin.trim())
-    .filter(origin => origin.length > 0);
-
-  if (origins.length === 0) {
-    return { origin: true };
-  }
-
-  if (origins.length === 1) {
-    return { origin: origins[0] };
-  }
-
-  return { origin: origins };
+  return { origin: true };
 };
 
 export const createBaseApp = (): Express => {
