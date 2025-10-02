@@ -1,8 +1,10 @@
 # Repository Guidelines
 
-> ⚠️ **IMPORTANT**: This repository uses GitOps with FluxCD for all infrastructure and application management. 
-> **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository 
-> and let FluxCD reconcile the changes. Once you've made changes, push to a new branch and create a PR.
+> ⚠️ **IMPORTANT**: This repository uses GitOps with FluxCD for all infrastructure and application management.
+> **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository,
+> commit the change, and let FluxCD reconcile it. Use the `./scripts/reconcile-flux.sh` helper (or the equivalent
+> `flux reconcile kustomization ...` commands) to apply updates after modifying manifests. Once you've made
+> changes, push to a new branch and create a PR.
 
 ## Project Structure & Module Organization
 This monorepo separates UI shells, shared libraries, and platform tooling. Keep feature logic in reusable libs and keep app folders thin.
