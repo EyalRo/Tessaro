@@ -26,12 +26,22 @@ describe('StorageService', () => {
 
       expect(result).toBe(expectedUrl);
       expect(mockMinioClient.uploadBuffer).toHaveBeenCalledWith(
-        expect.stringMatching(`profile-pictures/${userId}-`),
+        expect.stringMatching(new RegExp(`^profile-pictures/${userId}-[\\w-]+\\.(?:jpe?g)$`)),
         fileBuffer,
         expect.objectContaining({
           'Content-Type': fileType
         })
       );
+    });
+
+    it('should reject an unsupported MIME type with a validation error', async () => {
+      await expect(
+        storageService.uploadUserProfilePicture('123', Buffer.from('test'), 'text/plain')
+      ).rejects.toMatchObject({
+        message: 'Unsupported content type: text/plain',
+        statusCode: 422
+      });
+      expect(mockMinioClient.uploadBuffer).not.toHaveBeenCalled();
     });
   });
 
@@ -82,7 +92,7 @@ describe('StorageService', () => {
     it('should upload an organization logo and return the URL', async () => {
       const orgId = '123';
       const fileBuffer = Buffer.from('test');
-      const fileType = 'image/png';
+      const fileType = 'IMAGE/PNG';
       const expectedUrl = 'http://minio:9000/organization-logos/123-test.png';
 
       mockMinioClient.uploadBuffer.mockResolvedValueOnce(expectedUrl);
@@ -91,12 +101,22 @@ describe('StorageService', () => {
 
       expect(result).toBe(expectedUrl);
       expect(mockMinioClient.uploadBuffer).toHaveBeenCalledWith(
-        expect.stringMatching(`organization-logos/${orgId}-`),
+        expect.stringMatching(new RegExp(`^organization-logos/${orgId}-[\\w-]+\\.png$`)),
         fileBuffer,
         expect.objectContaining({
-          'Content-Type': fileType
+          'Content-Type': 'image/png'
         })
       );
+    });
+
+    it('should reject malformed MIME strings', async () => {
+      await expect(
+        storageService.uploadOrganizationLogo('123', Buffer.from('test'), 'not a mime type')
+      ).rejects.toMatchObject({
+        message: 'Unsupported content type: not a mime type',
+        statusCode: 422
+      });
+      expect(mockMinioClient.uploadBuffer).not.toHaveBeenCalled();
     });
   });
 
