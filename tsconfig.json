@@ -10,12 +10,11 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "jsx": "react-jsx",
-    "types": ["jest", "node", "@testing-library/jest-dom"],
+    "types": ["jest", "node", "@testing-library/jest-dom", "cors"],
     "baseUrl": ".",
     "paths": {
       "shared/libs/database": ["shared/libs/database/src"],
       "shared/libs/database/*": ["shared/libs/database/src/*"],
-      "shared/libs/*/*": ["shared/libs/*/src/*"],
       "shared/libs/*": ["shared/libs/*/src", "shared/libs/*"],
       "shared/config/*": ["shared/config/*"],
       "@/*": ["services/admin-app/app/src/*"]
@@ -29,5 +28,6 @@
     "shared/**/*.tsx",
     "shared/**/*.d.ts",
     "platform/**/*.ts"
-  ]
+  ],
+  "exclude": ["services/**/app/vite.config.ts"]
 }
