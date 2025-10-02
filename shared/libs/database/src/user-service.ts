@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import ScyllaClient from './scylla-client';
-import { ScyllaConfig, UserProfile, Organization, Service, AuditLog } from './types';
+import { ScyllaConfig, UserProfile, Organization, Service, AuditLog, UserRow } from './types';
 
 class UserService {
   constructor(private dbClient: ScyllaClient) {}
@@ -29,7 +29,7 @@ class UserService {
 
   async getUserById(id: string): Promise<UserProfile | null> {
     const query = `SELECT * FROM users WHERE id = ?`;
-    const result = await this.dbClient.executeQuery(query, [id]);
+    const result = await this.dbClient.executeQuery<UserRow>(query, [id]);
     
     if (result.rows.length === 0) {
       return null;
@@ -40,9 +40,9 @@ class UserService {
 
   async listUsers(): Promise<UserProfile[]> {
     const query = 'SELECT * FROM users';
-    const result = await this.dbClient.executeQuery(query);
+    const result = await this.dbClient.executeQuery<UserRow>(query);
 
-    return result.rows.map((row: any) => this.mapRowToUser(row));
+    return result.rows.map((row) => this.mapRowToUser(row));
   }
 
   async updateUser(id: string, updates: Partial<Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>>): Promise<UserProfile | null> {
@@ -79,7 +79,7 @@ class UserService {
     return uuidv4();
   }
 
-  private mapRowToUser(row: any): UserProfile {
+  private mapRowToUser(row: UserRow): UserProfile {
     return {
       id: row.id,
       email: row.email,

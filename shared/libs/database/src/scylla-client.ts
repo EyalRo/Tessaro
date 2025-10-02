@@ -1,5 +1,5 @@
 import { Client, auth } from 'cassandra-driver';
-import { ScyllaConfig } from './types';
+import { QueryResult, ScyllaConfig } from './types';
 
 class ScyllaClient {
   private client: Client;
@@ -32,11 +32,11 @@ class ScyllaClient {
     }
   }
 
-  async executeQuery(query: string, params?: any[]): Promise<any> {
+  async executeQuery<TRow = Record<string, unknown>>(query: string, params?: any[]): Promise<QueryResult<TRow>> {
     if (!this.connected) {
       await this.connect();
     }
-    return this.client.execute(query, params);
+    return this.client.execute(query, params) as unknown as QueryResult<TRow>;
   }
 
   async executeBatch(queries: Array<{query: string, params?: any[]}>): Promise<any> {

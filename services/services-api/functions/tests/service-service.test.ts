@@ -1,5 +1,6 @@
 import ConfigService from 'shared/libs/database/config-service';
 import ScyllaClient from 'shared/libs/database/scylla-client';
+import type { QueryResult, ServiceRow } from 'shared/libs/database/types';
 
 // Mock ScyllaClient
 jest.mock('shared/libs/database/scylla-client');
@@ -7,6 +8,8 @@ jest.mock('shared/libs/database/scylla-client');
 describe('ConfigService - Service Management', () => {
   let configService: ConfigService;
   let mockDbClient: jest.Mocked<ScyllaClient>;
+
+  const createResult = <TRow>(rows: TRow[]): QueryResult<TRow> => ({ rows });
 
   beforeEach(() => {
     const MockedScyllaClient = ScyllaClient as jest.MockedClass<typeof ScyllaClient>;
@@ -29,7 +32,7 @@ describe('ConfigService - Service Management', () => {
         updated_at: expect.any(Date)
       };
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({});
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       const result = await configService.createService(serviceData);
 
@@ -44,7 +47,7 @@ describe('ConfigService - Service Management', () => {
   describe('getServiceById', () => {
     it('should return a service when found', async () => {
       const serviceId = '123';
-      const serviceData = {
+      const serviceData: ServiceRow = {
         id: serviceId,
         name: 'Email Service',
         type: 'communication',
@@ -53,9 +56,7 @@ describe('ConfigService - Service Management', () => {
         updated_at: new Date()
       };
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({
-        rows: [serviceData]
-      });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([serviceData]));
 
       const result = await configService.getServiceById(serviceId);
 
@@ -69,9 +70,7 @@ describe('ConfigService - Service Management', () => {
     it('should return null when service is not found', async () => {
       const serviceId = '123';
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({
-        rows: []
-      });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       const result = await configService.getServiceById(serviceId);
 
@@ -82,7 +81,7 @@ describe('ConfigService - Service Management', () => {
   describe('updateService', () => {
     it('should update and return the service when found', async () => {
       const serviceId = '123';
-      const existingService = {
+      const existingService: ServiceRow = {
         id: serviceId,
         name: 'Old Service',
         type: 'old-type',
@@ -103,12 +102,10 @@ describe('ConfigService - Service Management', () => {
       };
 
       // Mock getServiceById
-      mockDbClient.executeQuery.mockResolvedValueOnce({
-        rows: [existingService]
-      });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([existingService]));
 
       // Mock updateService
-      mockDbClient.executeQuery.mockResolvedValueOnce({});
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       const result = await configService.updateService(serviceId, updates);
 
@@ -123,9 +120,7 @@ describe('ConfigService - Service Management', () => {
       const serviceId = '123';
       const updates = { name: 'New Service' };
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({
-        rows: []
-      });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       const result = await configService.updateService(serviceId, updates);
 
@@ -137,7 +132,7 @@ describe('ConfigService - Service Management', () => {
     it('should delete a service', async () => {
       const serviceId = '123';
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({});
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       await configService.deleteService(serviceId);
 

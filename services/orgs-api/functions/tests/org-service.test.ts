@@ -1,5 +1,6 @@
 import ConfigService from 'shared/libs/database/config-service';
 import ScyllaClient from 'shared/libs/database/scylla-client';
+import type { OrganizationRow, QueryResult } from 'shared/libs/database/types';
 
 // Mock ScyllaClient
 jest.mock('shared/libs/database/scylla-client');
@@ -7,6 +8,8 @@ jest.mock('shared/libs/database/scylla-client');
 describe('ConfigService', () => {
   let configService: ConfigService;
   let mockDbClient: jest.Mocked<ScyllaClient>;
+
+  const createResult = <TRow>(rows: TRow[]): QueryResult<TRow> => ({ rows });
 
   beforeEach(() => {
     const MockedScyllaClient = ScyllaClient as jest.MockedClass<typeof ScyllaClient>;
@@ -29,7 +32,7 @@ describe('ConfigService', () => {
         updated_at: expect.any(Date)
       };
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({});
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       const result = await configService.createOrganization(orgData);
 
@@ -44,7 +47,7 @@ describe('ConfigService', () => {
   describe('getOrganizationById', () => {
     it('should return an organization when found', async () => {
       const orgId = '123';
-      const orgData = {
+      const orgData: OrganizationRow = {
         id: orgId,
         name: 'Test Org',
         plan: 'enterprise',
@@ -53,9 +56,7 @@ describe('ConfigService', () => {
         updated_at: new Date()
       };
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({
-        rows: [orgData]
-      });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([orgData]));
 
       const result = await configService.getOrganizationById(orgId);
 
@@ -69,9 +70,7 @@ describe('ConfigService', () => {
     it('should return null when organization is not found', async () => {
       const orgId = '123';
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({
-        rows: []
-      });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       const result = await configService.getOrganizationById(orgId);
 
@@ -82,7 +81,7 @@ describe('ConfigService', () => {
   describe('updateOrganization', () => {
     it('should update and return the organization when found', async () => {
       const orgId = '123';
-      const existingOrg = {
+      const existingOrg: OrganizationRow = {
         id: orgId,
         name: 'Old Org',
         plan: 'basic',
@@ -103,12 +102,10 @@ describe('ConfigService', () => {
       };
 
       // Mock getOrganizationById
-      mockDbClient.executeQuery.mockResolvedValueOnce({
-        rows: [existingOrg]
-      });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([existingOrg]));
 
       // Mock updateOrganization
-      mockDbClient.executeQuery.mockResolvedValueOnce({});
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       const result = await configService.updateOrganization(orgId, updates);
 
@@ -123,9 +120,7 @@ describe('ConfigService', () => {
       const orgId = '123';
       const updates = { name: 'New Name' };
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({
-        rows: []
-      });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       const result = await configService.updateOrganization(orgId, updates);
 
@@ -137,7 +132,7 @@ describe('ConfigService', () => {
     it('should delete an organization', async () => {
       const orgId = '123';
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({});
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       await configService.deleteOrganization(orgId);
 
