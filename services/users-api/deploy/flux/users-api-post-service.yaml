@@ -18,8 +18,8 @@ spec:
       timeoutSeconds: 30
       containers:
         - name: users-api-post
-          image: ttl.sh/tessaro-users-api-post-knative:24h
-          imagePullPolicy: Always
+          image: ghcr.io/your-org/tessaro-users-api-post@sha256:REPLACE_WITH_DIGEST
+          imagePullPolicy: IfNotPresent
           env:
             - name: FUNCTION_ENTRY
               value: services/users-api/functions/src/knative-create-user.ts
