@@ -6,3 +6,4 @@ resources:
   - net-kourier-helmrelease.yaml
   - knative-eventing-helmrelease.yaml
   - knative-serving-domain-config.yaml
+  - kourier-traefik-ingressroutes.yaml

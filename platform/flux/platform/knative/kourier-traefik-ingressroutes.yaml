@@ -1,0 +1,28 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: kourier-admin-web
+  namespace: kourier-system
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`admin.tessaro.dino.home`)
+      services:
+        - name: kourier
+          port: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: kourier-admin-web-tls
+  namespace: kourier-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: HostSNI(`admin.tessaro.dino.home`)
+      services:
+        - name: kourier
+          port: 443
