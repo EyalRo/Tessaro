@@ -8,7 +8,26 @@ type CorsOptions = {
 };
 
 export const resolveCorsOptions = (): CorsOptions => {
-  return { origin: true };
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS;
+
+  if (allowedOrigins === undefined) {
+    return { origin: true };
+  }
+
+  const parsedOrigins = allowedOrigins
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+
+  if (parsedOrigins.length === 0) {
+    return { origin: true };
+  }
+
+  if (parsedOrigins.length === 1) {
+    return { origin: parsedOrigins[0] };
+  }
+
+  return { origin: parsedOrigins };
 };
 
 export const createBaseApp = (): Express => {
