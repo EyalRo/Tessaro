@@ -1,5 +1,6 @@
 import UserService from 'shared/libs/database/user-service';
 import ScyllaClient from 'shared/libs/database/scylla-client';
+import type { QueryResult, UserRow } from 'shared/libs/database/types';
 
 // Mock ScyllaClient
 jest.mock('shared/libs/database/scylla-client');
@@ -7,6 +8,8 @@ jest.mock('shared/libs/database/scylla-client');
 describe('UserService', () => {
   let userService: UserService;
   let mockDbClient: jest.Mocked<ScyllaClient>;
+
+  const createResult = <TRow>(rows: TRow[]): QueryResult<TRow> => ({ rows });
 
   beforeEach(() => {
     const MockedScyllaClient = ScyllaClient as jest.MockedClass<typeof ScyllaClient>;
@@ -29,7 +32,7 @@ describe('UserService', () => {
         updated_at: expect.any(Date)
       };
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({});
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       const result = await userService.createUser(userData);
 
@@ -44,18 +47,17 @@ describe('UserService', () => {
   describe('getUserById', () => {
     it('should return a user when found', async () => {
       const userId = '123';
-      const userData = {
+      const userData: UserRow = {
         id: userId,
         email: 'test@example.com',
         name: 'Test User',
         role: 'user',
+        avatar_url: null,
         created_at: new Date(),
         updated_at: new Date()
       };
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({
-        rows: [userData]
-      });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([userData]));
 
       const result = await userService.getUserById(userId);
 
@@ -69,9 +71,7 @@ describe('UserService', () => {
     it('should return null when user is not found', async () => {
       const userId = '123';
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({
-        rows: []
-      });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       const result = await userService.getUserById(userId);
 
@@ -81,7 +81,7 @@ describe('UserService', () => {
 
   describe('listUsers', () => {
     it('should return a list of users', async () => {
-      const users = [
+      const users: UserRow[] = [
         {
           id: '1',
           email: 'one@example.com',
@@ -102,7 +102,7 @@ describe('UserService', () => {
         }
       ];
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({ rows: users });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult(users));
 
       const result = await userService.listUsers();
 
@@ -114,11 +114,12 @@ describe('UserService', () => {
   describe('updateUser', () => {
     it('should update and return the user when found', async () => {
       const userId = '123';
-      const existingUser = {
+      const existingUser: UserRow = {
         id: userId,
         email: 'old@example.com',
         name: 'Old Name',
         role: 'user',
+        avatar_url: null,
         created_at: new Date(),
         updated_at: new Date()
       };
@@ -135,12 +136,10 @@ describe('UserService', () => {
       };
 
       // Mock getUserById
-      mockDbClient.executeQuery.mockResolvedValueOnce({
-        rows: [existingUser]
-      });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([existingUser]));
 
       // Mock updateUser
-      mockDbClient.executeQuery.mockResolvedValueOnce({});
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       const result = await userService.updateUser(userId, updates);
 
@@ -155,9 +154,7 @@ describe('UserService', () => {
       const userId = '123';
       const updates = { name: 'New Name' };
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({
-        rows: []
-      });
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       const result = await userService.updateUser(userId, updates);
 
@@ -169,7 +166,7 @@ describe('UserService', () => {
     it('should delete a user', async () => {
       const userId = '123';
 
-      mockDbClient.executeQuery.mockResolvedValueOnce({});
+      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
 
       await userService.deleteUser(userId);
 

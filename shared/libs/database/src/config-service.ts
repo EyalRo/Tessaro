@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import ScyllaClient from './scylla-client';
-import { ScyllaConfig, Organization, Service } from './types';
+import { ScyllaConfig, Organization, OrganizationRow, Service, ServiceRow } from './types';
 
 class ConfigService {
   constructor(private dbClient: ScyllaClient) {}
@@ -28,7 +28,7 @@ class ConfigService {
 
   async getOrganizationById(id: string): Promise<Organization | null> {
     const query = `SELECT * FROM organizations WHERE id = ?`;
-    const result = await this.dbClient.executeQuery(query, [id]);
+    const result = await this.dbClient.executeQuery<OrganizationRow>(query, [id]);
     
     if (result.rows.length === 0) {
       return null;
@@ -89,7 +89,7 @@ class ConfigService {
 
   async getServiceById(id: string): Promise<Service | null> {
     const query = `SELECT * FROM services WHERE id = ?`;
-    const result = await this.dbClient.executeQuery(query, [id]);
+    const result = await this.dbClient.executeQuery<ServiceRow>(query, [id]);
     
     if (result.rows.length === 0) {
       return null;
@@ -131,7 +131,7 @@ class ConfigService {
     return uuidv4();
   }
 
-  private mapRowToOrganization(row: any): Organization {
+  private mapRowToOrganization(row: OrganizationRow): Organization {
     return {
       id: row.id,
       name: row.name,
@@ -142,7 +142,7 @@ class ConfigService {
     };
   }
 
-  private mapRowToService(row: any): Service {
+  private mapRowToService(row: ServiceRow): Service {
     return {
       id: row.id,
       name: row.name,
