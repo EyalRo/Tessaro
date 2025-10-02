@@ -22,7 +22,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: FUNCTION_ENTRY
-              value: apps/functions/users/src/knative-create-user.ts
+              value: services/users-api/functions/src/knative-create-user.ts
             - name: PORT
               value: "8080"
             - name: HOST
