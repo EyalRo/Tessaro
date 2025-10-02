@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "scripts": {
     "test": "jest",
-    "admin:dev": "npm run dev --prefix apps/admin",
-    "admin:build": "npm run build --prefix apps/admin",
-    "admin:preview": "npm run preview --prefix apps/admin"
+    "admin:dev": "npm run dev --prefix services/admin-app/app",
+    "admin:build": "npm run build --prefix services/admin-app/app",
+    "admin:preview": "npm run preview --prefix services/admin-app/app"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
