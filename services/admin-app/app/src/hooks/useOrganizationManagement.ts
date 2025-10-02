@@ -2,6 +2,17 @@ import React, { useState, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import useApi from './useApi';
 
+const isTestEnvironment = typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
+const SIMULATED_NETWORK_DELAY_MS = isTestEnvironment ? 0 : 300;
+
+const simulateNetworkDelay = async () => {
+  if (SIMULATED_NETWORK_DELAY_MS <= 0) {
+    return;
+  }
+
+  await new Promise(resolve => setTimeout(resolve, SIMULATED_NETWORK_DELAY_MS));
+};
+
 interface Organization {
   id: string;
   name: string;
@@ -24,16 +35,14 @@ const useOrganizationManagement = () => {
     ];
     
     await executeRequest(async () => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await simulateNetworkDelay();
       setOrganizations(mockOrganizations);
     });
   }, [executeRequest]);
 
   const createOrganization = useCallback(async (orgData: Omit<Organization, 'id'>) => {
     return executeRequest(async () => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await simulateNetworkDelay();
       const newOrg = { id: uuidv4(), ...orgData };
       setOrganizations(prev => [...prev, newOrg]);
       return newOrg;
@@ -42,8 +51,7 @@ const useOrganizationManagement = () => {
 
   const updateOrganization = useCallback(async (id: string, orgData: Partial<Organization>) => {
     return executeRequest(async () => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await simulateNetworkDelay();
       setOrganizations(prev => prev.map(org => org.id === id ? { ...org, ...orgData } : org));
       setCurrentOrganization(prev => prev?.id === id ? { ...prev, ...orgData } : prev);
       return { id, ...orgData };
@@ -52,8 +60,7 @@ const useOrganizationManagement = () => {
 
   const deleteOrganization = useCallback(async (id: string) => {
     return executeRequest(async () => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await simulateNetworkDelay();
       setOrganizations(prev => prev.filter(org => org.id !== id));
       if (currentOrganization?.id === id) {
         setCurrentOrganization(null);
