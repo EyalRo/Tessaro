@@ -1,8 +1,8 @@
 # Tessaro Monorepo
 
-> ⚠️ **IMPORTANT**: This repository uses GitOps with FluxCD for all infrastructure and application management. 
-> **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository 
-> and let FluxCD reconcile the changes. Once you've made changes, push to a new branch and create a PR.
+> ⚠️ **IMPORTANT**: This repository uses GitOps with FluxCD for all infrastructure and application management.
+> **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository,
+> commit the change, and reconcile Flux to apply it. Once you've made changes, push to a new branch and create a PR.
 
 This repository contains all code and infrastructure for the **Tessaro platform**, including the **Admin Interface** and the **Main App** (customer-facing). It is organized as a monorepo to enable shared libraries, consistent CI/CD, and Infrastructure-as-Code management.
 
@@ -116,13 +116,13 @@ Tessaro is a SaaS platform providing multiple services under one umbrella. Custo
 
 ### Running Locally
 
-> ⚠️ **IMPORTANT**: This repository uses GitOps with FluxCD for all infrastructure and application management. 
-> **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository 
-> and let FluxCD reconcile the changes. Once you've made changes, push to a new branch and create a PR.
+> ⚠️ **IMPORTANT**: This repository uses GitOps with FluxCD for all infrastructure and application management.
+> **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository,
+> commit the change, and reconcile Flux to apply it. Once you've made changes, push to a new branch and create a PR.
 
 Knative now hosts the serverless APIs. Deployments flow through Flux, so local workflows typically involve:
 
-* Triggering a reconciliation (`flux reconcile kustomization home`) after changing manifests.
+* Triggering a reconciliation with `./scripts/reconcile-flux.sh` (or `flux reconcile kustomization home`) after changing manifests.
 * Using `kubectl port-forward svc/users-api-get -n apps 8080:80` (or `kn service proxy`) to exercise functions locally.
 
 For configuration management, the platform now uses Kubernetes ConfigMaps. When running locally, ensure that the `tessaro-config` ConfigMap is deployed to your cluster. This ConfigMap contains environment-specific configuration such as service URLs and CORS origins.
@@ -154,9 +154,22 @@ Then set `VITE_USERS_API_URL=http://localhost:8080` when starting the admin app.
 
 ## Deployment
 
-> ⚠️ **IMPORTANT**: This repository uses GitOps with FluxCD for all infrastructure and application management. 
-> **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository 
-> and let FluxCD reconcile the changes. Once you've made changes, push to a new branch and create a PR.
+> ⚠️ **IMPORTANT**: This repository uses GitOps with FluxCD for all infrastructure and application management.
+> **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository,
+> commit the change, and reconcile Flux to apply it. Once you've made changes, push to a new branch and create a PR.
+
+### Reconciliation workflow
+
+1. Update the desired manifests under `infra/k8s`.
+2. Commit the change to Git.
+3. Run the Flux reconciliation script to apply the desired state:
+
+   ```bash
+   ./scripts/reconcile-flux.sh
+   ```
+
+   Pass a custom kustomization name if required: `./scripts/reconcile-flux.sh tessaro-cluster`.
+4. Use the script output (or rerun `flux get kustomizations`) to confirm the reconciliation completed successfully.
 
 * CI/CD pipelines are defined in **.github/workflows/**.
 * Each push to `main` triggers build, test, and deploy steps.
