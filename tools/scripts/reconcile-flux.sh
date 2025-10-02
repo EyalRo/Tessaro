@@ -81,6 +81,10 @@ Arguments:
   kustomization-name  Optional Flux kustomization to reconcile (default: ${DEFAULT_KUSTOMIZATION})
                         Pass a different name to target another kustomization managed by Flux.
 
+Examples:
+  $0 public-services
+  $0 applications
+
 Environment:
   FLUX_NAMESPACE      Namespace that hosts Flux resources (default: flux-system)
   DEFAULT_KUSTOMIZATION_OVERRIDE

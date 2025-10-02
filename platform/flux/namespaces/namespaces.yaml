@@ -60,3 +60,10 @@ metadata:
   name: kubernetes-dashboard
   labels:
     app.kubernetes.io/name: kubernetes-dashboard
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: registry
+  labels:
+    app.kubernetes.io/name: registry
