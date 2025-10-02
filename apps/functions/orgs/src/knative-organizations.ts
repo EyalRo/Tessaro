@@ -1,0 +1,27 @@
+import { createBaseApp, getConfigService, resolveHost, resolvePort } from './shared';
+import {
+  registerCreateOrganizationRoute,
+  registerDeleteOrganizationRoute,
+  registerGetOrganizationRoute,
+  registerUpdateOrganizationRoute
+} from './routes';
+
+const app = createBaseApp();
+const configService = getConfigService();
+
+registerCreateOrganizationRoute(app, configService);
+registerGetOrganizationRoute(app, configService);
+registerUpdateOrganizationRoute(app, configService);
+registerDeleteOrganizationRoute(app, configService);
+
+const port = resolvePort(process.env.PORT);
+const host = resolveHost(process.env.HOST);
+
+if (require.main === module) {
+  app.listen(port, host, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Knative organizations API ready on http://${host}:${port}`);
+  });
+}
+
+export default app;

@@ -1,20 +1,20 @@
-import UserService from '../../../../libs/database/src/user-service';
+import ConfigService from '../../../../libs/database/src/config-service';
 import { createBaseApp as createSharedBaseApp, resolveHost as resolveSharedHost, resolvePort as resolveSharedPort } from '../../shared/app';
 import { createScyllaClient } from '../../shared/scylla';
 
-let cachedUserService: UserService | null = null;
+let cachedConfigService: ConfigService | null = null;
 
-const createUserService = (): UserService => {
+const createConfigService = (): ConfigService => {
   const client = createScyllaClient();
-  return new UserService(client);
+  return new ConfigService(client);
 };
 
-export const getUserService = (): UserService => {
-  if (!cachedUserService) {
-    cachedUserService = createUserService();
+export const getConfigService = (): ConfigService => {
+  if (!cachedConfigService) {
+    cachedConfigService = createConfigService();
   }
 
-  return cachedUserService;
+  return cachedConfigService;
 };
 
 export const createBaseApp = createSharedBaseApp;
