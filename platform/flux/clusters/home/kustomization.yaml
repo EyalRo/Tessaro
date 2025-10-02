@@ -5,6 +5,6 @@ resources:
   - ../../namespaces
   - ../../databases/scylla
   - ../../object-storage/minio
-  - ../../platform
-  - ../../../../services/users-api/deploy/flux
-  - ../../../../services/admin-app/deploy/flux
+  - platform-kustomization.yaml
+  - users-api-kustomization.yaml
+  - admin-app-kustomization.yaml
