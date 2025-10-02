@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - coredns
   - kubernetes-dashboard
+  - metrics-server
   - knative
   - scylla-operator
   - tessaro-config.yaml
