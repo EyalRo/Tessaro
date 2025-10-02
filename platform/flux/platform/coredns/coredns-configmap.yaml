@@ -21,6 +21,7 @@ data:
         hosts {
            192.168.1.21 tessaro.dino.home
            192.168.1.21 admin.tessaro.dino.home
+           192.168.1.21 kubernetes.tessaro.dino.home
            fallthrough
         }
         prometheus :9153
