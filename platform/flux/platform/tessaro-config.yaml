@@ -4,5 +4,5 @@ metadata:
   name: tessaro-config
   namespace: apps
 data:
-  cors-allowed-origins: "http://admin-web.apps.svc.cluster.local"
+  cors-allowed-origins: "http://admin-web.apps.svc.cluster.local,http://admin.tessaro.dino.home"
   users-api-url: "http://users-api.apps.svc.cluster.local"
