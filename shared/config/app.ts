@@ -1,5 +1,11 @@
 import express, { Express } from 'express';
-import cors, { CorsOptions } from 'cors';
+import cors from 'cors';
+
+type CorsOrigin = boolean | string | RegExp | Array<string | RegExp>;
+
+type CorsOptions = {
+  origin: CorsOrigin;
+};
 
 export const resolveCorsOptions = (): CorsOptions => {
   const rawOrigins = process.env.CORS_ALLOWED_ORIGINS;
