@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DEFAULT_KUSTOMIZATION="home"
+DEFAULT_KUSTOMIZATION="tessaro-cluster"
 FLUX_NAMESPACE="${FLUX_NAMESPACE:-flux-system}"
 KUSTOMIZATION_NAME="${1:-${DEFAULT_KUSTOMIZATION}}"
 
@@ -11,6 +11,7 @@ Usage: $0 [kustomization-name]
 
 Arguments:
   kustomization-name  Optional Flux kustomization to reconcile (default: ${DEFAULT_KUSTOMIZATION})
+                        Pass a different name to target another kustomization managed by Flux.
 
 Environment:
   FLUX_NAMESPACE      Namespace that hosts Flux resources (default: flux-system)
