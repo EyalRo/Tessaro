@@ -1,0 +1,13 @@
+fuse:
+  dir: /litefs
+  allow-other: true
+
+data:
+  dir: /var/lib/litefs
+
+lease:
+  type: static
+  hostname: litefs
+
+exec:
+  command: ["sleep", "infinity"]
