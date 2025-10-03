@@ -47,8 +47,9 @@ The default configuration works out of the box. If you need to adjust connection
 
 * `SCYLLA_CONTACT_POINTS` — override the database host list for the APIs.
 * `SCYLLA_KEYSPACE` — change the keyspace name; remember to update [`infra/docker/scylla-init.cql`](./infra/docker/scylla-init.cql) accordingly.
-* `CORS_ALLOWED_ORIGINS` — restrict API access to specific origins.
 * `VITE_USERS_API_URL` — change the admin app's API base URL.
+
+APIs are configured to allow requests from any origin by default.
 
 ### Running Tests Locally
 
