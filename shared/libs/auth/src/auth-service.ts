@@ -57,12 +57,14 @@ export class AuthService {
         this.setSession(verified);
         return verified;
       }
+
+      this.clearSession();
+      return null;
     } catch (error) {
       console.warn('Failed to verify stored session', error);
+      this.clearSession();
+      return null;
     }
-
-    this.setSession(stored);
-    return stored;
   }
 
   private setSession(next: AuthSession): void {

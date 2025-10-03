@@ -98,6 +98,24 @@ describe('AuthContext', () => {
     expect(result.current.isAuthenticated).toBe(true);
   });
 
+  it('clears the cached session when restoration fails verification', async () => {
+    const staleSession = buildSession({ token: 'stale-token' });
+    authServiceMock.getSession.mockReturnValue(staleSession);
+    authServiceMock.restore.mockResolvedValue(null);
+
+    const { result } = renderHook(() => useAuthContext(), { wrapper });
+
+    expect(result.current.session).toEqual(staleSession);
+    expect(result.current.isAuthenticated).toBe(true);
+
+    await waitFor(() => {
+      expect(result.current.initializing).toBe(false);
+    });
+
+    expect(result.current.session).toBeNull();
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
   it('logs in and stores the resulting session', async () => {
     const loginSession = buildSession({
       token: 'next-token',
