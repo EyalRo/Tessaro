@@ -1,0 +1,84 @@
+# Tessaro Monorepo
+
+This repository contains the Tessaro admin experience along with supporting APIs and shared libraries. It is now designed to run entirely with Docker Compose so you can bring the full stack up with a single command—no Kubernetes required.
+
+## Stack Overview
+
+| Service | Description | Port |
+| --- | --- | --- |
+| `admin-app` | Vite-powered React admin UI served in production preview mode. | `4173` |
+| `users-api` | Express API that provides CRUD operations for user profiles backed by ScyllaDB. | `8080` |
+| `scylla` | ScyllaDB node used by the APIs. A companion init container seeds the schema. | `9042` |
+
+Shared TypeScript packages live in the `shared/` directory and provide database clients, configuration helpers, and testing utilities that are consumed by the services.
+
+## Prerequisites
+
+* Docker Engine 24+
+* Docker Compose v2 (`docker compose` CLI)
+
+No other local dependencies are required.
+
+## Running the Stack
+
+1. Clone the repository and open a terminal in the project root.
+2. Build and start every service:
+
+   ```bash
+   docker compose up --build
+   ```
+
+   The first run will download container images, install Node.js dependencies, and run the automated test suite for the admin application as part of its Docker build.
+
+3. Once the stack is ready:
+   * Admin UI: http://localhost:4173
+   * Users API: http://localhost:8080 (health check at `/health`)
+   * ScyllaDB: cqlsh available on `localhost:9042`
+
+4. To stop the stack, press `Ctrl+C` and run:
+
+   ```bash
+   docker compose down
+   ```
+
+### Environment Configuration
+
+The default configuration works out of the box. If you need to adjust connection details, update the environment variables inside [`docker-compose.yml`](./docker-compose.yml). Common options include:
+
+* `SCYLLA_CONTACT_POINTS` — override the database host list for the APIs.
+* `SCYLLA_KEYSPACE` — change the keyspace name; remember to update [`infra/docker/scylla-init.cql`](./infra/docker/scylla-init.cql) accordingly.
+* `CORS_ALLOWED_ORIGINS` — restrict API access to specific origins.
+* `VITE_USERS_API_URL` — change the admin app's API base URL.
+
+### Running Tests Locally
+
+You can execute the TypeScript/Jest test suite without Docker:
+
+```bash
+npm install
+npm test
+```
+
+The test runner uses the shared mocks and does not require ScyllaDB.
+
+## Repository Structure
+
+```
+services/
+  admin-app/          # React admin interface
+  users-api/          # Express API for user profiles
+  orgs-api/           # Express API skeleton for organization data
+  services-api/       # Express API skeleton for service catalogs
+shared/               # Shared TypeScript libraries
+infra/docker/         # Infrastructure assets for Docker Compose (schema, etc.)
+```
+
+Each API has an accompanying Dockerfile and can be extended with additional routes. Compose currently wires up the admin UI and users API; additional services can be added by following the same pattern.
+
+## Extending the Environment
+
+* Add new databases or services by defining them in `docker-compose.yml`.
+* Seed databases using additional init containers or volumes in `infra/docker/`.
+* Update shared libraries under `shared/` to expose cross-service utilities.
+
+Feel free to tailor the Compose file to match your deployment or development needs.

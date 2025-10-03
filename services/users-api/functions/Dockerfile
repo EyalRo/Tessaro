@@ -9,6 +9,6 @@ COPY . .
 
 ENV NODE_ENV=production
 ENV PORT=8080
-ENV FUNCTION_ENTRY=services/users-api/functions/src/knative-get-users.ts
+ENV FUNCTION_ENTRY=services/users-api/functions/src/server.ts
 
 CMD ["sh", "-c", "node -r ts-node/register/transpile-only ${FUNCTION_ENTRY}"]

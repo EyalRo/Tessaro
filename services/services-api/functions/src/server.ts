@@ -20,7 +20,7 @@ const host = resolveHost(process.env.HOST);
 if (require.main === module) {
   app.listen(port, host, () => {
     // eslint-disable-next-line no-console
-    console.log(`Knative services API ready on http://${host}:${port}`);
+    console.log(`Services API listening on http://${host}:${port}`);
   });
 }
 
