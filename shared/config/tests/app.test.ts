@@ -2,6 +2,7 @@ import { createBaseApp, resolveCorsOptions, resolveHost, resolvePort } from '../
 
 describe('resolveCorsOptions', () => {
   const originalEnv = process.env.CORS_ALLOWED_ORIGINS;
+  const originalNodeEnv = process.env.NODE_ENV;
 
   afterEach(() => {
     if (originalEnv === undefined) {
@@ -9,10 +10,23 @@ describe('resolveCorsOptions', () => {
     } else {
       process.env.CORS_ALLOWED_ORIGINS = originalEnv;
     }
+
+    if (originalNodeEnv === undefined) {
+      delete process.env.NODE_ENV;
+    } else {
+      process.env.NODE_ENV = originalNodeEnv;
+    }
   });
 
   it('allows all origins when the env var is missing', () => {
     delete process.env.CORS_ALLOWED_ORIGINS;
+
+    expect(resolveCorsOptions()).toEqual({ origin: true });
+  });
+
+  it('allows all origins when running in development', () => {
+    process.env.NODE_ENV = 'development';
+    process.env.CORS_ALLOWED_ORIGINS = 'https://example.com';
 
     expect(resolveCorsOptions()).toEqual({ origin: true });
   });
