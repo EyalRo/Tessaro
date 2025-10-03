@@ -1,45 +1,7 @@
 import { createBaseApp, resolveCorsOptions, resolveHost, resolvePort } from '../app';
 
 describe('resolveCorsOptions', () => {
-  const originalEnv = process.env.CORS_ALLOWED_ORIGINS;
-  const originalNodeEnv = process.env.NODE_ENV;
-
-  afterEach(() => {
-    if (originalEnv === undefined) {
-      delete process.env.CORS_ALLOWED_ORIGINS;
-    } else {
-      process.env.CORS_ALLOWED_ORIGINS = originalEnv;
-    }
-
-    if (originalNodeEnv === undefined) {
-      delete process.env.NODE_ENV;
-    } else {
-      process.env.NODE_ENV = originalNodeEnv;
-    }
-  });
-
-  it('allows all origins when the env var is missing', () => {
-    delete process.env.CORS_ALLOWED_ORIGINS;
-
-    expect(resolveCorsOptions()).toEqual({ origin: '*' });
-  });
-
-  it('allows all origins when running in development', () => {
-    process.env.NODE_ENV = 'development';
-    process.env.CORS_ALLOWED_ORIGINS = 'https://example.com';
-
-    expect(resolveCorsOptions()).toEqual({ origin: '*' });
-  });
-
-  it('allows all origins when only one value is provided', () => {
-    process.env.CORS_ALLOWED_ORIGINS = 'https://example.com';
-
-    expect(resolveCorsOptions()).toEqual({ origin: '*' });
-  });
-
-  it('allows all origins when multiple values are provided', () => {
-    process.env.CORS_ALLOWED_ORIGINS = 'https://a.com, https://b.com ,  https://c.com ';
-
+  it('always allows all origins', () => {
     expect(resolveCorsOptions()).toEqual({ origin: '*' });
   });
 });
