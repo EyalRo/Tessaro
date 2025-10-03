@@ -18,8 +18,8 @@ spec:
       timeoutSeconds: 30
       containers:
         - name: admin-web
-          image: ttl.sh/tessaro-admin-1e9243e44cdf4934bf99b6ddf5cd706b:24h
-          imagePullPolicy: Always
+          image: registry.tessaro.dino.home/apps/admin-web:v0.1.0
+          imagePullPolicy: IfNotPresent
           env:
             - name: VITE_USERS_API_URL
               valueFrom:

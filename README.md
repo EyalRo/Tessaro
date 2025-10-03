@@ -148,6 +148,22 @@ Then set `VITE_USERS_API_URL=http://localhost:8080` when starting the admin app.
 > **NEVER** run commands directly on the Kubernetes cluster. **ONLY** update the manifests in this repository,
 > commit the change, and reconcile Flux to apply it. Once you've made changes, push to a new branch and create a PR.
 
+### Building and publishing container images
+
+First-party services now pull images from the in-cluster registry at `registry.tessaro.dino.home`.
+Use the helper script below to build and push the admin web and users API images before
+triggering a Flux reconciliation:
+
+```bash
+./tools/scripts/publish-images.sh
+```
+
+Override the target registry host or version tag if needed:
+
+```bash
+REGISTRY_HOST=registry.tessaro.example.com VERSION=v0.1.1 ./tools/scripts/publish-images.sh
+```
+
 ### Reconciliation workflow
 
 1. Update the desired manifests under `platform/flux`.
