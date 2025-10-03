@@ -79,6 +79,8 @@ describe('OrganizationsPage', () => {
 
     fireEvent.click(screen.getByTestId('open-create-organization'));
 
+    const initialDeselectCalls = hookValue.deselectOrganization.mock.calls.length;
+
     const formWrapper = await screen.findByTestId('organization-form');
     const form = formWrapper.querySelector('form') as HTMLFormElement;
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Wayne Enterprises' } });
@@ -96,6 +98,35 @@ describe('OrganizationsPage', () => {
         status: 'Active'
       });
     });
+  });
+
+  it('shows an error and keeps the drawer open when creation fails', async () => {
+    const hookValue = createHookMock();
+    hookValue.createOrganization.mockResolvedValue(null);
+    mockUseOrganizationManagement.mockReturnValue(hookValue);
+
+    renderWithRouter();
+
+    fireEvent.click(screen.getByTestId('open-create-organization'));
+
+    const initialDeselectCalls = hookValue.deselectOrganization.mock.calls.length;
+
+    const formWrapper = await screen.findByTestId('organization-form');
+    const form = formWrapper.querySelector('form') as HTMLFormElement;
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'New Org' } });
+
+    await act(async () => {
+      fireEvent.submit(form);
+    });
+
+    await waitFor(() => {
+      expect(hookValue.createOrganization).toHaveBeenCalled();
+    });
+
+    expect(screen.getByTestId('organization-form')).toBeInTheDocument();
+    expect(screen.getByText('Unable to save organization. Please try again.')).toBeInTheDocument();
+    expect(hookValue.deselectOrganization).toHaveBeenCalledTimes(initialDeselectCalls);
   });
 
   it('delegates edit and delete actions to the hook', async () => {

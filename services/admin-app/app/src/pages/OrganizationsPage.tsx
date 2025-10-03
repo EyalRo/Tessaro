@@ -34,6 +34,7 @@ const OrganizationsPage: React.FC = () => {
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formState, setFormState] = useState<OrganizationFormState>(defaultForm);
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOrganizations();
@@ -58,12 +59,14 @@ const OrganizationsPage: React.FC = () => {
   const openCreateForm = () => {
     deselectOrganization();
     setFormState(defaultForm);
+    setFormError(null);
     setIsFormOpen(true);
   };
 
   const closeForm = () => {
     setIsFormOpen(false);
     setFormState(defaultForm);
+    setFormError(null);
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -71,28 +74,38 @@ const OrganizationsPage: React.FC = () => {
     setFormState(prev => ({ ...prev, [name]: value }));
   };
 
+  useEffect(() => {
+    if (error) {
+      setFormError(null);
+    }
+  }, [error]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!formState.name.trim()) {
+      setFormError('Organization name is required.');
       return;
     }
 
-    if (currentOrganization) {
-      await updateOrganization(currentOrganization.id, {
-        name: formState.name.trim(),
-        plan: formState.plan,
-        status: formState.status
-      });
-    } else {
-      await createOrganization({
-        name: formState.name.trim(),
-        plan: formState.plan,
-        status: formState.status
-      });
-    }
+    setFormError(null);
 
-    closeForm();
+    const payload = {
+      name: formState.name.trim(),
+      plan: formState.plan,
+      status: formState.status
+    };
+
+    const result = currentOrganization
+      ? await updateOrganization(currentOrganization.id, payload)
+      : await createOrganization(payload);
+
+    if (result) {
+      deselectOrganization();
+      closeForm();
+    } else if (!error) {
+      setFormError('Unable to save organization. Please try again.');
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -122,17 +135,19 @@ const OrganizationsPage: React.FC = () => {
         </button>
       </div>
 
-      {error && (
+      {(error || formError) && (
         <div className={styles.errorCard}>
           <div className={styles.errorContent}>
-            <p>{error.message}</p>
-            <button
-              className={styles.errorDismiss}
-              onClick={() => clearError()}
-              type="button"
-            >
-              Dismiss
-            </button>
+            <p>{formError || error?.message}</p>
+            {error && (
+              <button
+                className={styles.errorDismiss}
+                onClick={() => clearError()}
+                type="button"
+              >
+                Dismiss
+              </button>
+            )}
           </div>
         </div>
       )}

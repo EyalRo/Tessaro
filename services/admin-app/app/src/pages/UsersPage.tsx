@@ -92,6 +92,12 @@ const UsersPage: React.FC = () => {
     setFormError(null);
   };
 
+  useEffect(() => {
+    if (error) {
+      setFormError(null);
+    }
+  }, [error]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -100,23 +106,25 @@ const UsersPage: React.FC = () => {
       return;
     }
 
-    if (currentUser) {
-      await updateUser(currentUser.id, {
-        name: formState.name.trim(),
-        email: formState.email.trim(),
-        role: formState.role,
-        avatar_url: formState.avatar_url?.trim() || undefined
-      });
-    } else {
-      await createUser({
-        name: formState.name.trim(),
-        email: formState.email.trim(),
-        role: formState.role,
-        avatar_url: formState.avatar_url?.trim() || undefined
-      });
-    }
+    setFormError(null);
 
-    closeForm();
+    const payload = {
+      name: formState.name.trim(),
+      email: formState.email.trim(),
+      role: formState.role,
+      avatar_url: formState.avatar_url?.trim() || undefined
+    };
+
+    const result = currentUser
+      ? await updateUser(currentUser.id, payload)
+      : await createUser(payload);
+
+    if (result) {
+      deselectUser();
+      closeForm();
+    } else if (!error) {
+      setFormError('Unable to save user. Please try again.');
+    }
   };
 
   const handleDelete = async (id: string) => {
