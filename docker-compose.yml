@@ -4,7 +4,12 @@ services:
   scylla:
     image: scylladb/scylla:2025.3
     container_name: tessaro-scylla
-    command: ["--smp", "1", "--memory", "750M"]
+    command: [
+      "--smp", "1",
+      "--memory", "750M",
+      "--logger-log-level", "scylla=warn",
+      "--logger-log-level", "seastar=warn"
+    ]
     ports:
       - "9042:9042"
     healthcheck:
