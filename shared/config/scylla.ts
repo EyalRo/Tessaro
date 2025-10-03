@@ -9,7 +9,7 @@ const resolveContactPoints = (): string[] => {
       .map(point => point.trim())
       .filter(point => point.length > 0);
   }
-  return ['scylla-client.databases.svc.cluster.local'];
+  return ['scylla'];
 };
 
 const resolveLocalDataCenter = (): string => {

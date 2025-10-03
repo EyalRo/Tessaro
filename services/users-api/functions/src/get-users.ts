@@ -1,10 +1,10 @@
 import { createBaseApp, getUserService, resolveHost, resolvePort } from './shared';
-import { registerCreateUserRoute } from './routes';
+import { registerListUsersRoute } from './routes';
 
 const app = createBaseApp();
 const userService = getUserService();
 
-registerCreateUserRoute(app, userService);
+registerListUsersRoute(app, userService);
 
 const port = resolvePort(process.env.PORT);
 const host = resolveHost(process.env.HOST);
@@ -12,7 +12,7 @@ const host = resolveHost(process.env.HOST);
 if (require.main === module) {
   app.listen(port, host, () => {
     // eslint-disable-next-line no-console
-    console.log(`Knative users POST ready on http://${host}:${port}`);
+    console.log(`Users API (GET) listening on http://${host}:${port}`);
   });
 }
 
