@@ -1,3 +1,4 @@
-# Storage Service Flux Manifests
+# Storage Service Kubernetes Manifests
 
-Keep storage service Flux overlays in this directory. Populate `flux/` with kustomizations when manifests are available.
+Keep storage service Kubernetes overlays in this directory. Populate `k8s/` with
+kustomizations when manifests are available.

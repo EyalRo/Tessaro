@@ -1,3 +1,4 @@
-# Orgs API Flux Manifests
+# Orgs API Kubernetes Manifests
 
-Place Flux kustomizations for the organizations API in this directory. The `flux/` folder should host kustomize overlays when the service is ready for deployment.
+Place Kubernetes kustomizations for the organizations API in this directory. Use
+the `k8s/` folder for environment overlays once the service is ready for deployment.
