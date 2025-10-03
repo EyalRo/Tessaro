@@ -1,9 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-resources:
-  - knative-helmrepository.yaml
-  - knative-serving-helmrelease.yaml
-  - net-kourier-helmrelease.yaml
-  - knative-eventing-helmrelease.yaml
-  - knative-serving-domain-config.yaml
-  - kourier-traefik-ingressroutes.yaml
