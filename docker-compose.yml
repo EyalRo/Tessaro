@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   scylla:
-    image: scylladb/scylla:5.4
+    image: scylladb/scylla:2025.3
     container_name: tessaro-scylla
     command: ["--smp", "1", "--memory", "750M"]
     ports:
@@ -16,7 +16,7 @@ services:
       - scylla-data:/var/lib/scylla
 
   scylla-init:
-    image: scylladb/scylla:5.4
+    image: scylladb/scylla:2025.3
     container_name: tessaro-scylla-init
     depends_on:
       - scylla
