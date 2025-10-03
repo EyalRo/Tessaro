@@ -27,7 +27,7 @@ COPY --from=builder /workspace/services/admin-app/app/dist ./dist
 COPY --from=builder /workspace/services/admin-app/app/vite.config.ts ./vite.config.ts
 COPY --from=builder /workspace/services/admin-app/app/tsconfig.json ./tsconfig.json
 COPY --from=builder /workspace/tsconfig.json /workspace/tsconfig.json
-COPY services/admin-app/app/docker-entrypoint.sh ./docker-entrypoint.sh
+COPY --from=builder /workspace/services/admin-app/app/docker-entrypoint.sh ./docker-entrypoint.sh
 ENTRYPOINT ["./docker-entrypoint.sh"]
 EXPOSE 4173
 ENV PORT=4173
