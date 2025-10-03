@@ -89,6 +89,8 @@ describe('UsersPage', () => {
 
     fireEvent.click(screen.getByTestId('open-create-user'));
 
+    const initialDeselectCalls = hookValue.deselectUser.mock.calls.length;
+
     const formWrapper = await screen.findByTestId('user-form');
     expect(formWrapper).toBeInTheDocument();
     const form = formWrapper.querySelector('form') as HTMLFormElement;
@@ -109,6 +111,36 @@ describe('UsersPage', () => {
         avatar_url: undefined
       });
     });
+  });
+
+  it('keeps the form open when creating a user fails', async () => {
+    const hookValue = createHookMock();
+    hookValue.createUser.mockResolvedValue(null);
+    mockUseUserManagement.mockReturnValue(hookValue);
+
+    renderWithRouter();
+
+    fireEvent.click(screen.getByTestId('open-create-user'));
+
+    const initialDeselectCalls = hookValue.deselectUser.mock.calls.length;
+
+    const formWrapper = await screen.findByTestId('user-form');
+    const form = formWrapper.querySelector('form') as HTMLFormElement;
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'New User' } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'new@example.com' } });
+
+    await act(async () => {
+      fireEvent.submit(form);
+    });
+
+    await waitFor(() => {
+      expect(hookValue.createUser).toHaveBeenCalled();
+    });
+
+    expect(screen.getByTestId('user-form')).toBeInTheDocument();
+    expect(screen.getByText('Unable to save user. Please try again.')).toBeInTheDocument();
+    expect(hookValue.deselectUser).toHaveBeenCalledTimes(initialDeselectCalls);
   });
 
   it('forwards edit and delete actions to the hook', async () => {
