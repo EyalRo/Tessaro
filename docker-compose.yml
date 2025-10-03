@@ -25,6 +25,25 @@ services:
     entrypoint: ["/bin/sh", "-c", "until cqlsh scylla 9042 -e 'SELECT now() FROM system.local'; do sleep 5; done; cqlsh scylla 9042 -f /init/scylla-init.cql"]
     restart: "on-failure"
 
+  minio:
+    image: minio/minio:RELEASE.2024-11-07T00-52-20Z
+    container_name: tessaro-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      start_period: 5s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+
   users-api:
     build:
       context: .
@@ -58,3 +77,4 @@ services:
 
 volumes:
   scylla-data:
+  minio-data:
