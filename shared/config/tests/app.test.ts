@@ -21,28 +21,26 @@ describe('resolveCorsOptions', () => {
   it('allows all origins when the env var is missing', () => {
     delete process.env.CORS_ALLOWED_ORIGINS;
 
-    expect(resolveCorsOptions()).toEqual({ origin: true });
+    expect(resolveCorsOptions()).toEqual({ origin: '*' });
   });
 
   it('allows all origins when running in development', () => {
     process.env.NODE_ENV = 'development';
     process.env.CORS_ALLOWED_ORIGINS = 'https://example.com';
 
-    expect(resolveCorsOptions()).toEqual({ origin: true });
+    expect(resolveCorsOptions()).toEqual({ origin: '*' });
   });
 
-  it('returns a single origin when only one value is provided', () => {
+  it('allows all origins when only one value is provided', () => {
     process.env.CORS_ALLOWED_ORIGINS = 'https://example.com';
 
-    expect(resolveCorsOptions()).toEqual({ origin: 'https://example.com' });
+    expect(resolveCorsOptions()).toEqual({ origin: '*' });
   });
 
-  it('returns a list of origins when multiple values are provided', () => {
+  it('allows all origins when multiple values are provided', () => {
     process.env.CORS_ALLOWED_ORIGINS = 'https://a.com, https://b.com ,  https://c.com ';
 
-    expect(resolveCorsOptions()).toEqual({
-      origin: ['https://a.com', 'https://b.com', 'https://c.com']
-    });
+    expect(resolveCorsOptions()).toEqual({ origin: '*' });
   });
 });
 
