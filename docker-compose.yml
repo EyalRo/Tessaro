@@ -71,7 +71,7 @@ services:
     depends_on:
       - users-api
     environment:
-      VITE_USERS_API_URL: http://users-api:8080
+      VITE_USERS_API_URL: http://localhost:8080
     ports:
       - "4173:4173"
 
