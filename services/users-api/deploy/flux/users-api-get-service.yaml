@@ -18,8 +18,8 @@ spec:
       timeoutSeconds: 30
       containers:
         - name: users-api-get
-          image: ttl.sh/tessaro-users-api-get-knative:24h
-          imagePullPolicy: Always
+          image: registry.tessaro.dino.home/apps/users-api-knative:v0.1.0
+          imagePullPolicy: IfNotPresent
           env:
             - name: FUNCTION_ENTRY
               value: services/users-api/functions/src/knative-get-users.ts

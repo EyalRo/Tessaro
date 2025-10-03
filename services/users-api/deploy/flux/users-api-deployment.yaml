@@ -19,8 +19,8 @@ spec:
     spec:
       containers:
         - name: users-api
-          image: ttl.sh/tessaro-users-api-4152c5b4f1b04ac9ba34fa797a646e1e:24h
-          imagePullPolicy: Always
+          image: registry.tessaro.dino.home/apps/users-api:v0.1.0
+          imagePullPolicy: IfNotPresent
           env:
             - name: PORT
               value: "4000"
