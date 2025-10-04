@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 WORKDIR /workspace
 
 FROM base AS deps
@@ -17,7 +17,7 @@ COPY . .
 RUN CI=true npm test -- --runInBand
 RUN npm run admin:build
 
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /workspace/services/admin-app/app
 ENV NODE_ENV=production
 COPY --from=builder /workspace/services/admin-app/app/package.json ./package.json
