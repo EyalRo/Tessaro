@@ -4,12 +4,12 @@ import {
   resolveHost as resolveSharedHost,
   resolvePort as resolveSharedPort
 } from 'shared/config/app';
-import { createScyllaClient } from 'shared/config/scylla';
+import { createRavenClient } from 'shared/config/ravendb';
 
 let cachedUserService: UserService | null = null;
 
 const createUserService = (): UserService => {
-  const client = createScyllaClient();
+  const client = createRavenClient();
   return new UserService(client);
 };
 
