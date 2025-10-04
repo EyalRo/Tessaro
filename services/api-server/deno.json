@@ -2,5 +2,8 @@
   "tasks": {
     "start": "deno run --allow-net --allow-env main.ts",
     "test": "deno test --allow-env --unsafely-ignore-certificate-errors=deno.land,jsr.io,registry.npmjs.org"
+  },
+  "imports": {
+    "ravendb": "npm:ravendb@7.1.0"
   }
 }
