@@ -1,18 +1,14 @@
-import { auth } from 'cassandra-driver';
-
-export interface QueryResult<TRow> {
-  rows: TRow[];
-  [key: string]: unknown;
+export interface RavenCertificateConfig {
+  type?: 'pem' | 'pfx';
+  certificate?: string | Buffer;
+  password?: string;
+  ca?: string | Buffer;
 }
 
-export interface ScyllaConfig {
-  contactPoints: string[];
-  localDataCenter: string;
-  keyspace: string;
-  authProvider?: {
-    username: string;
-    password: string;
-  };
+export interface RavenConfig {
+  urls: string[];
+  database: string;
+  certificate?: RavenCertificateConfig;
 }
 
 export interface UserProfile {

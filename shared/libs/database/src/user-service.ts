@@ -1,94 +1,101 @@
+import type { IDocumentSession } from 'ravendb';
 import { v4 as uuidv4 } from 'uuid';
-import ScyllaClient from './scylla-client';
-import { ScyllaConfig, UserProfile, Organization, Service, AuditLog, UserRow } from './types';
+import RavenDbClient from './ravendb-client';
+import { UserProfile } from './types';
+
+const USER_COLLECTION = 'Users';
+
+type UserInput = Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>;
+type UserUpdate = Partial<UserInput>;
+
+type QueryFactory<T> = {
+  all(): Promise<T[]>;
+};
 
 class UserService {
-  constructor(private dbClient: ScyllaClient) {}
+  constructor(private dbClient: RavenDbClient) {}
 
-  async createUser(user: Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>): Promise<UserProfile> {
+  async createUser(user: UserInput): Promise<UserProfile> {
     const id = this.generateId();
+    const docId = this.resolveDocumentId(id);
     const timestamp = new Date();
-    
-    const query = `
-      INSERT INTO users (id, email, name, role, avatar_url, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `;
-    
-    await this.dbClient.executeQuery(query, [
+
+    const userDoc: UserProfile = {
+      ...user,
       id,
-      user.email,
-      user.name,
-      user.role,
-      user.avatar_url || null,
-      timestamp,
-      timestamp
-    ]);
-    
-    return { ...user, id, created_at: timestamp, updated_at: timestamp };
+      avatar_url: user.avatar_url ?? null,
+      created_at: timestamp,
+      updated_at: timestamp
+    };
+
+    await this.withSession(async session => {
+      await session.store(userDoc, docId);
+      await session.saveChanges();
+    });
+
+    return userDoc;
   }
 
   async getUserById(id: string): Promise<UserProfile | null> {
-    const query = `SELECT * FROM users WHERE id = ?`;
-    const result = await this.dbClient.executeQuery<UserRow>(query, [id]);
-    
-    if (result.rows.length === 0) {
-      return null;
-    }
-    
-    return this.mapRowToUser(result.rows[0]);
+    const docId = this.resolveDocumentId(id);
+    return this.withSession(async session => {
+      const user = await session.load<UserProfile>(docId);
+      return user ?? null;
+    });
   }
 
   async listUsers(): Promise<UserProfile[]> {
-    const query = 'SELECT * FROM users';
-    const result = await this.dbClient.executeQuery<UserRow>(query);
-
-    return result.rows.map((row) => this.mapRowToUser(row));
+    return this.withSession(async session => {
+      const query = session.query<UserProfile>({ collection: USER_COLLECTION }) as QueryFactory<UserProfile>;
+      const users = await query.all();
+      return users;
+    });
   }
 
-  async updateUser(id: string, updates: Partial<Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>>): Promise<UserProfile | null> {
-    const user = await this.getUserById(id);
-    if (!user) {
-      return null;
-    }
-    
-    const updatedUser = { ...user, ...updates, updated_at: new Date() };
-    const query = `
-      UPDATE users 
-      SET email = ?, name = ?, role = ?, avatar_url = ?, updated_at = ?
-      WHERE id = ?
-    `;
-    
-    await this.dbClient.executeQuery(query, [
-      updatedUser.email,
-      updatedUser.name,
-      updatedUser.role,
-      updatedUser.avatar_url || null,
-      updatedUser.updated_at,
-      id
-    ]);
-    
-    return updatedUser;
+  async updateUser(id: string, updates: UserUpdate): Promise<UserProfile | null> {
+    const docId = this.resolveDocumentId(id);
+    return this.withSession(async session => {
+      const existing = await session.load<UserProfile>(docId);
+      if (!existing) {
+        return null;
+      }
+
+      Object.assign(existing, updates, {
+        avatar_url: updates.avatar_url ?? existing.avatar_url ?? null,
+        updated_at: new Date()
+      });
+
+      await session.saveChanges();
+
+      return existing;
+    });
   }
 
   async deleteUser(id: string): Promise<void> {
-    const query = `DELETE FROM users WHERE id = ?`;
-    await this.dbClient.executeQuery(query, [id]);
+    const docId = this.resolveDocumentId(id);
+    await this.withSession(async session => {
+      session.delete(docId);
+      await session.saveChanges();
+    });
   }
 
   private generateId(): string {
     return uuidv4();
   }
 
-  private mapRowToUser(row: UserRow): UserProfile {
-    return {
-      id: row.id,
-      email: row.email,
-      name: row.name,
-      role: row.role,
-      avatar_url: row.avatar_url,
-      created_at: row.created_at,
-      updated_at: row.updated_at
-    };
+  private resolveDocumentId(id: string): string {
+    return `${USER_COLLECTION}/${id}`;
+  }
+
+  private async withSession<TReturn>(handler: (session: IDocumentSession) => Promise<TReturn>): Promise<TReturn> {
+    const session = this.dbClient.openSession();
+    try {
+      return await handler(session);
+    } finally {
+      if (typeof (session as { dispose?: () => void }).dispose === 'function') {
+        session.dispose();
+      }
+    }
   }
 }
 

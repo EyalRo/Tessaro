@@ -1,20 +1,25 @@
 import ConfigService from 'shared/libs/database/config-service';
-import ScyllaClient from 'shared/libs/database/scylla-client';
-import type { OrganizationRow, QueryResult } from 'shared/libs/database/types';
+import RavenDbClient from 'shared/libs/database/ravendb-client';
 
-// Mock ScyllaClient
-jest.mock('shared/libs/database/scylla-client');
+const createMockSession = () => ({
+  store: jest.fn().mockResolvedValue(undefined),
+  saveChanges: jest.fn().mockResolvedValue(undefined),
+  load: jest.fn(),
+  delete: jest.fn(),
+  dispose: jest.fn()
+});
 
 describe('ConfigService', () => {
   let configService: ConfigService;
-  let mockDbClient: jest.Mocked<ScyllaClient>;
-
-  const createResult = <TRow>(rows: TRow[]): QueryResult<TRow> => ({ rows });
+  let mockDbClient: Pick<RavenDbClient, 'openSession'>;
+  let mockSession: ReturnType<typeof createMockSession>;
 
   beforeEach(() => {
-    const MockedScyllaClient = ScyllaClient as jest.MockedClass<typeof ScyllaClient>;
-    mockDbClient = new MockedScyllaClient({} as any) as unknown as jest.Mocked<ScyllaClient>;
-    configService = new ConfigService(mockDbClient);
+    mockSession = createMockSession();
+    mockDbClient = {
+      openSession: jest.fn().mockReturnValue(mockSession as any)
+    };
+    configService = new ConfigService(mockDbClient as RavenDbClient);
   });
 
   describe('createOrganization', () => {
@@ -25,29 +30,23 @@ describe('ConfigService', () => {
         status: 'active'
       };
 
-      const expectedOrg = {
-        id: expect.any(String),
-        ...orgData,
-        created_at: expect.any(Date),
-        updated_at: expect.any(Date)
-      };
-
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
-
       const result = await configService.createOrganization(orgData);
 
-      expect(result).toEqual(expectedOrg);
-      expect(mockDbClient.executeQuery).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO organizations'),
-        expect.arrayContaining([result.id, orgData.name, orgData.plan, orgData.status])
-      );
+      expect(result).toMatchObject({
+        ...orgData,
+        id: expect.any(String),
+        created_at: expect.any(Date),
+        updated_at: expect.any(Date)
+      });
+      expect(mockSession.store).toHaveBeenCalledWith(expect.objectContaining({ id: result.id }), `Organizations/${result.id}`);
+      expect(mockSession.saveChanges).toHaveBeenCalled();
     });
   });
 
   describe('getOrganizationById', () => {
     it('should return an organization when found', async () => {
       const orgId = '123';
-      const orgData: OrganizationRow = {
+      const orgData = {
         id: orgId,
         name: 'Test Org',
         plan: 'enterprise',
@@ -56,23 +55,18 @@ describe('ConfigService', () => {
         updated_at: new Date()
       };
 
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([orgData]));
+      mockSession.load.mockResolvedValueOnce(orgData);
 
       const result = await configService.getOrganizationById(orgId);
 
       expect(result).toEqual(orgData);
-      expect(mockDbClient.executeQuery).toHaveBeenCalledWith(
-        'SELECT * FROM organizations WHERE id = ?',
-        [orgId]
-      );
+      expect(mockSession.load).toHaveBeenCalledWith(`Organizations/${orgId}`);
     });
 
     it('should return null when organization is not found', async () => {
-      const orgId = '123';
+      mockSession.load.mockResolvedValueOnce(null);
 
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
-
-      const result = await configService.getOrganizationById(orgId);
+      const result = await configService.getOrganizationById('missing');
 
       expect(result).toBeNull();
     });
@@ -81,7 +75,7 @@ describe('ConfigService', () => {
   describe('updateOrganization', () => {
     it('should update and return the organization when found', async () => {
       const orgId = '123';
-      const existingOrg: OrganizationRow = {
+      const existingOrg = {
         id: orgId,
         name: 'Old Org',
         plan: 'basic',
@@ -95,51 +89,34 @@ describe('ConfigService', () => {
         plan: 'enterprise'
       };
 
-      const updatedOrg = {
+      mockSession.load.mockResolvedValueOnce(existingOrg);
+
+      const result = await configService.updateOrganization(orgId, updates);
+
+      expect(result).toMatchObject({
         ...existingOrg,
         ...updates,
         updated_at: expect.any(Date)
-      };
-
-      // Mock getOrganizationById
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([existingOrg]));
-
-      // Mock updateOrganization
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
-
-      const result = await configService.updateOrganization(orgId, updates);
-
-      expect(result).toEqual(updatedOrg);
-      expect(mockDbClient.executeQuery).toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE organizations'),
-        expect.arrayContaining([updates.name, updates.plan, orgId])
-      );
+      });
+      expect(mockSession.saveChanges).toHaveBeenCalled();
     });
 
     it('should return null when organization is not found', async () => {
-      const orgId = '123';
-      const updates = { name: 'New Name' };
+      mockSession.load.mockResolvedValueOnce(null);
 
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
-
-      const result = await configService.updateOrganization(orgId, updates);
+      const result = await configService.updateOrganization('missing', { name: 'New Name' });
 
       expect(result).toBeNull();
+      expect(mockSession.saveChanges).not.toHaveBeenCalled();
     });
   });
 
   describe('deleteOrganization', () => {
     it('should delete an organization', async () => {
-      const orgId = '123';
+      await configService.deleteOrganization('123');
 
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
-
-      await configService.deleteOrganization(orgId);
-
-      expect(mockDbClient.executeQuery).toHaveBeenCalledWith(
-        'DELETE FROM organizations WHERE id = ?',
-        [orgId]
-      );
+      expect(mockSession.delete).toHaveBeenCalledWith('Organizations/123');
+      expect(mockSession.saveChanges).toHaveBeenCalled();
     });
   });
 });

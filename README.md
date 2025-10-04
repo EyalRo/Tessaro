@@ -7,8 +7,8 @@ This repository contains the Tessaro admin experience along with supporting APIs
 | Service | Description | Port |
 | --- | --- | --- |
 | `admin-app` | Vite-powered React admin UI served in production preview mode. | `4173` |
-| `users-api` | Express API that provides CRUD operations for user profiles backed by ScyllaDB. | `8080` |
-| `scylla` | ScyllaDB node used by the APIs. A companion init container seeds the schema. | `9042` |
+| `users-api` | Express API that provides CRUD operations for user profiles backed by RavenDB. | `8080` |
+| `ravendb` | RavenDB server used by the APIs. Studio is available on the exposed port. | `8080` |
 
 Shared TypeScript packages live in the `shared/` directory and provide database clients, configuration helpers, and testing utilities that are consumed by the services.
 
@@ -33,7 +33,7 @@ No other local dependencies are required.
 3. Once the stack is ready:
    * Admin UI: http://localhost:4173
    * Users API: http://localhost:8080 (health check at `/health`)
-   * ScyllaDB: cqlsh available on `localhost:9042`
+   * RavenDB Studio: http://localhost:8080
 
 4. To stop the stack, press `Ctrl+C` and run:
 
@@ -45,8 +45,8 @@ No other local dependencies are required.
 
 The default configuration works out of the box. If you need to adjust connection details, update the environment variables inside [`docker-compose.yml`](./docker-compose.yml). Common options include:
 
-* `SCYLLA_CONTACT_POINTS` — override the database host list for the APIs.
-* `SCYLLA_KEYSPACE` — change the keyspace name; remember to update [`infra/docker/scylla-init.cql`](./infra/docker/scylla-init.cql) accordingly.
+* `RAVEN_URLS` — override the database URL list for the APIs.
+* `RAVEN_DATABASE` — change the database name used for storing documents.
 * `VITE_USERS_API_URL` — change the admin app's API base URL.
 
 APIs are configured to allow requests from any origin by default.
@@ -60,7 +60,7 @@ npm install
 npm test
 ```
 
-The test runner uses the shared mocks and does not require ScyllaDB.
+The test runner uses the shared mocks and does not require RavenDB.
 
 ## Repository Structure
 

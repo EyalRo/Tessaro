@@ -1,20 +1,31 @@
 import UserService from 'shared/libs/database/user-service';
-import ScyllaClient from 'shared/libs/database/scylla-client';
-import type { QueryResult, UserRow } from 'shared/libs/database/types';
+import RavenDbClient from 'shared/libs/database/ravendb-client';
 
-// Mock ScyllaClient
-jest.mock('shared/libs/database/scylla-client');
+const createMockSession = () => {
+  const queryAll = jest.fn();
+
+  return {
+    store: jest.fn().mockResolvedValue(undefined),
+    saveChanges: jest.fn().mockResolvedValue(undefined),
+    load: jest.fn(),
+    query: jest.fn().mockReturnValue({ all: queryAll }),
+    delete: jest.fn(),
+    dispose: jest.fn(),
+    __queryAll: queryAll
+  };
+};
 
 describe('UserService', () => {
   let userService: UserService;
-  let mockDbClient: jest.Mocked<ScyllaClient>;
-
-  const createResult = <TRow>(rows: TRow[]): QueryResult<TRow> => ({ rows });
+  let mockDbClient: Pick<RavenDbClient, 'openSession'>;
+  let mockSession: ReturnType<typeof createMockSession>;
 
   beforeEach(() => {
-    const MockedScyllaClient = ScyllaClient as jest.MockedClass<typeof ScyllaClient>;
-    mockDbClient = new MockedScyllaClient({} as any) as unknown as jest.Mocked<ScyllaClient>;
-    userService = new UserService(mockDbClient);
+    mockSession = createMockSession();
+    mockDbClient = {
+      openSession: jest.fn().mockReturnValue(mockSession as any)
+    };
+    userService = new UserService(mockDbClient as RavenDbClient);
   });
 
   describe('createUser', () => {
@@ -25,29 +36,24 @@ describe('UserService', () => {
         role: 'user'
       };
 
-      const expectedUser = {
-        id: expect.any(String),
-        ...userData,
-        created_at: expect.any(Date),
-        updated_at: expect.any(Date)
-      };
-
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
-
       const result = await userService.createUser(userData);
 
-      expect(result).toEqual(expectedUser);
-      expect(mockDbClient.executeQuery).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO users'),
-        expect.arrayContaining([result.id, userData.email, userData.name, userData.role])
-      );
+      expect(result).toMatchObject({
+        ...userData,
+        id: expect.any(String),
+        created_at: expect.any(Date),
+        updated_at: expect.any(Date)
+      });
+      expect(mockDbClient.openSession).toHaveBeenCalled();
+      expect(mockSession.store).toHaveBeenCalledWith(expect.objectContaining({ id: result.id }), `Users/${result.id}`);
+      expect(mockSession.saveChanges).toHaveBeenCalled();
     });
   });
 
   describe('getUserById', () => {
     it('should return a user when found', async () => {
       const userId = '123';
-      const userData: UserRow = {
+      const userData = {
         id: userId,
         email: 'test@example.com',
         name: 'Test User',
@@ -57,23 +63,18 @@ describe('UserService', () => {
         updated_at: new Date()
       };
 
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([userData]));
+      mockSession.load.mockResolvedValueOnce(userData);
 
       const result = await userService.getUserById(userId);
 
       expect(result).toEqual(userData);
-      expect(mockDbClient.executeQuery).toHaveBeenCalledWith(
-        'SELECT * FROM users WHERE id = ?',
-        [userId]
-      );
+      expect(mockSession.load).toHaveBeenCalledWith(`Users/${userId}`);
     });
 
     it('should return null when user is not found', async () => {
-      const userId = '123';
+      mockSession.load.mockResolvedValueOnce(null);
 
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
-
-      const result = await userService.getUserById(userId);
+      const result = await userService.getUserById('missing');
 
       expect(result).toBeNull();
     });
@@ -81,7 +82,7 @@ describe('UserService', () => {
 
   describe('listUsers', () => {
     it('should return a list of users', async () => {
-      const users: UserRow[] = [
+      const users = [
         {
           id: '1',
           email: 'one@example.com',
@@ -102,19 +103,20 @@ describe('UserService', () => {
         }
       ];
 
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult(users));
+      mockSession.__queryAll.mockResolvedValueOnce(users);
 
       const result = await userService.listUsers();
 
       expect(result).toEqual(users);
-      expect(mockDbClient.executeQuery).toHaveBeenCalledWith('SELECT * FROM users');
+      expect(mockSession.query).toHaveBeenCalledWith({ collection: 'Users' });
+      expect(mockSession.__queryAll).toHaveBeenCalled();
     });
   });
 
   describe('updateUser', () => {
     it('should update and return the user when found', async () => {
       const userId = '123';
-      const existingUser: UserRow = {
+      const existingUser = {
         id: userId,
         email: 'old@example.com',
         name: 'Old Name',
@@ -129,51 +131,34 @@ describe('UserService', () => {
         name: 'New Name'
       };
 
-      const updatedUser = {
+      mockSession.load.mockResolvedValueOnce(existingUser);
+
+      const result = await userService.updateUser(userId, updates);
+
+      expect(result).toMatchObject({
         ...existingUser,
         ...updates,
         updated_at: expect.any(Date)
-      };
-
-      // Mock getUserById
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([existingUser]));
-
-      // Mock updateUser
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
-
-      const result = await userService.updateUser(userId, updates);
-
-      expect(result).toEqual(updatedUser);
-      expect(mockDbClient.executeQuery).toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE users'),
-        expect.arrayContaining([updates.email, updates.name, userId])
-      );
+      });
+      expect(mockSession.saveChanges).toHaveBeenCalled();
     });
 
     it('should return null when user is not found', async () => {
-      const userId = '123';
-      const updates = { name: 'New Name' };
+      mockSession.load.mockResolvedValueOnce(null);
 
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
-
-      const result = await userService.updateUser(userId, updates);
+      const result = await userService.updateUser('missing', { name: 'New Name' });
 
       expect(result).toBeNull();
+      expect(mockSession.saveChanges).not.toHaveBeenCalled();
     });
   });
 
   describe('deleteUser', () => {
     it('should delete a user', async () => {
-      const userId = '123';
+      await userService.deleteUser('123');
 
-      mockDbClient.executeQuery.mockResolvedValueOnce(createResult([]));
-
-      await userService.deleteUser(userId);
-
-      expect(mockDbClient.executeQuery).toHaveBeenCalledWith(
-        'DELETE FROM users WHERE id = ?',
-        [userId]
-      );
+      expect(mockSession.delete).toHaveBeenCalledWith('Users/123');
+      expect(mockSession.saveChanges).toHaveBeenCalled();
     });
   });
 });

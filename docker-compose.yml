@@ -2,3 +2,16 @@ services:
   ravendb:
     image: ravendb/ravendb:7.1-latest
     restart: unless-stopped
+    environment:
+      RAVEN_Setup_Mode: None
+      RAVEN_License_Eula_Accepted: "true"
+      RAVEN_Security_UnsecuredAccessAllowed: PrivateNetwork
+      RAVEN_ServerUrl: http://0.0.0.0:8080
+      RAVEN_PublicServerUrl: http://ravendb:8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - ravendb-data:/opt/RavenDB/Server/RavenData
+
+volumes:
+  ravendb-data:

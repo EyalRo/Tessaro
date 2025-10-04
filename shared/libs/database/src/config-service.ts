@@ -1,156 +1,141 @@
+import type { IDocumentSession } from 'ravendb';
 import { v4 as uuidv4 } from 'uuid';
-import ScyllaClient from './scylla-client';
-import { ScyllaConfig, Organization, OrganizationRow, Service, ServiceRow } from './types';
+import RavenDbClient from './ravendb-client';
+import { Organization, Service } from './types';
+
+const ORGANIZATION_COLLECTION = 'Organizations';
+const SERVICE_COLLECTION = 'Services';
+
+type OrganizationInput = Omit<Organization, 'id' | 'created_at' | 'updated_at'>;
+type ServiceInput = Omit<Service, 'id' | 'created_at' | 'updated_at'>;
+
+type OrganizationUpdate = Partial<OrganizationInput>;
+type ServiceUpdate = Partial<ServiceInput>;
 
 class ConfigService {
-  constructor(private dbClient: ScyllaClient) {}
+  constructor(private dbClient: RavenDbClient) {}
 
-  async createOrganization(org: Omit<Organization, 'id' | 'created_at' | 'updated_at'>): Promise<Organization> {
+  async createOrganization(org: OrganizationInput): Promise<Organization> {
     const id = this.generateId();
+    const docId = this.resolveDocumentId(ORGANIZATION_COLLECTION, id);
     const timestamp = new Date();
-    
-    const query = `
-      INSERT INTO organizations (id, name, plan, status, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `;
-    
-    await this.dbClient.executeQuery(query, [
+
+    const organization: Organization = {
+      ...org,
       id,
-      org.name,
-      org.plan,
-      org.status,
-      timestamp,
-      timestamp
-    ]);
-    
-    return { ...org, id, created_at: timestamp, updated_at: timestamp };
+      created_at: timestamp,
+      updated_at: timestamp
+    };
+
+    await this.withSession(async session => {
+      await session.store(organization, docId);
+      await session.saveChanges();
+    });
+
+    return organization;
   }
 
   async getOrganizationById(id: string): Promise<Organization | null> {
-    const query = `SELECT * FROM organizations WHERE id = ?`;
-    const result = await this.dbClient.executeQuery<OrganizationRow>(query, [id]);
-    
-    if (result.rows.length === 0) {
-      return null;
-    }
-    
-    return this.mapRowToOrganization(result.rows[0]);
+    const docId = this.resolveDocumentId(ORGANIZATION_COLLECTION, id);
+    return this.withSession(async session => {
+      const organization = await session.load<Organization>(docId);
+      return organization ?? null;
+    });
   }
 
-  async updateOrganization(id: string, updates: Partial<Omit<Organization, 'id' | 'created_at' | 'updated_at'>>): Promise<Organization | null> {
-    const org = await this.getOrganizationById(id);
-    if (!org) {
-      return null;
-    }
-    
-    const updatedOrg = { ...org, ...updates, updated_at: new Date() };
-    const query = `
-      UPDATE organizations 
-      SET name = ?, plan = ?, status = ?, updated_at = ?
-      WHERE id = ?
-    `;
-    
-    await this.dbClient.executeQuery(query, [
-      updatedOrg.name,
-      updatedOrg.plan,
-      updatedOrg.status,
-      updatedOrg.updated_at,
-      id
-    ]);
-    
-    return updatedOrg;
+  async updateOrganization(id: string, updates: OrganizationUpdate): Promise<Organization | null> {
+    const docId = this.resolveDocumentId(ORGANIZATION_COLLECTION, id);
+    return this.withSession(async session => {
+      const existing = await session.load<Organization>(docId);
+      if (!existing) {
+        return null;
+      }
+
+      Object.assign(existing, updates, { updated_at: new Date() });
+
+      await session.saveChanges();
+
+      return existing;
+    });
   }
 
   async deleteOrganization(id: string): Promise<void> {
-    const query = `DELETE FROM organizations WHERE id = ?`;
-    await this.dbClient.executeQuery(query, [id]);
+    const docId = this.resolveDocumentId(ORGANIZATION_COLLECTION, id);
+    await this.withSession(async session => {
+      session.delete(docId);
+      await session.saveChanges();
+    });
   }
 
-  async createService(service: Omit<Service, 'id' | 'created_at' | 'updated_at'>): Promise<Service> {
+  async createService(service: ServiceInput): Promise<Service> {
     const id = this.generateId();
+    const docId = this.resolveDocumentId(SERVICE_COLLECTION, id);
     const timestamp = new Date();
-    
-    const query = `
-      INSERT INTO services (id, name, type, status, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `;
-    
-    await this.dbClient.executeQuery(query, [
+
+    const serviceDoc: Service = {
+      ...service,
       id,
-      service.name,
-      service.type,
-      service.status,
-      timestamp,
-      timestamp
-    ]);
-    
-    return { ...service, id, created_at: timestamp, updated_at: timestamp };
+      created_at: timestamp,
+      updated_at: timestamp
+    };
+
+    await this.withSession(async session => {
+      await session.store(serviceDoc, docId);
+      await session.saveChanges();
+    });
+
+    return serviceDoc;
   }
 
   async getServiceById(id: string): Promise<Service | null> {
-    const query = `SELECT * FROM services WHERE id = ?`;
-    const result = await this.dbClient.executeQuery<ServiceRow>(query, [id]);
-    
-    if (result.rows.length === 0) {
-      return null;
-    }
-    
-    return this.mapRowToService(result.rows[0]);
+    const docId = this.resolveDocumentId(SERVICE_COLLECTION, id);
+    return this.withSession(async session => {
+      const service = await session.load<Service>(docId);
+      return service ?? null;
+    });
   }
 
-  async updateService(id: string, updates: Partial<Omit<Service, 'id' | 'created_at' | 'updated_at'>>): Promise<Service | null> {
-    const service = await this.getServiceById(id);
-    if (!service) {
-      return null;
-    }
-    
-    const updatedService = { ...service, ...updates, updated_at: new Date() };
-    const query = `
-      UPDATE services 
-      SET name = ?, type = ?, status = ?, updated_at = ?
-      WHERE id = ?
-    `;
-    
-    await this.dbClient.executeQuery(query, [
-      updatedService.name,
-      updatedService.type,
-      updatedService.status,
-      updatedService.updated_at,
-      id
-    ]);
-    
-    return updatedService;
+  async updateService(id: string, updates: ServiceUpdate): Promise<Service | null> {
+    const docId = this.resolveDocumentId(SERVICE_COLLECTION, id);
+    return this.withSession(async session => {
+      const existing = await session.load<Service>(docId);
+      if (!existing) {
+        return null;
+      }
+
+      Object.assign(existing, updates, { updated_at: new Date() });
+
+      await session.saveChanges();
+
+      return existing;
+    });
   }
 
   async deleteService(id: string): Promise<void> {
-    const query = `DELETE FROM services WHERE id = ?`;
-    await this.dbClient.executeQuery(query, [id]);
+    const docId = this.resolveDocumentId(SERVICE_COLLECTION, id);
+    await this.withSession(async session => {
+      session.delete(docId);
+      await session.saveChanges();
+    });
   }
 
   private generateId(): string {
     return uuidv4();
   }
 
-  private mapRowToOrganization(row: OrganizationRow): Organization {
-    return {
-      id: row.id,
-      name: row.name,
-      plan: row.plan,
-      status: row.status,
-      created_at: row.created_at,
-      updated_at: row.updated_at
-    };
+  private resolveDocumentId(collection: string, id: string): string {
+    return `${collection}/${id}`;
   }
 
-  private mapRowToService(row: ServiceRow): Service {
-    return {
-      id: row.id,
-      name: row.name,
-      type: row.type,
-      status: row.status,
-      created_at: row.created_at,
-      updated_at: row.updated_at
-    };
+  private async withSession<TReturn>(handler: (session: IDocumentSession) => Promise<TReturn>): Promise<TReturn> {
+    const session = this.dbClient.openSession();
+    try {
+      return await handler(session);
+    } finally {
+      if (typeof (session as { dispose?: () => void }).dispose === 'function') {
+        session.dispose();
+      }
+    }
   }
 }
 
