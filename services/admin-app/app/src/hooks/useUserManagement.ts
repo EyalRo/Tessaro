@@ -22,7 +22,7 @@ const normalizeUserProfile = (user: UserProfile): UserProfile => {
     email: safeEmail,
     name: safeName,
     role: safeRole,
-    avatar_url: user.avatar_url ?? undefined
+    avatar_url: user.avatar_url ?? null
   };
 };
 
