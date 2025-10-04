@@ -10,20 +10,6 @@ services:
     depends_on:
       - users-api
 
-  users-api:
-    build:
-      context: .
-      dockerfile: services/users-api/functions/Dockerfile
-    environment:
-      HOST: 0.0.0.0
-      PORT: 8080
-      RAVEN_URLS: http://ravendb:8080
-      RAVEN_DATABASE: Tessaro
-    ports:
-      - "8080:8080"
-    depends_on:
-      - ravendb
-
   ravendb:
     image: ravendb/ravendb:7.1-latest
     restart: unless-stopped
