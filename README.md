@@ -7,7 +7,7 @@ This repository contains the Tessaro admin experience along with supporting APIs
 | Service | Description | Port |
 | --- | --- | --- |
 | `admin-app` | Vite-powered React admin UI served in production preview mode. | `4173` |
-| `users-api` | Express API that provides CRUD operations for user profiles backed by RavenDB. | `8080` |
+| `api-server` | Express API that serves user, organization, and service catalog endpoints backed by RavenDB. | `8080` |
 | `ravendb` | RavenDB server used by the APIs. Studio is available on the exposed port. | `8085` |
 
 Shared TypeScript packages live in the `shared/` directory and provide database clients, configuration helpers, and testing utilities that are consumed by the services.
@@ -32,7 +32,7 @@ No other local dependencies are required.
 
 3. Once the stack is ready:
    * Admin UI: http://localhost:4173
-   * Users API: http://localhost:8080 (health check at `/health`)
+   * API Server: http://localhost:8080 (health check at `/health`)
    * RavenDB Studio: http://localhost:8085
 
 4. To stop the stack, press `Ctrl+C` and run:
@@ -67,14 +67,12 @@ The test runner uses the shared mocks and does not require RavenDB.
 ```
 services/
   admin-app/          # React admin interface
-  users-api/          # Express API for user profiles
-  orgs-api/           # Express API skeleton for organization data
-  services-api/       # Express API skeleton for service catalogs
+  api-server/         # Express API for user, organization, and service catalog data
 shared/               # Shared TypeScript libraries
 infra/docker/         # Infrastructure assets for Docker Compose (schema, etc.)
 ```
 
-Each API has an accompanying Dockerfile and can be extended with additional routes. Compose currently wires up the admin UI and users API; additional services can be added by following the same pattern.
+Each API has an accompanying Dockerfile and can be extended with additional routes. Compose currently wires up the admin UI and consolidated API server; additional services can be added by following the same pattern.
 
 ## Extending the Environment
 
