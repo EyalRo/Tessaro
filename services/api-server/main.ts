@@ -1,5 +1,5 @@
-import { Hono } from "hono";
-import type { Context } from "hono";
+import { Hono } from "./lib/hono.ts";
+import type { Context } from "./lib/hono.ts";
 import users from "./users.ts";
 
 export function createApp() {

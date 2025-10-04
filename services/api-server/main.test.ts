@@ -9,29 +9,15 @@ function assertEquals<T>(actual: T, expected: T, message?: string) {
   }
 }
 
-const originalRavenUrls = Deno.env.get("RAVEN_URLS");
-const originalRavenDatabase = Deno.env.get("RAVEN_DATABASE");
+import { createApp } from "./main.ts";
+import { setRavenConfig } from "./users.ts";
 
-Deno.env.set("RAVEN_URLS", "");
-Deno.env.set("RAVEN_DATABASE", "");
-
-const { createApp } = await import("./main.ts");
-
-addEventListener("unload", () => {
-  if (originalRavenUrls === undefined) {
-    Deno.env.delete("RAVEN_URLS");
-  } else {
-    Deno.env.set("RAVEN_URLS", originalRavenUrls);
-  }
-
-  if (originalRavenDatabase === undefined) {
-    Deno.env.delete("RAVEN_DATABASE");
-  } else {
-    Deno.env.set("RAVEN_DATABASE", originalRavenDatabase);
-  }
-});
+function resetRavenConfig() {
+  setRavenConfig({ urls: [], database: "" });
+}
 
 Deno.test("GET / returns the greeting", async () => {
+  resetRavenConfig();
   const app = createApp();
   const response = await app.request("/");
 
@@ -40,6 +26,7 @@ Deno.test("GET / returns the greeting", async () => {
 });
 
 Deno.test("GET /users returns an empty array when RavenDB is not configured", async () => {
+  resetRavenConfig();
   const app = createApp();
   const response = await app.request("/users");
 
