@@ -1,14 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@hono/hono@*": "4.9.9",
-    "jsr:@hono/hono@^4.9.9": "4.9.9",
     "npm:ravendb@*": "7.1.0"
-  },
-  "jsr": {
-    "@hono/hono@4.9.9": {
-      "integrity": "1d716e97b71e91b852c70beb85c9d3b236393282c59d5e268b07cfd224a77318"
-    }
   },
   "npm": {
     "@rollup/rollup-linux-x64-gnu@4.52.4": {
@@ -66,10 +59,5 @@
     "ws@8.18.3": {
       "integrity": "sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg=="
     }
-  },
-  "workspace": {
-    "dependencies": [
-      "jsr:@hono/hono@^4.9.9"
-    ]
   }
 }

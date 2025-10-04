@@ -1,60 +1,124 @@
 // users.ts
-import { Hono } from 'hono'
-import type { Context } from 'hono'
-import { DocumentStore } from 'npm:ravendb'
+import { Hono } from "./lib/hono.ts";
+import type { Context } from "./lib/hono.ts";
+type DocumentStore = {
+  initialize(): void;
+  openSession(): {
+    query(options: { collection: string }): {
+      all(): Promise<unknown[]>;
+    };
+    dispose?: () => void;
+  };
+};
 
-const app = new Hono()
+type RavenConfig = {
+  urls: string[];
+  database: string;
+};
 
-const ravenUrls = Deno.env.get('RAVEN_URLS')
-  ?.split(',')
-  .map((url) => url.trim())
-  .filter(Boolean) ?? []
-const ravenDatabase = Deno.env.get('RAVEN_DATABASE') ?? ''
-
-let documentStore: DocumentStore | null = null
-
-function getDocumentStore() {
-  if (documentStore || ravenUrls.length === 0 || !ravenDatabase) {
-    return documentStore
-  }
-
+function safeGetEnv(key: string): string | undefined {
   try {
-    documentStore = new DocumentStore(ravenUrls, ravenDatabase)
-    documentStore.initialize()
+    return Deno.env.get(key);
   } catch (error) {
-    console.error('Failed to initialize RavenDB document store', error)
-    documentStore = null
-  }
+    if (
+      error instanceof Error &&
+      (error.name === "PermissionDenied" || error.name === "NotCapable")
+    ) {
+      return undefined;
+    }
 
-  return documentStore
+    throw error;
+  }
 }
 
-app.get('/', async (c: Context) => {
-  const store = getDocumentStore()
+function loadConfigFromEnv(): RavenConfig {
+  const urls = safeGetEnv("RAVEN_URLS")
+    ?.split(",")
+    .map((url) => url.trim())
+    .filter(Boolean) ?? [];
 
-  if (!store) {
-    return c.json([])
+  const database = safeGetEnv("RAVEN_DATABASE") ?? "";
+
+  return { urls, database };
+}
+
+const app = new Hono();
+
+let ravenConfig: RavenConfig = loadConfigFromEnv();
+let documentStore: DocumentStore | null = null;
+let documentStoreInitPromise: Promise<DocumentStore | null> | null = null;
+
+export function setRavenConfig(config: RavenConfig) {
+  ravenConfig = {
+    urls: [...config.urls],
+    database: config.database,
+  };
+
+  documentStore = null;
+  documentStoreInitPromise = null;
+}
+
+async function getDocumentStore() {
+  if (documentStore) {
+    return documentStore;
   }
 
-  const session = store.openSession()
+  if (ravenConfig.urls.length === 0 || !ravenConfig.database) {
+    return null;
+  }
+
+  if (!documentStoreInitPromise) {
+    documentStoreInitPromise = (async () => {
+      try {
+        const module = await import("npm:ravendb");
+        const Store = module.DocumentStore as unknown as new (
+          urls: string[],
+          database: string,
+        ) => DocumentStore;
+
+        const store = new Store(ravenConfig.urls, ravenConfig.database);
+        store.initialize();
+        documentStore = store;
+        return store;
+      } catch (error) {
+        console.error("Failed to initialize RavenDB document store", error);
+        documentStore = null;
+        return null;
+      } finally {
+        documentStoreInitPromise = null;
+      }
+    })();
+  }
+
+  return documentStoreInitPromise;
+}
+
+app.get("/", async (c: Context) => {
+  const store = await getDocumentStore();
+
+  if (!store) {
+    return c.json([]);
+  }
+
+  const session = store.openSession();
 
   try {
     const users = await session
-      .query({ collection: 'Users' })
-      .all()
+      .query({ collection: "Users" })
+      .all();
 
-    return c.json(users ?? [])
+    return c.json(users ?? []);
   } catch (error) {
-    console.error('Failed to load users from RavenDB', error)
-    return c.json([])
+    console.error("Failed to load users from RavenDB", error);
+    return c.json([]);
   } finally {
-    if (typeof session.dispose === 'function') {
-      session.dispose()
+    if (typeof session.dispose === "function") {
+      session.dispose();
     }
   }
-})
+});
 
-app.post('/', (c: Context) => c.json('create a user', 201))
-app.get('/:id', (c: Context) => c.json(`get ${c.req.param('id')}`))
+app.post("/", (c: Context) => c.json("create a user", 201));
+app.get("/:id", (c: Context) => c.json(`get ${c.req.param("id")}`));
 
-export default app
+export default app;
