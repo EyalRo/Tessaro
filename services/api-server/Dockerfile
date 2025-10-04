@@ -8,14 +8,13 @@ WORKDIR /app
 # Prefer not to run as root.
 USER deno
 
-# Cache the dependencies as a layer (the following two steps are re-run only when deps.ts is modified).
-# Ideally cache deps.ts will download and compile _all_ external files used in main.ts.
-COPY deps.ts .
-RUN deno install --entrypoint deps.ts
+# Cache dependencies declared in deno.json/deno.lock before copying the rest of the source.
+COPY services/api-server/deno.json ./deno.json
+COPY services/api-server/deno.lock ./deno.lock
+RUN deno cache deno.json
 
-# These steps will be re-run upon each file change in your working directory:
-COPY . .
-# Compile the main app so that it doesn't need to be compiled each startup/entry.
+# Copy application source and precompile it for faster start-up times.
+COPY services/api-server/ ./
 RUN deno cache main.ts
 
-CMD ["run", "--allow-net", "main.ts"]
+CMD ["run", "--allow-net", "--allow-env", "main.ts"]
