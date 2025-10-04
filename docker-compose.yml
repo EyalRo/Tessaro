@@ -4,11 +4,23 @@ services:
       context: .
       dockerfile: services/admin-app/app/Dockerfile
     environment:
-      VITE_USERS_API_URL: http://users-api:8080
+      VITE_USERS_API_URL: http://api-server:8080
     ports:
       - "4173:4173"
     depends_on:
-      - users-api
+      - api-server
+
+  api-server:
+    build:
+      context: .
+      dockerfile: services/api-server/Dockerfile
+    environment:
+      RAVEN_URLS: http://ravendb:8080
+      RAVEN_DATABASE: Users
+    ports:
+      - "8080:8000"
+    depends_on:
+      - ravendb
 
   ravendb:
     image: ravendb/ravendb:7.1-latest
