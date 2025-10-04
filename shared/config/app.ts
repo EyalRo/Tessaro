@@ -1,18 +1,19 @@
-import express, { Express } from 'express';
-import cors, { CorsOptions } from 'cors';
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+
+export type CorsOptions = Parameters<typeof cors>[0];
 
 export const resolveCorsOptions = (): CorsOptions => ({ origin: '*' });
 
-export const createBaseApp = (): Express => {
-  const app = express();
-  app.use(cors(resolveCorsOptions()));
-  app.use(express.json());
-  app.get('/health', (_req, res) => {
-    res.json({ status: 'ok' });
-  });
+export const createBaseApp = (): Hono => {
+  const app = new Hono();
+  app.use('*', cors(resolveCorsOptions()));
+  app.get('/health', (c) => c.json({ status: 'ok' }));
 
   return app;
 };
+
+export type BaseApp = ReturnType<typeof createBaseApp>;
 
 export const resolvePort = (value: string | undefined): number => {
   const parsed = Number(value);

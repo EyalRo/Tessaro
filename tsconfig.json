@@ -10,7 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "jsx": "react-jsx",
-    "types": ["jest", "node", "@testing-library/jest-dom", "cors", "mime-types"],
+    "types": ["jest", "node", "@testing-library/jest-dom", "mime-types"],
     "baseUrl": ".",
     "paths": {
       "shared/libs/database": ["shared/libs/database/src"],

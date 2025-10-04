@@ -1,3 +1,4 @@
+import { serve } from '@hono/node-server';
 import { createBaseApp, getConfigService, resolveHost, resolvePort } from './shared';
 import {
   registerCreateServiceRoute,
@@ -18,10 +19,9 @@ const port = resolvePort(process.env.PORT);
 const host = resolveHost(process.env.HOST);
 
 if (require.main === module) {
-  app.listen(port, host, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Services API listening on http://${host}:${port}`);
-  });
+  serve({ fetch: app.fetch, port, hostname: host });
+  // eslint-disable-next-line no-console
+  console.log(`Services API listening on http://${host}:${port}`);
 }
 
 export default app;

@@ -1,73 +1,70 @@
-import { Request, Response } from 'express';
-import { Express } from 'express-serve-static-core';
 import ConfigService from 'shared/libs/database/config-service';
 import { Organization } from 'shared/libs/database/types';
-
-type OrganizationRouteParams = {
-  id: string;
-};
+import type { BaseApp } from 'shared/config/app';
 
 type CreateOrganizationPayload = Omit<Organization, 'id' | 'created_at' | 'updated_at'>;
 type UpdateOrganizationPayload = Partial<CreateOrganizationPayload>;
 
-export const registerCreateOrganizationRoute = (app: Express, configService: ConfigService): void => {
-  app.post(
-    '/organizations',
-    async (
-      req: Request<unknown, unknown, CreateOrganizationPayload>,
-      res: Response
-    ) => {
-      try {
-        const org = await configService.createOrganization(req.body);
-        res.status(201).json(org);
-      } catch (_error) {
-        res.status(500).json({ error: 'Failed to create organization' });
-      }
-    }
-  );
-};
-
-export const registerGetOrganizationRoute = (app: Express, configService: ConfigService): void => {
-  app.get('/organizations/:id', async (req: Request<OrganizationRouteParams>, res: Response) => {
+export const registerCreateOrganizationRoute = (
+  app: BaseApp,
+  configService: ConfigService
+): void => {
+  app.post('/organizations', async (c) => {
     try {
-      const org = await configService.getOrganizationById(req.params.id);
-      if (!org) {
-        return res.status(404).json({ error: 'Organization not found' });
-      }
-      res.json(org);
+      const payload = await c.req.json<CreateOrganizationPayload>();
+      const org = await configService.createOrganization(payload);
+      return c.json(org, 201);
     } catch (_error) {
-      res.status(500).json({ error: 'Failed to fetch organization' });
+      return c.json({ error: 'Failed to create organization' }, 500);
     }
   });
 };
 
-export const registerUpdateOrganizationRoute = (app: Express, configService: ConfigService): void => {
-  app.put(
-    '/organizations/:id',
-    async (
-      req: Request<OrganizationRouteParams, unknown, UpdateOrganizationPayload>,
-      res: Response
-    ) => {
-      try {
-        const org = await configService.updateOrganization(req.params.id, req.body);
-        if (!org) {
-          return res.status(404).json({ error: 'Organization not found' });
-        }
-        res.json(org);
-      } catch (_error) {
-        res.status(500).json({ error: 'Failed to update organization' });
+export const registerGetOrganizationRoute = (
+  app: BaseApp,
+  configService: ConfigService
+): void => {
+  app.get('/organizations/:id', async (c) => {
+    try {
+      const org = await configService.getOrganizationById(c.req.param('id'));
+      if (!org) {
+        return c.json({ error: 'Organization not found' }, 404);
       }
+      return c.json(org);
+    } catch (_error) {
+      return c.json({ error: 'Failed to fetch organization' }, 500);
     }
-  );
+  });
 };
 
-export const registerDeleteOrganizationRoute = (app: Express, configService: ConfigService): void => {
-  app.delete('/organizations/:id', async (req: Request<OrganizationRouteParams>, res: Response) => {
+export const registerUpdateOrganizationRoute = (
+  app: BaseApp,
+  configService: ConfigService
+): void => {
+  app.put('/organizations/:id', async (c) => {
     try {
-      await configService.deleteOrganization(req.params.id);
-      res.status(204).send();
+      const payload = await c.req.json<UpdateOrganizationPayload>();
+      const org = await configService.updateOrganization(c.req.param('id'), payload);
+      if (!org) {
+        return c.json({ error: 'Organization not found' }, 404);
+      }
+      return c.json(org);
     } catch (_error) {
-      res.status(500).json({ error: 'Failed to delete organization' });
+      return c.json({ error: 'Failed to update organization' }, 500);
+    }
+  });
+};
+
+export const registerDeleteOrganizationRoute = (
+  app: BaseApp,
+  configService: ConfigService
+): void => {
+  app.delete('/organizations/:id', async (c) => {
+    try {
+      await configService.deleteOrganization(c.req.param('id'));
+      return c.body(null, 204);
+    } catch (_error) {
+      return c.json({ error: 'Failed to delete organization' }, 500);
     }
   });
 };
