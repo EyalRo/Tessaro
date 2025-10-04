@@ -1,0 +1,4 @@
+services:
+  ravendb:
+    image: ravendb/ravendb:7.1-latest
+    restart: unless-stopped
