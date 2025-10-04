@@ -112,7 +112,7 @@ const UsersPage: React.FC = () => {
       name: formState.name.trim(),
       email: formState.email.trim(),
       role: formState.role,
-      avatar_url: formState.avatar_url?.trim() || undefined
+      avatar_url: formState.avatar_url?.trim() || null
     };
 
     const result = currentUser

@@ -22,7 +22,11 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const resolveErrorMessage = (error: unknown): string => {
-  if (error instanceof AuthError || error instanceof Error) {
+  if (error instanceof AuthError) {
+    return error.message;
+  }
+
+  if (error instanceof Error) {
     return error.message;
   }
 
