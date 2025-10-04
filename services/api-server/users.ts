@@ -9,6 +9,7 @@ type DocumentStore = {
     };
     dispose?: () => void;
   };
+  dispose?: () => void;
 };
 
 type RavenConfig = {
@@ -47,8 +48,19 @@ const app = new Hono();
 let ravenConfig: RavenConfig = loadConfigFromEnv();
 let documentStore: DocumentStore | null = null;
 let documentStoreInitPromise: Promise<DocumentStore | null> | null = null;
+let ravenConfigVersion = 0;
 
 export function setRavenConfig(config: RavenConfig) {
+  ravenConfigVersion += 1;
+
+  if (documentStore && typeof documentStore.dispose === "function") {
+    try {
+      documentStore.dispose();
+    } catch (error) {
+      console.error("Failed to dispose RavenDB document store", error);
+    }
+  }
+
   ravenConfig = {
     urls: [...config.urls],
     database: config.database,
@@ -68,7 +80,8 @@ async function getDocumentStore() {
   }
 
   if (!documentStoreInitPromise) {
-    documentStoreInitPromise = (async () => {
+    const initVersion = ravenConfigVersion;
+    const promise = (async () => {
       try {
         const module = await import("ravendb");
         const Store = module.DocumentStore as unknown as new (
@@ -78,16 +91,42 @@ async function getDocumentStore() {
 
         const store = new Store(ravenConfig.urls, ravenConfig.database);
         store.initialize();
+
+        if (initVersion !== ravenConfigVersion) {
+          if (typeof store.dispose === "function") {
+            try {
+              store.dispose();
+            } catch (disposeError) {
+              console.error(
+                "Failed to dispose outdated RavenDB document store",
+                disposeError,
+              );
+            }
+          }
+
+          return null;
+        }
+
         documentStore = store;
         return store;
       } catch (error) {
-        console.error("Failed to initialize RavenDB document store", error);
-        documentStore = null;
+        if (initVersion === ravenConfigVersion) {
+          console.error("Failed to initialize RavenDB document store", error);
+          documentStore = null;
+        }
+
         return null;
       } finally {
-        documentStoreInitPromise = null;
+        // Intentionally left blank. The caller below clears the shared promise.
       }
     })();
+
+    documentStoreInitPromise = promise;
+    promise.finally(() => {
+      if (documentStoreInitPromise === promise) {
+        documentStoreInitPromise = null;
+      }
+    });
   }
 
   return await documentStoreInitPromise;
