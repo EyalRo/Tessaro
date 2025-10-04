@@ -7,20 +7,17 @@ on:
   pull_request:
 
 jobs:
-  test:
+  api-server-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Use Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Deno
+        uses: denoland/setup-deno@v1
         with:
-          node-version: '20'
-          cache: 'npm'
+          deno-version: v1.x
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test -- --runInBand
+      - name: Run API server tests
+        working-directory: services/api-server
+        run: deno task test

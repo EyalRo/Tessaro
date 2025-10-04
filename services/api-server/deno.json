@@ -3,7 +3,8 @@
     "hono": "jsr:@hono/hono@^4.9.9"
   },
   "tasks": {
-    "start": "deno run --allow-net main.ts"
+    "start": "deno run --allow-net --allow-env main.ts",
+    "test": "deno test --allow-env --unsafely-ignore-certificate-errors=deno.land,jsr.io,registry.npmjs.org"
   },
   "compilerOptions": {
     "jsx": "precompile",

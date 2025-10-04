@@ -1,9 +1,17 @@
 import { Hono } from "hono";
-import users from "./users.ts"
+import type { Context } from "hono";
+import users from "./users.ts";
 
-const app = new Hono();
+export function createApp() {
+  const app = new Hono();
+  app.get("/", (c: Context) => c.text("Hello, World!"));
+  app.route("/users", users);
 
-app.get("/", (c) => c.text("Hello, World!"));
-app.route('/users', users)
+  return app;
+}
 
-Deno.serve(app.fetch);
+export const app = createApp();
+
+if (import.meta.main) {
+  Deno.serve(app.fetch);
+}

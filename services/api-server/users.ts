@@ -1,5 +1,6 @@
 // users.ts
 import { Hono } from 'hono'
+import type { Context } from 'hono'
 import { DocumentStore } from 'npm:ravendb'
 
 const app = new Hono()
@@ -28,7 +29,7 @@ function getDocumentStore() {
   return documentStore
 }
 
-app.get('/', async (c) => {
+app.get('/', async (c: Context) => {
   const store = getDocumentStore()
 
   if (!store) {
@@ -53,7 +54,7 @@ app.get('/', async (c) => {
   }
 })
 
-app.post('/', (c) => c.json('create a user', 201))
-app.get('/:id', (c) => c.json(`get ${c.req.param('id')}`))
+app.post('/', (c: Context) => c.json('create a user', 201))
+app.get('/:id', (c: Context) => c.json(`get ${c.req.param('id')}`))
 
 export default app
