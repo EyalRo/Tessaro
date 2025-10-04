@@ -1,7 +1,8 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:ravendb@*": "7.1.0"
+    "npm:ravendb@*": "7.1.0",
+    "npm:ravendb@7.1.0": "7.1.0"
   },
   "npm": {
     "@rollup/rollup-linux-x64-gnu@4.52.4": {
@@ -59,5 +60,10 @@
     "ws@8.18.3": {
       "integrity": "sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg=="
     }
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:ravendb@7.1.0"
+    ]
   }
 }

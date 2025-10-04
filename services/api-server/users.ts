@@ -70,7 +70,7 @@ async function getDocumentStore() {
   if (!documentStoreInitPromise) {
     documentStoreInitPromise = (async () => {
       try {
-        const module = await import("npm:ravendb");
+        const module = await import("ravendb");
         const Store = module.DocumentStore as unknown as new (
           urls: string[],
           database: string,
@@ -90,7 +90,7 @@ async function getDocumentStore() {
     })();
   }
 
-  return documentStoreInitPromise;
+  return await documentStoreInitPromise;
 }
 
 app.get("/", async (c: Context) => {
