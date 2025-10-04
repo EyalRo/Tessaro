@@ -2,11 +2,13 @@ import { Request, Response } from 'express';
 import { Express } from 'express-serve-static-core';
 import UserService from 'shared/libs/database/user-service';
 import { UserProfile } from 'shared/libs/database/types';
+import { logRequest } from './logger';
 
 export type CreateUserPayload = Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>;
 
 export const registerListUsersRoute = (app: Express, userService: UserService): void => {
-  app.get('/users', async (_req: Request, res: Response) => {
+  app.get('/users', async (req: Request, res: Response) => {
+    logRequest(req);
     try {
       const users = await userService.listUsers();
       res.json(users);
@@ -18,6 +20,7 @@ export const registerListUsersRoute = (app: Express, userService: UserService): 
 
 export const registerCreateUserRoute = (app: Express, userService: UserService): void => {
   app.post('/users', async (req: Request<unknown, unknown, CreateUserPayload>, res: Response) => {
+    logRequest(req);
     try {
       const user = await userService.createUser(req.body);
       res.status(201).json(user);
