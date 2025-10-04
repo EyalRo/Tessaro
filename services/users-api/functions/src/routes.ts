@@ -1,3 +1,4 @@
+import type { Context } from 'hono';
 import UserService from 'shared/libs/database/user-service';
 import { UserProfile } from 'shared/libs/database/types';
 import type { BaseApp } from 'shared/config/app';
@@ -6,19 +7,24 @@ import { logRequest } from './logger';
 export type CreateUserPayload = Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>;
 
 export const registerListUsersRoute = (app: BaseApp, userService: UserService): void => {
-  app.get('/users', async (c) => {
+  const handler = async (c: Context) => {
     logRequest(c);
     try {
       const users = await userService.listUsers();
       return c.json(users);
-    } catch (_error) {
-      return c.json({ error: 'Failed to fetch users' }, 500);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      logRequest(c, 'error', { message });
+      c.header('x-data-source', 'fallback');
+      return c.json([]);
     }
-  });
+  };
+
+  app.get('/users', handler);
 };
 
 export const registerCreateUserRoute = (app: BaseApp, userService: UserService): void => {
-  app.post('/users', async (c) => {
+  app.post('/users', async (c: Context) => {
     let payload: CreateUserPayload;
     try {
       payload = await c.req.json<CreateUserPayload>();
