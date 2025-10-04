@@ -1,3 +1,4 @@
+import { serve } from '@hono/node-server';
 import { createBaseApp, getUserService, resolveHost, resolvePort } from './shared';
 import { registerCreateUserRoute, registerListUsersRoute } from './routes';
 
@@ -11,10 +12,9 @@ const port = resolvePort(process.env.PORT);
 const host = resolveHost(process.env.HOST);
 
 if (require.main === module) {
-  const server = app.listen(port, host, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Users API listening on http://${host}:${port}`);
-  });
+  const server = serve({ fetch: app.fetch, port, hostname: host });
+  // eslint-disable-next-line no-console
+  console.log(`Users API listening on http://${host}:${port}`);
 
   let isShuttingDown = false;
   const gracefulShutdown = (signal: NodeJS.Signals) => {
@@ -26,7 +26,7 @@ if (require.main === module) {
     // eslint-disable-next-line no-console
     console.log(`Received ${signal}. Users API shutting down gracefully.`);
 
-    server.close((error) => {
+    server.close((error?: Error) => {
       if (error) {
         // eslint-disable-next-line no-console
         console.error('Error while shutting down Users API server', error);
