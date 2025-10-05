@@ -28,7 +28,7 @@ No other local dependencies are required.
    docker compose up --build
    ```
 
-   The first run will download container images, install Node.js dependencies, and run the automated test suite for the admin application as part of its Docker build.
+The first run will download container images and install Node.js dependencies for each service.
 
 3. Once the stack is ready:
    * Admin UI: http://localhost:4173
@@ -51,16 +51,9 @@ The default configuration works out of the box. If you need to adjust connection
 
 APIs are configured to allow requests from any origin by default.
 
-### Running Tests Locally
+### Test & CI Status
 
-You can execute the TypeScript/Jest test suite without Docker:
-
-```bash
-npm install
-npm test
-```
-
-The test runner uses the shared mocks and does not require RavenDB.
+Automated test suites and CI/CD pipelines have been removed from this repository. Local workflows now focus solely on building and running the services.
 
 ## Repository Structure
 
