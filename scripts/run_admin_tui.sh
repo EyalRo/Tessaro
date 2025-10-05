@@ -38,7 +38,6 @@ trap cleanup EXIT
 start_service_if_needed ravendb
 start_service_if_needed api-server
 
-cat <<'MSG'
-\nAdmin TUI is starting. Use Ctrl+C to exit.\nMSG
+printf '\nAdmin TUI is starting. Use Ctrl+C to exit.\n\n'
 
 docker compose run --rm admin-tui
