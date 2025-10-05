@@ -8,6 +8,7 @@ This repository contains the Tessaro admin experience along with supporting APIs
 | --- | --- | --- |
 | `admin-app` | Vite-powered React admin UI served in production preview mode. | `4173` |
 | `api-server` | Express API that serves user, organization, and service catalog endpoints backed by RavenDB. | `8080` |
+| `admin-tui` | Charm-based terminal UI for managing users via the API server. | `-` |
 | `ravendb` | RavenDB server used by the APIs. Studio is available on the exposed port. | `8085` |
 
 Shared TypeScript packages live in the `shared/` directory and provide database clients, configuration helpers, and testing utilities that are consumed by the services.
@@ -34,6 +35,7 @@ The first run will download container images and install Node.js dependencies fo
    * Admin UI: http://localhost:4173
    * API Server: http://localhost:8080 (health check at `/health`)
    * RavenDB Studio: http://localhost:8085
+   * Admin TUI: `docker compose run --rm admin-tui`
 
 4. To stop the stack, press `Ctrl+C` and run:
 

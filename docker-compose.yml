@@ -22,6 +22,16 @@ services:
     depends_on:
       - ravendb
 
+  admin-tui:
+    build:
+      context: ./services/admin-tui
+    environment:
+      USERS_API_URL: http://api-server:8080
+    depends_on:
+      - api-server
+    stdin_open: true
+    tty: true
+
   ravendb:
     image: ravendb/ravendb:7.1-latest
     restart: unless-stopped
