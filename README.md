@@ -76,3 +76,13 @@ Each API has an accompanying Dockerfile and can be extended with additional rout
 * Update shared libraries under `shared/` to expose cross-service utilities.
 
 Feel free to tailor the Compose file to match your deployment or development needs.
+
+### Running the Admin TUI in isolation
+
+When you only need the terminal UI, use the helper script to ensure the API server and RavenDB are started before launching the container:
+
+```bash
+./scripts/run_admin_tui.sh
+```
+
+Any services started by the script are stopped automatically once you exit the TUI.
