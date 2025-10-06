@@ -17,6 +17,7 @@ type Client struct {
 	baseURL         string
 	httpClient      *http.Client
 	fallbackBaseURL string
+	preferFallback  bool
 }
 
 type User struct {
@@ -41,6 +42,7 @@ var ErrNotFound = errors.New("resource not found")
 func NewClient(rawURL string) *Client {
 	base := strings.TrimSuffix(strings.TrimSpace(rawURL), "/")
 	fallback := ""
+	preferFallback := false
 
 	if base == "" {
 		base = "http://localhost:8080"
@@ -49,12 +51,14 @@ func NewClient(rawURL string) *Client {
 	if parsed, err := url.Parse(base); err == nil {
 		if host := parsed.Hostname(); host == "api-server" {
 			fallback = "http://localhost:8080"
+			preferFallback = true
 		}
 	}
 
 	return &Client{
 		baseURL:         base,
 		fallbackBaseURL: fallback,
+		preferFallback:  preferFallback,
 		httpClient: &http.Client{
 			Timeout: 10 * time.Second,
 		},
@@ -68,6 +72,23 @@ func (c *Client) WithHTTPClient(client *http.Client) {
 }
 
 func (c *Client) doRequest(ctx context.Context, method, path string, body any) (*http.Response, error) {
+	if c.preferFallback && c.fallbackBaseURL != "" {
+		resp, err := c.doRequestWithBase(ctx, c.fallbackBaseURL, method, path, body)
+		if err == nil {
+			c.baseURL = c.fallbackBaseURL
+			c.fallbackBaseURL = ""
+			c.preferFallback = false
+			return resp, nil
+		}
+
+		var urlErr *url.Error
+		if !errors.As(err, &urlErr) {
+			return nil, err
+		}
+
+		c.preferFallback = false
+	}
+
 	resp, err := c.doRequestWithBase(ctx, c.baseURL, method, path, body)
 	if err == nil {
 		return resp, nil
@@ -89,6 +110,7 @@ func (c *Client) doRequest(ctx context.Context, method, path string, body any) (
 
 	c.baseURL = c.fallbackBaseURL
 	c.fallbackBaseURL = ""
+	c.preferFallback = false
 	return resp, nil
 }
 
