@@ -15,7 +15,7 @@ The Tessaro Admin TUI is a terminal user interface for managing user accounts vi
 go run ./cmd/admin-tui
 ```
 
-The application reads the API base URL from the `USERS_API_URL` environment variable. When unset it falls back to `USERS_API_BASE_URL` and finally to `http://localhost:8080`.
+The application reads the API base URL from the `USERS_API_URL` environment variable. When unset it falls back to `USERS_API_BASE_URL` and finally to `http://localhost:8080`. If the configured URL points at `http://api-server:8080` (the in-cluster DNS name used by Docker Compose) the client will automatically retry against `http://localhost:8080`, which is where the Compose-hosted API server is exposed.
 
 ## Docker
 

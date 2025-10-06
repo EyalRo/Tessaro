@@ -14,8 +14,9 @@ import (
 )
 
 type Client struct {
-	baseURL    string
-	httpClient *http.Client
+	baseURL         string
+	httpClient      *http.Client
+	fallbackBaseURL string
 }
 
 type User struct {
@@ -39,12 +40,21 @@ var ErrNotFound = errors.New("resource not found")
 
 func NewClient(rawURL string) *Client {
 	base := strings.TrimSuffix(strings.TrimSpace(rawURL), "/")
+	fallback := ""
+
 	if base == "" {
 		base = "http://localhost:8080"
 	}
 
+	if parsed, err := url.Parse(base); err == nil {
+		if host := parsed.Hostname(); host == "api-server" {
+			fallback = "http://localhost:8080"
+		}
+	}
+
 	return &Client{
-		baseURL: base,
+		baseURL:         base,
+		fallbackBaseURL: fallback,
 		httpClient: &http.Client{
 			Timeout: 10 * time.Second,
 		},
@@ -57,18 +67,33 @@ func (c *Client) WithHTTPClient(client *http.Client) {
 	}
 }
 
-func (c *Client) buildURL(path string) (string, error) {
-	cleaned := "/" + strings.TrimPrefix(path, "/")
-	u, err := url.Parse(c.baseURL + cleaned)
-	if err != nil {
-		return "", fmt.Errorf("invalid API URL: %w", err)
+func (c *Client) doRequest(ctx context.Context, method, path string, body any) (*http.Response, error) {
+	resp, err := c.doRequestWithBase(ctx, c.baseURL, method, path, body)
+	if err == nil {
+		return resp, nil
 	}
 
-	return u.String(), nil
+	if c.fallbackBaseURL == "" {
+		return nil, err
+	}
+
+	var urlErr *url.Error
+	if !errors.As(err, &urlErr) {
+		return nil, err
+	}
+
+	resp, fallbackErr := c.doRequestWithBase(ctx, c.fallbackBaseURL, method, path, body)
+	if fallbackErr != nil {
+		return nil, fallbackErr
+	}
+
+	c.baseURL = c.fallbackBaseURL
+	c.fallbackBaseURL = ""
+	return resp, nil
 }
 
-func (c *Client) doRequest(ctx context.Context, method, path string, body any) (*http.Response, error) {
-	fullURL, err := c.buildURL(path)
+func (c *Client) doRequestWithBase(ctx context.Context, base string, method, path string, body any) (*http.Response, error) {
+	fullURL, err := buildURL(base, path)
 	if err != nil {
 		return nil, err
 	}
@@ -98,6 +123,16 @@ func (c *Client) doRequest(ctx context.Context, method, path string, body any) (
 	}
 
 	return resp, nil
+}
+
+func buildURL(base, path string) (string, error) {
+	cleaned := "/" + strings.TrimPrefix(path, "/")
+	u, err := url.Parse(strings.TrimSuffix(base, "/") + cleaned)
+	if err != nil {
+		return "", fmt.Errorf("invalid API URL: %w", err)
+	}
+
+	return u.String(), nil
 }
 
 func decodeJSON[T any](r io.Reader) (T, error) {

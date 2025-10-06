@@ -13,5 +13,7 @@ export function createApp() {
 export const app = createApp();
 
 if (import.meta.main) {
-  Deno.serve(app.fetch);
+  const configuredPort = Number.parseInt(Deno.env.get("PORT") ?? "", 10);
+  const port = Number.isFinite(configuredPort) ? configuredPort : 8000;
+  Deno.serve({ port }, app.fetch);
 }
