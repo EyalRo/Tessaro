@@ -15,6 +15,5 @@ RUN deno cache deno.json
 
 # Copy application source and precompile it for faster start-up times.
 COPY services/api-server/ ./
-RUN deno cache main.ts
 
-CMD ["run", "--allow-net", "--allow-env", "main.ts"]
+CMD ["deno", "run", "--unstable-kv", "--lock=deno.lock", "--frozen", "--allow-import=deno.land:443,jsr.io:443,esm.sh:443,cdn.jsdelivr.net:443,raw.githubusercontent.com:443,user.githubusercontent.com:443,dev.jspm.io:443,cdn.skypack.dev:443", "--allow-net", "--allow-env", "--allow-read", "--allow-write", "main.ts"]

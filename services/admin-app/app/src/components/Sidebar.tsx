@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import styles from './Sidebar.module.scss';
+import styles from './Sidebar.module.css';
 
 const navigation = [
   {

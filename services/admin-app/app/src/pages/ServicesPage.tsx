@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './ServicesPage.module.scss';
+import styles from './ServicesPage.module.css';
 
 const ServicesPage = () => {
   return (

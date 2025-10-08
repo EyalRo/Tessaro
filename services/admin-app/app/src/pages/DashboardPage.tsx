@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './DashboardPage.module.scss';
+import styles from './DashboardPage.module.css';
 
 const stats = [
   { label: 'Active Users', value: '1,284', change: '+12.1%' },

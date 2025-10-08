@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import useAuth from '../hooks/useAuth';
-import styles from './Header.module.scss';
+import styles from './Header.module.css';
 
 const Header = () => {
   const { user, logout } = useAuth();

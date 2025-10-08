@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import useUserManagement from '../hooks/useUserManagement';
-import styles from './UsersPage.module.scss';
+import styles from './UsersPage.module.css';
 
 type UserFormState = {
   name: string;

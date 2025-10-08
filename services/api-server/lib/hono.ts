@@ -110,6 +110,18 @@ export class Hono {
     return this.addRoute("POST", path, handler);
   }
 
+  put(path: string, handler: Handler) {
+    return this.addRoute("PUT", path, handler);
+  }
+
+  patch(path: string, handler: Handler) {
+    return this.addRoute("PATCH", path, handler);
+  }
+
+  delete(path: string, handler: Handler) {
+    return this.addRoute("DELETE", path, handler);
+  }
+
   route(path: string, app: Hono) {
     const baseSegments = parsePath(path);
 

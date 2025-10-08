@@ -1,163 +1,239 @@
-// users.ts
 import { Hono } from "./lib/hono.ts";
 import type { Context } from "./lib/hono.ts";
-type DocumentStore = {
-  initialize(): void;
-  openSession(): {
-    query(options: { collection: string }): {
-      all(): Promise<unknown[]>;
-    };
-    dispose?: () => void;
-  };
-  dispose?: () => void;
-};
-
-type RavenConfig = {
-  urls: string[];
-  database: string;
-};
-
-function safeGetEnv(key: string): string | undefined {
-  try {
-    return Deno.env.get(key);
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.name === "PermissionDenied" || error.name === "NotCapable")
-    ) {
-      return undefined;
-    }
-
-    throw error;
-  }
-}
-
-function loadConfigFromEnv(): RavenConfig {
-  const urls = safeGetEnv("RAVEN_URLS")
-    ?.split(",")
-    .map((url) => url.trim())
-    .filter(Boolean) ?? [];
-
-  const database = safeGetEnv("RAVEN_DATABASE") ?? "";
-
-  return { urls, database };
-}
+import {
+  countUsers,
+  createUser,
+  deleteUser,
+  getUserById,
+  listUsers,
+  updateUser,
+} from "./storage/denodb.ts";
+import { getValue, incrementCounter, setValue } from "./storage/kv.ts";
 
 const app = new Hono();
 
-let ravenConfig: RavenConfig = loadConfigFromEnv();
-let documentStore: DocumentStore | null = null;
-let documentStoreInitPromise: Promise<DocumentStore | null> | null = null;
-let ravenConfigVersion = 0;
+const USER_LIST_HITS_KEY: Deno.KvKey = ["metrics", "users", "list_hits"];
+const USER_LAST_MUTATION_KEY: Deno.KvKey = [
+  "metrics",
+  "users",
+  "last_mutation_at",
+];
+const USER_COUNT_KEY: Deno.KvKey = ["metrics", "users", "count"];
+const USER_LAST_LIST_KEY: Deno.KvKey = [
+  "metrics",
+  "users",
+  "last_list_at",
+];
 
-export function setRavenConfig(config: RavenConfig) {
-  ravenConfigVersion += 1;
-
-  if (documentStore && typeof documentStore.dispose === "function") {
-    try {
-      documentStore.dispose();
-    } catch (error) {
-      console.error("Failed to dispose RavenDB document store", error);
-    }
-  }
-
-  ravenConfig = {
-    urls: [...config.urls],
-    database: config.database,
-  };
-
-  documentStore = null;
-  documentStoreInitPromise = null;
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
 }
 
-async function getDocumentStore() {
-  if (documentStore) {
-    return documentStore;
+async function readJsonBody<T>(context: Context): Promise<T | null> {
+  try {
+    return await context.req.json<T>();
+  } catch (error) {
+    console.error("Failed to parse JSON body", error);
+    return null;
   }
+}
 
-  if (ravenConfig.urls.length === 0 || !ravenConfig.database) {
+function normalizeOptionalString(value: unknown) {
+  if (value === null || value === undefined) {
     return null;
   }
 
-  if (!documentStoreInitPromise) {
-    const initVersion = ravenConfigVersion;
-    const promise = (async () => {
-      try {
-        const module = await import("ravendb");
-        const Store = module.DocumentStore as unknown as new (
-          urls: string[],
-          database: string,
-        ) => DocumentStore;
-
-        const store = new Store(ravenConfig.urls, ravenConfig.database);
-        store.initialize();
-
-        if (initVersion !== ravenConfigVersion) {
-          if (typeof store.dispose === "function") {
-            try {
-              store.dispose();
-            } catch (disposeError) {
-              console.error(
-                "Failed to dispose outdated RavenDB document store",
-                disposeError,
-              );
-            }
-          }
-
-          return null;
-        }
-
-        documentStore = store;
-        return store;
-      } catch (error) {
-        if (initVersion === ravenConfigVersion) {
-          console.error("Failed to initialize RavenDB document store", error);
-          documentStore = null;
-        }
-
-        return null;
-      } finally {
-        // Intentionally left blank. The caller below clears the shared promise.
-      }
-    })();
-
-    documentStoreInitPromise = promise;
-    promise.finally(() => {
-      if (documentStoreInitPromise === promise) {
-        documentStoreInitPromise = null;
-      }
-    });
+  if (typeof value !== "string") {
+    return null;
   }
 
-  return await documentStoreInitPromise;
+  const trimmed = value.trim();
+  return trimmed.length === 0 ? null : trimmed;
 }
 
-app.get("/", async (c: Context) => {
-  const store = await getDocumentStore();
+function buildHeaders(init?: HeadersInit) {
+  return new Headers(init);
+}
 
-  if (!store) {
-    return c.json([]);
-  }
-
-  const session = store.openSession();
-
+app.get("/", async (context: Context) => {
   try {
-    const users = await session
-      .query({ collection: "Users" })
-      .all();
+    const users = await listUsers();
+    const listHits = await incrementCounter(USER_LIST_HITS_KEY);
+    const listedAt = new Date().toISOString();
+    await setValue(USER_LAST_LIST_KEY, listedAt);
+    const lastMutation = await getValue<string>(USER_LAST_MUTATION_KEY);
+    const totalCount = await getValue<number>(USER_COUNT_KEY);
 
-    return c.json(users ?? []);
-  } catch (error) {
-    console.error("Failed to load users from RavenDB", error);
-    return c.json([]);
-  } finally {
-    if (typeof session.dispose === "function") {
-      session.dispose();
+    const headers = buildHeaders({
+      "x-users-list-hits": String(listHits),
+      "x-users-last-list-at": listedAt,
+    });
+
+    if (lastMutation) {
+      headers.set("x-users-last-mutation-at", lastMutation);
     }
+
+    if (typeof totalCount === "number") {
+      headers.set("x-users-total-count", String(totalCount));
+    }
+
+    return context.json(users, 200, { headers });
+  } catch (error) {
+    console.error("Failed to list users", error);
+    return context.json({ message: "Failed to list users" }, 500);
   }
 });
 
-app.post("/", (c: Context) => c.json("create a user", 201));
-app.get("/:id", (c: Context) => c.json(`get ${c.req.param("id")}`));
+app.post("/", async (context: Context) => {
+  const payload = await readJsonBody<unknown>(context);
+
+  if (!payload || typeof payload !== "object") {
+    return context.json({ message: "Invalid JSON payload" }, 400);
+  }
+
+  const { name, email, role, avatar_url } = payload as Record<string, unknown>;
+
+  if (
+    !isNonEmptyString(name) || !isNonEmptyString(email) ||
+    !isNonEmptyString(role)
+  ) {
+    return context.json({
+      message: "name, email, and role are required",
+    }, 400);
+  }
+
+  try {
+    const user = await createUser({
+      name: name.trim(),
+      email: email.trim(),
+      role: role.trim(),
+      avatar_url: normalizeOptionalString(avatar_url),
+    });
+
+    await setValue(USER_LAST_MUTATION_KEY, user.updated_at);
+    const total = await countUsers();
+    await setValue(USER_COUNT_KEY, total);
+
+    return context.json(user, 201);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("Failed to create user", error);
+
+    if (message.includes("UNIQUE")) {
+      return context.json({ message: "Email already exists" }, 409);
+    }
+
+    return context.json({ message: "Failed to create user" }, 500);
+  }
+});
+
+app.get("/:id", async (context: Context) => {
+  const id = context.req.param("id");
+
+  if (!id) {
+    return context.json({ message: "Missing user id" }, 400);
+  }
+
+  try {
+    const user = await getUserById(id);
+
+    if (!user) {
+      return context.json({ message: "User not found" }, 404);
+    }
+
+    return context.json(user);
+  } catch (error) {
+    console.error("Failed to read user", error);
+    return context.json({ message: "Failed to load user" }, 500);
+  }
+});
+
+app.patch("/:id", async (context: Context) => {
+  const id = context.req.param("id");
+
+  if (!id) {
+    return context.json({ message: "Missing user id" }, 400);
+  }
+
+  const payload = await readJsonBody<unknown>(context);
+
+  if (!payload || typeof payload !== "object") {
+    return context.json({ message: "Invalid JSON payload" }, 400);
+  }
+
+  const { name, email, role, avatar_url } = payload as Record<string, unknown>;
+  const updatePayload: {
+    name?: string;
+    email?: string;
+    role?: string;
+    avatar_url?: string | null;
+  } = {};
+
+  if (isNonEmptyString(name)) {
+    updatePayload.name = name.trim();
+  }
+
+  if (isNonEmptyString(email)) {
+    updatePayload.email = email.trim();
+  }
+
+  if (isNonEmptyString(role)) {
+    updatePayload.role = role.trim();
+  }
+
+  if ("avatar_url" in (payload as Record<string, unknown>)) {
+    updatePayload.avatar_url = normalizeOptionalString(avatar_url);
+  }
+
+  if (Object.keys(updatePayload).length === 0) {
+    return context.json({ message: "No updatable fields provided" }, 400);
+  }
+
+  try {
+    const user = await updateUser(id, updatePayload);
+
+    if (!user) {
+      return context.json({ message: "User not found" }, 404);
+    }
+
+    await setValue(USER_LAST_MUTATION_KEY, user.updated_at);
+    return context.json(user);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("Failed to update user", error);
+
+    if (message.includes("UNIQUE")) {
+      return context.json({ message: "Email already exists" }, 409);
+    }
+
+    return context.json({ message: "Failed to update user" }, 500);
+  }
+});
+
+app.delete("/:id", async (context: Context) => {
+  const id = context.req.param("id");
+
+  if (!id) {
+    return context.json({ message: "Missing user id" }, 400);
+  }
+
+  try {
+    const deleted = await deleteUser(id);
+
+    if (!deleted) {
+      return context.json({ message: "User not found" }, 404);
+    }
+
+    const mutationTimestamp = new Date().toISOString();
+    await setValue(USER_LAST_MUTATION_KEY, mutationTimestamp);
+    const total = await countUsers();
+    await setValue(USER_COUNT_KEY, total);
+
+    return context.text("", 204);
+  } catch (error) {
+    console.error("Failed to delete user", error);
+    return context.json({ message: "Failed to delete user" }, 500);
+  }
+});
 
 export default app;

@@ -11,6 +11,7 @@ ARG VITE_USERS_API_URL=/api
 ENV VITE_USERS_API_URL=${VITE_USERS_API_URL}
 COPY --from=deps /workspace/services/admin-app/app/node_modules ./node_modules
 COPY services/admin-app/app/ ./
+COPY shared /workspace/shared
 RUN npm run build
 
 FROM node:22-alpine AS runner

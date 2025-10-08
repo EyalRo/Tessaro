@@ -15,47 +15,10 @@ services:
       context: .
       dockerfile: services/api-server/Dockerfile
     environment:
-      RAVEN_URLS: http://ravendb:8080
-      RAVEN_DATABASE: Users
       PORT: 8080
+      SQLITE_PATH: /app/data/admin.sqlite
+      DENO_KV_PATH: /app/data/kv.sqlite
     ports:
       - "8080:8080"
-    depends_on:
-      - ravendb
-
-  admin-tui:
-    build:
-      context: ./services/admin-tui
-    environment:
-      USERS_API_URL: http://api-server:8080
-    depends_on:
-      - api-server
-    stdin_open: true
-    tty: true
-
-  ravendb:
-    image: ravendb/ravendb:7.1-latest
-    restart: unless-stopped
-    environment:
-      RAVEN_Setup_Mode: None
-      RAVEN_License_Eula_Accepted: "true"
-      RAVEN_Security_UnsecuredAccessAllowed: PrivateNetwork
-      RAVEN_ServerUrl: http://0.0.0.0:8080
-      RAVEN_PublicServerUrl: http://ravendb:8080
-    ports:
-      - "8085:8080"
     volumes:
-      - ravendb-data:/var/lib/ravendb/data
-    depends_on:
-      ravendb-permissions:
-        condition: service_completed_successfully
-
-  ravendb-permissions:
-    image: busybox:1.36
-    command: ["sh", "-c", "chown -R 999:999 /var/lib/ravendb/data"]
-    volumes:
-      - ravendb-data:/var/lib/ravendb/data
-    restart: "no"
-
-volumes:
-  ravendb-data:
+      - ./services/api-server/data:/app/data

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import useOrganizationManagement from '../hooks/useOrganizationManagement';
-import styles from './OrganizationsPage.module.scss';
+import styles from './OrganizationsPage.module.css';
 
 type OrganizationFormState = {
   name: string;

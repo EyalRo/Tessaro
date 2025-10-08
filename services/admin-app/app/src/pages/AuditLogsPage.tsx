@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './AuditLogsPage.module.scss';
+import styles from './AuditLogsPage.module.css';
 
 const AuditLogsPage = () => {
   return (
