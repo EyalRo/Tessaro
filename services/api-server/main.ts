@@ -1,6 +1,8 @@
 import { Hono } from "./lib/hono.ts";
 import type { Context } from "./lib/hono.ts";
 import users from "./users.ts";
+import organizations from "./organizations.ts";
+import services from "./services.ts";
 import { closeDatabase } from "./storage/denodb.ts";
 import { closeKv } from "./storage/kv.ts";
 
@@ -18,6 +20,14 @@ const DEFAULT_EXPOSE_HEADERS = [
   "x-users-last-list-at",
   "x-users-last-mutation-at",
   "x-users-total-count",
+  "x-organizations-list-hits",
+  "x-organizations-last-list-at",
+  "x-organizations-last-mutation-at",
+  "x-organizations-total-count",
+  "x-services-list-hits",
+  "x-services-last-list-at",
+  "x-services-last-mutation-at",
+  "x-services-total-count",
 ];
 
 function readAllowedOrigins(): string[] {
@@ -207,6 +217,8 @@ export function createApp() {
   const app = new Hono();
   app.get("/", (c: Context) => c.text("Hello, World!"));
   app.route("/users", users);
+  app.route("/organizations", organizations);
+  app.route("/services", services);
 
   return app;
 }

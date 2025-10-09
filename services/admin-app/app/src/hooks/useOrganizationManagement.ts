@@ -1,24 +1,35 @@
 import React, { useState, useCallback } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import {
+  CreateOrganizationPayload,
+  Organization as ApiOrganization,
+  OrganizationApiClient,
+  UpdateOrganizationPayload,
+} from 'shared/libs/api-client';
+import { ORGANIZATIONS_API_BASE_URL } from '../config/api';
 import useApi from './useApi';
 
-const isTestEnvironment = typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
-const SIMULATED_NETWORK_DELAY_MS = isTestEnvironment ? 0 : 300;
+type Organization = ApiOrganization;
 
-const simulateNetworkDelay = async () => {
-  if (SIMULATED_NETWORK_DELAY_MS <= 0) {
-    return;
-  }
+const organizationApiClient = new OrganizationApiClient(ORGANIZATIONS_API_BASE_URL);
 
-  await new Promise(resolve => setTimeout(resolve, SIMULATED_NETWORK_DELAY_MS));
+const normalizeOrganization = (organization: Organization): Organization => {
+  const safeName = typeof organization.name === 'string' && organization.name.trim().length > 0
+    ? organization.name
+    : 'Unnamed organization';
+  const safePlan = typeof organization.plan === 'string' && organization.plan.trim().length > 0
+    ? organization.plan
+    : 'Unknown';
+  const safeStatus = typeof organization.status === 'string' && organization.status.trim().length > 0
+    ? organization.status
+    : 'Inactive';
+
+  return {
+    ...organization,
+    name: safeName,
+    plan: safePlan,
+    status: safeStatus
+  };
 };
-
-interface Organization {
-  id: string;
-  name: string;
-  plan: string;
-  status: string;
-}
 
 const useOrganizationManagement = () => {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
@@ -26,41 +37,36 @@ const useOrganizationManagement = () => {
   const { loading, error, executeRequest, clearError } = useApi();
 
   const fetchOrganizations = useCallback(async () => {
-    // In a real app, this would call the API
-    // For now, we'll use mock data
-    const mockOrganizations: Organization[] = [
-      { id: '1', name: 'Acme Corp', plan: 'Enterprise', status: 'Active' },
-      { id: '2', name: 'Globex Inc', plan: 'Professional', status: 'Active' },
-      { id: '3', name: 'Wayne Enterprises', plan: 'Enterprise', status: 'Suspended' }
-    ];
-    
     await executeRequest(async () => {
-      await simulateNetworkDelay();
-      setOrganizations(mockOrganizations);
+      const remoteOrganizations = await organizationApiClient.listOrganizations();
+      const normalizedOrganizations = remoteOrganizations.map(normalizeOrganization);
+      setOrganizations(normalizedOrganizations);
+      return normalizedOrganizations;
     });
   }, [executeRequest]);
 
-  const createOrganization = useCallback(async (orgData: Omit<Organization, 'id'>) => {
+  const createOrganization = useCallback(async (orgData: CreateOrganizationPayload) => {
     return executeRequest(async () => {
-      await simulateNetworkDelay();
-      const newOrg = { id: uuidv4(), ...orgData };
-      setOrganizations(prev => [...prev, newOrg]);
-      return newOrg;
+      const newOrg = await organizationApiClient.createOrganization(orgData);
+      const normalized = normalizeOrganization(newOrg);
+      setOrganizations(prev => [...prev, normalized]);
+      return normalized;
     });
   }, [executeRequest]);
 
-  const updateOrganization = useCallback(async (id: string, orgData: Partial<Organization>) => {
+  const updateOrganization = useCallback(async (id: string, orgData: UpdateOrganizationPayload) => {
     return executeRequest(async () => {
-      await simulateNetworkDelay();
-      setOrganizations(prev => prev.map(org => org.id === id ? { ...org, ...orgData } : org));
-      setCurrentOrganization(prev => prev?.id === id ? { ...prev, ...orgData } : prev);
-      return { id, ...orgData };
+      const updated = await organizationApiClient.updateOrganization(id, orgData);
+      const normalized = normalizeOrganization(updated);
+      setOrganizations(prev => prev.map(org => org.id === id ? normalized : org));
+      setCurrentOrganization(prev => prev?.id === id ? normalized : prev);
+      return normalized;
     });
   }, [executeRequest]);
 
   const deleteOrganization = useCallback(async (id: string) => {
     return executeRequest(async () => {
-      await simulateNetworkDelay();
+      await organizationApiClient.deleteOrganization(id);
       setOrganizations(prev => prev.filter(org => org.id !== id));
       if (currentOrganization?.id === id) {
         setCurrentOrganization(null);

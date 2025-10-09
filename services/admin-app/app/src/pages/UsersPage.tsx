@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import useUserManagement from '../hooks/useUserManagement';
+import useOrganizationManagement from '../hooks/useOrganizationManagement';
 import styles from './UsersPage.module.css';
 
 type UserFormState = {
@@ -7,13 +8,15 @@ type UserFormState = {
   email: string;
   role: string;
   avatar_url?: string;
+  organizationIds: string[];
 };
 
 const emptyForm: UserFormState = {
   name: '',
   email: '',
   role: 'User',
-  avatar_url: ''
+  avatar_url: '',
+  organizationIds: []
 };
 
 const UsersPage: React.FC = () => {
@@ -30,6 +33,11 @@ const UsersPage: React.FC = () => {
     deselectUser,
     clearError
   } = useUserManagement();
+  const {
+    organizations: availableOrganizations,
+    fetchOrganizations: fetchAvailableOrganizations,
+    clearError: clearOrganizationsError
+  } = useOrganizationManagement();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formState, setFormState] = useState<UserFormState>(emptyForm);
@@ -37,10 +45,17 @@ const UsersPage: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
+    fetchAvailableOrganizations();
     return () => {
       clearError();
+      clearOrganizationsError();
     };
-  }, [fetchUsers, clearError]);
+  }, [
+    fetchUsers,
+    fetchAvailableOrganizations,
+    clearError,
+    clearOrganizationsError
+  ]);
 
   const getSafeName = (userName: unknown, fallback: unknown): string => {
     if (typeof userName === 'string' && userName.trim().length > 0) {
@@ -68,7 +83,8 @@ const UsersPage: React.FC = () => {
         name: currentUser.name,
         email: currentUser.email,
         role: currentUser.role,
-        avatar_url: currentUser.avatar_url || ''
+        avatar_url: currentUser.avatar_url || '',
+        organizationIds: currentUser.organizations?.map(org => org.id) ?? []
       });
       setIsFormOpen(true);
     }
@@ -98,6 +114,24 @@ const UsersPage: React.FC = () => {
     }
   }, [error]);
 
+  const toggleOrganizationSelection = (organizationId: string) => {
+    setFormState(prev => {
+      const isSelected = prev.organizationIds.includes(organizationId);
+      const organizationIds = isSelected
+        ? prev.organizationIds.filter(id => id !== organizationId)
+        : [...prev.organizationIds, organizationId];
+
+      return {
+        ...prev,
+        organizationIds
+      };
+    });
+  };
+
+  const sortedOrganizations = useMemo(() => {
+    return [...availableOrganizations].sort((a, b) => a.name.localeCompare(b.name));
+  }, [availableOrganizations]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -112,7 +146,8 @@ const UsersPage: React.FC = () => {
       name: formState.name.trim(),
       email: formState.email.trim(),
       role: formState.role,
-      avatar_url: formState.avatar_url?.trim() || null
+      avatar_url: formState.avatar_url?.trim() || null,
+      organization_ids: formState.organizationIds
     };
 
     const result = currentUser
@@ -177,24 +212,39 @@ const UsersPage: React.FC = () => {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Organizations</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody data-testid="users-table-body">
               {sortedUsers.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={4} className={styles.emptyState}>
+                  <td colSpan={5} className={styles.emptyState}>
                     No users found. Create the first administrator to get started.
                   </td>
                 </tr>
               )}
               {sortedUsers.map((user) => {
                 const displayName = getSafeName(user.name, user.email);
+                const hasOrganizations = Array.isArray(user.organizations) && user.organizations.length > 0;
                 return (
                   <tr key={user.id}>
                     <td>{displayName}</td>
                     <td>{user.email}</td>
                     <td>{user.role}</td>
+                    <td>
+                      <div className={styles.organizationPillRow}>
+                        {hasOrganizations ? (
+                          user.organizations.map((organization) => (
+                            <span key={organization.id} className={styles.organizationPill}>
+                              {organization.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className={styles.organizationPillEmpty}>None</span>
+                        )}
+                      </div>
+                    </td>
                     <td>
                       <div className={styles.rowActions}>
                         <button
@@ -292,6 +342,34 @@ const UsersPage: React.FC = () => {
                 onChange={handleChange}
                 className={styles.formControl}
               />
+            </div>
+            <div className={`${styles.formField} ${styles.formFieldFull}`}>
+              <span className={styles.formLabel}>Organizations</span>
+              <div className={styles.organizationPillGroup}>
+                {sortedOrganizations.map((organization) => {
+                  const selected = formState.organizationIds.includes(organization.id);
+                  const buttonClassName = [
+                    styles.organizationPill,
+                    styles.organizationPillButton,
+                    selected ? styles.organizationPillSelected : ''
+                  ].filter(Boolean).join(' ');
+
+                  return (
+                    <button
+                      key={organization.id}
+                      type="button"
+                      className={buttonClassName}
+                      onClick={() => toggleOrganizationSelection(organization.id)}
+                      aria-pressed={selected}
+                    >
+                      {organization.name}
+                    </button>
+                  );
+                })}
+                {sortedOrganizations.length === 0 && (
+                  <span className={styles.organizationPillEmpty}>No organizations available</span>
+                )}
+              </div>
             </div>
             <div className={styles.formActions}>
               <button

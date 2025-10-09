@@ -1,14 +1,44 @@
 import React, { useState, useCallback } from 'react';
-import { UserApiClient, UserProfile as ApiUserProfile } from 'shared/libs/api-client';
+import {
+  UserApiClient,
+  UserProfile as ApiUserProfile,
+  Organization,
+} from 'shared/libs/api-client';
 import useApi from './useApi';
 import { USERS_API_BASE_URL } from '../config/api';
 
 type UserProfile = ApiUserProfile;
 
-type CreateUserPayload = Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>;
+type CreateUserPayload = {
+  name: string;
+  email: string;
+  role: string;
+  avatar_url?: string | null;
+  organization_ids?: string[];
+};
+
 type UpdateUserPayload = Partial<CreateUserPayload>;
 
 const userApiClient = new UserApiClient(USERS_API_BASE_URL);
+
+const normalizeOrganization = (organization: Organization): Organization => {
+  const safeName = typeof organization.name === 'string' && organization.name.trim().length > 0
+    ? organization.name
+    : 'Unnamed organization';
+  const safePlan = typeof organization.plan === 'string' && organization.plan.trim().length > 0
+    ? organization.plan
+    : 'Unknown';
+  const safeStatus = typeof organization.status === 'string' && organization.status.trim().length > 0
+    ? organization.status
+    : 'Inactive';
+
+  return {
+    ...organization,
+    name: safeName,
+    plan: safePlan,
+    status: safeStatus
+  };
+};
 
 const normalizeUserProfile = (user: UserProfile): UserProfile => {
   const safeEmail = typeof user.email === 'string' && user.email.trim().length > 0 ? user.email : '';
@@ -16,13 +46,17 @@ const normalizeUserProfile = (user: UserProfile): UserProfile => {
     ? user.name
     : (safeEmail || 'Unnamed user');
   const safeRole = typeof user.role === 'string' && user.role.trim().length > 0 ? user.role : 'User';
+  const organizations = Array.isArray(user.organizations)
+    ? user.organizations.map(normalizeOrganization)
+    : [];
 
   return {
     ...user,
     email: safeEmail,
     name: safeName,
     role: safeRole,
-    avatar_url: user.avatar_url ?? null
+    avatar_url: user.avatar_url ?? null,
+    organizations
   };
 };
 

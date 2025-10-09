@@ -1,10 +1,22 @@
 import {
   closeDatabase,
+  countOrganizations,
+  countServices,
   countUsers,
+  createOrganization,
+  createService,
   createUser,
+  deleteOrganization,
+  deleteService,
   deleteUser,
+  getOrganizationById,
+  getServiceById,
   getUserById,
+  listOrganizations,
+  listServices,
   listUsers,
+  updateOrganization,
+  updateService,
   updateUser,
 } from "./storage/denodb.ts";
 import { closeKv, getValue, incrementCounter, setValue } from "./storage/kv.ts";
@@ -60,6 +72,117 @@ denoTest("user storage integrates denodb and Deno KV", async () => {
     const deleted = await deleteUser(user.id);
     assertEquals(deleted, true);
     assertEquals(await countUsers(), 0);
+
+    const organization = await createOrganization({
+      name: "Atlas Labs",
+      plan: "Enterprise",
+      status: "Active",
+    });
+
+    const secondOrganization = await createOrganization({
+      name: "Compass Group",
+      plan: "Growth",
+      status: "Active",
+    });
+
+    assertExists(organization.id);
+    assertExists(secondOrganization.id);
+    const organizations = await listOrganizations();
+    assertEquals(organizations.length, 2);
+
+    const fetchedOrganization = await getOrganizationById(organization.id);
+    assertExists(fetchedOrganization);
+    assertEquals(fetchedOrganization?.name, "Atlas Labs");
+
+    const updatedOrganization = await updateOrganization(organization.id, {
+      status: "Suspended",
+    });
+    assertExists(updatedOrganization);
+    assertEquals(updatedOrganization?.status, "Suspended");
+    assertEquals(await countOrganizations(), 2);
+
+    const userWithOrganizations = await createUser({
+      name: "Org User",
+      email: "org-user@example.com",
+      role: "manager",
+      avatar_url: null,
+      organization_ids: [organization.id, secondOrganization.id],
+    });
+
+    assertExists(userWithOrganizations);
+    assertEquals(userWithOrganizations.organizations.length, 2);
+
+    const usersWithAssociations = await listUsers();
+    const storedUser = usersWithAssociations.find((item) =>
+      item.id === userWithOrganizations.id
+    );
+    assertExists(storedUser);
+    assertEquals(storedUser?.organizations.length, 2);
+
+    const updatedUserOrganizations = await updateUser(
+      userWithOrganizations.id,
+      {
+        organization_ids: [secondOrganization.id],
+      },
+    );
+    assertExists(updatedUserOrganizations);
+    assertEquals(updatedUserOrganizations?.organizations.length, 1);
+    assertEquals(
+      updatedUserOrganizations?.organizations[0].id,
+      secondOrganization.id,
+    );
+
+    const clearedUserOrganizations = await updateUser(
+      userWithOrganizations.id,
+      {
+        organization_ids: [],
+      },
+    );
+    assertExists(clearedUserOrganizations);
+    assertEquals(clearedUserOrganizations?.organizations.length, 0);
+
+    const removedAssociatedUser = await deleteUser(userWithOrganizations.id);
+    assertEquals(removedAssociatedUser, true);
+
+    const removedOrganization = await deleteOrganization(organization.id);
+    assertEquals(removedOrganization, true);
+    assertEquals(await countOrganizations(), 1);
+
+    const removedSecondOrganization = await deleteOrganization(
+      secondOrganization.id,
+    );
+    assertEquals(removedSecondOrganization, true);
+    assertEquals(await countOrganizations(), 0);
+
+    const service = await createService({
+      name: "Billing Pipeline",
+      service_type: "Finance",
+      status: "Active",
+      organization_count: 2,
+    });
+
+    assertExists(service.id);
+    assertEquals(service.organization_count, 2);
+
+    const services = await listServices();
+    assertEquals(services.length, 1);
+
+    const fetchedService = await getServiceById(service.id);
+    assertExists(fetchedService);
+    assertEquals(fetchedService?.service_type, "Finance");
+
+    const updatedService = await updateService(service.id, {
+      status: "Maintenance",
+      organization_count: 3,
+    });
+    assertExists(updatedService);
+    assertEquals(updatedService?.status, "Maintenance");
+    assertEquals(updatedService?.organization_count, 3);
+    assertEquals(await countServices(), 1);
+
+    const removedService = await deleteService(service.id);
+    assertEquals(removedService, true);
+    assertEquals(await countServices(), 0);
   } finally {
     await closeDatabase();
     await closeKv();

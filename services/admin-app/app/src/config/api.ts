@@ -27,7 +27,11 @@ const getEnvVar = (key: string, fallback: string): string => {
   return fallback;
 };
 
-export const USERS_API_BASE_URL = getEnvVar('VITE_USERS_API_URL', 'http://localhost:8000');
+const DEFAULT_API_BASE_URL = 'http://localhost:8000';
+
+export const USERS_API_BASE_URL = getEnvVar('VITE_USERS_API_URL', DEFAULT_API_BASE_URL);
+export const ORGANIZATIONS_API_BASE_URL = getEnvVar('VITE_ORGANIZATIONS_API_URL', USERS_API_BASE_URL);
+export const SERVICES_API_BASE_URL = getEnvVar('VITE_SERVICES_API_URL', USERS_API_BASE_URL);
 
 export const STORAGE_API_BASE_URL = getEnvVar('VITE_STORAGE_API_URL', '/api');
 export const CONFIG_API_BASE_URL = getEnvVar('VITE_CONFIG_API_URL', '/api');

@@ -254,6 +254,10 @@ $page-gap: 1.5rem;
   gap: 0.5rem;
 }
 
+.formFieldFull {
+  grid-column: span 2;
+}
+
 .formLabel {
   font-size: 0.7rem;
   text-transform: uppercase;
@@ -319,4 +323,56 @@ $page-gap: 1.5rem;
 .formButtonPrimary:hover {
   border-color: rgba(129, 140, 248, 0.85);
   background: rgba(99, 102, 241, 0.32);
+}
+
+.organizationPillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.organizationPillGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.organizationPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(148, 163, 184, 0.12);
+  color: rgba(226, 232, 240, 0.9);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: default;
+  transition: border-color var(--transition-base), background-color var(--transition-base), color var(--transition-base);
+}
+
+.organizationPillButton {
+  cursor: pointer;
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(129, 140, 248, 0.45);
+  color: rgba(199, 210, 254, 0.9);
+}
+
+.organizationPillButton:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(129, 140, 248, 0.65);
+}
+
+.organizationPillSelected {
+  background: rgba(79, 70, 229, 0.4);
+  border-color: rgba(129, 140, 248, 0.85);
+  color: var(--color-indigo-lighter);
+}
+
+.organizationPillEmpty {
+  color: var(--color-text-subtle);
+  font-size: 0.75rem;
 }

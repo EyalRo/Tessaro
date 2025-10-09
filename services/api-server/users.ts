@@ -55,6 +55,39 @@ function buildHeaders(init?: HeadersInit) {
   return new Headers(init);
 }
 
+function parseOrganizationIds(value: unknown): string[] | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (!Array.isArray(value)) {
+    throw new Error("organization_ids must be an array of strings");
+  }
+
+  const seen = new Set<string>();
+  const ids: string[] = [];
+
+  for (const item of value) {
+    if (typeof item !== "string") {
+      throw new Error("organization_ids must be an array of strings");
+    }
+
+    const trimmed = item.trim();
+    if (trimmed.length === 0) {
+      continue;
+    }
+
+    if (seen.has(trimmed)) {
+      continue;
+    }
+
+    seen.add(trimmed);
+    ids.push(trimmed);
+  }
+
+  return ids;
+}
+
 app.get("/", async (context: Context) => {
   try {
     const users = await listUsers();
@@ -91,7 +124,18 @@ app.post("/", async (context: Context) => {
     return context.json({ message: "Invalid JSON payload" }, 400);
   }
 
-  const { name, email, role, avatar_url } = payload as Record<string, unknown>;
+  const { name, email, role, avatar_url, organization_ids } = payload as Record<
+    string,
+    unknown
+  >;
+
+  let parsedOrganizationIds: string[] | undefined;
+  try {
+    parsedOrganizationIds = parseOrganizationIds(organization_ids);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return context.json({ message }, 400);
+  }
 
   if (
     !isNonEmptyString(name) || !isNonEmptyString(email) ||
@@ -108,6 +152,7 @@ app.post("/", async (context: Context) => {
       email: email.trim(),
       role: role.trim(),
       avatar_url: normalizeOptionalString(avatar_url),
+      organization_ids: parsedOrganizationIds,
     });
 
     await setValue(USER_LAST_MUTATION_KEY, user.updated_at);
@@ -121,6 +166,10 @@ app.post("/", async (context: Context) => {
 
     if (message.includes("UNIQUE")) {
       return context.json({ message: "Email already exists" }, 409);
+    }
+
+    if (message.includes("organizations do not exist")) {
+      return context.json({ message }, 400);
     }
 
     return context.json({ message: "Failed to create user" }, 500);
@@ -161,13 +210,28 @@ app.patch("/:id", async (context: Context) => {
     return context.json({ message: "Invalid JSON payload" }, 400);
   }
 
-  const { name, email, role, avatar_url } = payload as Record<string, unknown>;
+  const { name, email, role, avatar_url, organization_ids } = payload as Record<
+    string,
+    unknown
+  >;
   const updatePayload: {
     name?: string;
     email?: string;
     role?: string;
     avatar_url?: string | null;
+    organization_ids?: string[];
   } = {};
+
+  let parsedOrganizationIds: string[] | undefined;
+  if ((payload as Record<string, unknown>).hasOwnProperty("organization_ids")) {
+    try {
+      parsedOrganizationIds = parseOrganizationIds(organization_ids);
+      updatePayload.organization_ids = parsedOrganizationIds;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return context.json({ message }, 400);
+    }
+  }
 
   if (isNonEmptyString(name)) {
     updatePayload.name = name.trim();
@@ -204,6 +268,10 @@ app.patch("/:id", async (context: Context) => {
 
     if (message.includes("UNIQUE")) {
       return context.json({ message: "Email already exists" }, 409);
+    }
+
+    if (message.includes("organizations do not exist")) {
+      return context.json({ message }, 400);
     }
 
     return context.json({ message: "Failed to update user" }, 500);
