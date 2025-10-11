@@ -27,30 +27,70 @@ const jsonHeaders = {
 
 export type ApiHandler = (request: Request) => Promise<Response>;
 
+type RoutePattern = {
+  exec(url: string): { pathname: { groups: Record<string, string> } } | null;
+};
+
 type RouteDefinition = {
   method: string;
-  pattern: URLPattern;
+  pattern: RoutePattern;
   handler: ApiHandler;
 };
 
+function createPattern(pathname: string): RoutePattern {
+  const segments = pathname.split("/").filter(Boolean);
+  const paramNames: string[] = [];
+  const escaped = segments.map((segment) => {
+    if (segment.startsWith(":")) {
+      paramNames.push(segment.slice(1));
+      return "([^/]+)";
+    }
+
+    return segment.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+  });
+
+  const source = segments.length ? `^/${escaped.join("/")}/?$` : "^/$";
+  const matcher = new RegExp(source);
+
+  return {
+    exec(url) {
+      const target = new URL(url, "http://localhost");
+      const normalized = target.pathname === "/"
+        ? "/"
+        : target.pathname.replace(/\/+$/, "");
+      const match = matcher.exec(normalized);
+      if (!match) {
+        return null;
+      }
+
+      const groups: Record<string, string> = {};
+      paramNames.forEach((name, index) => {
+        groups[name] = decodeURIComponent(match[index + 1]);
+      });
+
+      return { pathname: { groups } };
+    },
+  };
+}
+
 const routes: RouteDefinition[] = [
-  { method: "GET", pattern: new URLPattern({ pathname: "/api/users" }), handler: listUsersRoute },
-  { method: "POST", pattern: new URLPattern({ pathname: "/api/users" }), handler: createUserRoute },
-  { method: "GET", pattern: new URLPattern({ pathname: "/api/users/:id" }), handler: readUserRoute },
-  { method: "PATCH", pattern: new URLPattern({ pathname: "/api/users/:id" }), handler: updateUserRoute },
-  { method: "DELETE", pattern: new URLPattern({ pathname: "/api/users/:id" }), handler: deleteUserRoute },
+  { method: "GET", pattern: createPattern("/api/users"), handler: listUsersRoute },
+  { method: "POST", pattern: createPattern("/api/users"), handler: createUserRoute },
+  { method: "GET", pattern: createPattern("/api/users/:id"), handler: readUserRoute },
+  { method: "PATCH", pattern: createPattern("/api/users/:id"), handler: updateUserRoute },
+  { method: "DELETE", pattern: createPattern("/api/users/:id"), handler: deleteUserRoute },
 
-  { method: "GET", pattern: new URLPattern({ pathname: "/api/organizations" }), handler: listOrganizationsRoute },
-  { method: "POST", pattern: new URLPattern({ pathname: "/api/organizations" }), handler: createOrganizationRoute },
-  { method: "GET", pattern: new URLPattern({ pathname: "/api/organizations/:id" }), handler: readOrganizationRoute },
-  { method: "PATCH", pattern: new URLPattern({ pathname: "/api/organizations/:id" }), handler: updateOrganizationRoute },
-  { method: "DELETE", pattern: new URLPattern({ pathname: "/api/organizations/:id" }), handler: deleteOrganizationRoute },
+  { method: "GET", pattern: createPattern("/api/organizations"), handler: listOrganizationsRoute },
+  { method: "POST", pattern: createPattern("/api/organizations"), handler: createOrganizationRoute },
+  { method: "GET", pattern: createPattern("/api/organizations/:id"), handler: readOrganizationRoute },
+  { method: "PATCH", pattern: createPattern("/api/organizations/:id"), handler: updateOrganizationRoute },
+  { method: "DELETE", pattern: createPattern("/api/organizations/:id"), handler: deleteOrganizationRoute },
 
-  { method: "GET", pattern: new URLPattern({ pathname: "/api/services" }), handler: listServicesRoute },
-  { method: "POST", pattern: new URLPattern({ pathname: "/api/services" }), handler: createServiceRoute },
-  { method: "GET", pattern: new URLPattern({ pathname: "/api/services/:id" }), handler: readServiceRoute },
-  { method: "PATCH", pattern: new URLPattern({ pathname: "/api/services/:id" }), handler: updateServiceRoute },
-  { method: "DELETE", pattern: new URLPattern({ pathname: "/api/services/:id" }), handler: deleteServiceRoute },
+  { method: "GET", pattern: createPattern("/api/services"), handler: listServicesRoute },
+  { method: "POST", pattern: createPattern("/api/services"), handler: createServiceRoute },
+  { method: "GET", pattern: createPattern("/api/services/:id"), handler: readServiceRoute },
+  { method: "PATCH", pattern: createPattern("/api/services/:id"), handler: updateServiceRoute },
+  { method: "DELETE", pattern: createPattern("/api/services/:id"), handler: deleteServiceRoute },
 ];
 
 function attachParams(request: Request, params: RouteParams) {
