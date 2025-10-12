@@ -2,6 +2,17 @@ import { SQL, randomUUIDv7 } from "bun";
 
 const sql = new SQL("sqlite://:memory:");
 
+export const TESSARO_ORGANIZATION_ID = "org_tessaro";
+const TESSARO_ORGANIZATION_NAME = "Tessaro";
+const TESSARO_ORGANIZATION_PLAN = "enterprise";
+const TESSARO_ORGANIZATION_STATUS = "active";
+
+export const USER_MANAGEMENT_SERVICE_ID = "svc_user_management";
+const USER_MANAGEMENT_SERVICE_NAME = "User Management";
+const USER_MANAGEMENT_SERVICE_TYPE = "user_management";
+const USER_MANAGEMENT_SERVICE_STATUS = "active";
+const USER_MANAGEMENT_SERVICE_DESCRIPTION = "Manage organization users and access";
+
 export type OrganizationRecord = {
   id: string;
   name: string;
@@ -19,6 +30,7 @@ export type ServiceRecord = {
   organization_count: number;
   created_at: string;
   updated_at: string;
+  description: string | null;
 };
 
 export type UserRecord = {
@@ -55,6 +67,7 @@ export type CreateServiceInput = {
   service_type: string;
   status: string;
   organization_count?: number;
+  description?: string | null;
 };
 
 export type UpdateServiceInput = Partial<CreateServiceInput>;
@@ -88,6 +101,7 @@ function toService(row: any): ServiceRecord {
     organization_count: Number(row.organization_count ?? 0),
     created_at: row.created_at,
     updated_at: row.updated_at,
+    description: row.description ?? null,
   } satisfies ServiceRecord;
 }
 
@@ -140,6 +154,145 @@ function getAffected(result: any): number {
   return 0;
 }
 
+async function ensureOrganizationsExist(executor: SQL, ids: string[]) {
+  if (ids.length === 0) {
+    return;
+  }
+
+  const missing: string[] = [];
+  for (const organizationId of ids) {
+    const [row] = await executor`
+      SELECT id
+      FROM organizations
+      WHERE id = ${organizationId}
+      LIMIT 1;
+    `;
+
+    if (!row) {
+      missing.push(organizationId);
+    }
+  }
+
+  if (missing.length > 0) {
+    throw new Error(`organizations do not exist: ${missing.join(", ")}`);
+  }
+}
+
+async function seedTessaroOrganization(executor: SQL = sql): Promise<OrganizationRecord> {
+  const now = ISO();
+
+  await executor`
+    INSERT OR IGNORE INTO organizations (id, name, plan, status, created_at, updated_at)
+    VALUES (
+      ${TESSARO_ORGANIZATION_ID},
+      ${TESSARO_ORGANIZATION_NAME},
+      ${TESSARO_ORGANIZATION_PLAN},
+      ${TESSARO_ORGANIZATION_STATUS},
+      ${now},
+      ${now}
+    );
+  `;
+
+  await executor`
+    UPDATE organizations
+    SET
+      name = ${TESSARO_ORGANIZATION_NAME},
+      plan = ${TESSARO_ORGANIZATION_PLAN},
+      status = ${TESSARO_ORGANIZATION_STATUS},
+      updated_at = CASE
+        WHEN name != ${TESSARO_ORGANIZATION_NAME}
+          OR plan != ${TESSARO_ORGANIZATION_PLAN}
+          OR status != ${TESSARO_ORGANIZATION_STATUS}
+        THEN ${now}
+        ELSE updated_at
+      END
+    WHERE id = ${TESSARO_ORGANIZATION_ID};
+  `;
+
+  const [row] = await executor`
+    SELECT id, name, plan, status, created_at, updated_at
+    FROM organizations
+    WHERE id = ${TESSARO_ORGANIZATION_ID}
+    LIMIT 1;
+  `;
+
+  if (!row) {
+    throw new Error("failed to seed Tessaro organization");
+  }
+
+  return toOrganization(row);
+}
+
+async function seedUserManagementService(executor: SQL = sql): Promise<ServiceRecord> {
+  const now = ISO();
+
+  await executor`
+    INSERT OR IGNORE INTO services (id, name, service_type, status, organization_count, description, created_at, updated_at)
+    VALUES (
+      ${USER_MANAGEMENT_SERVICE_ID},
+      ${USER_MANAGEMENT_SERVICE_NAME},
+      ${USER_MANAGEMENT_SERVICE_TYPE},
+      ${USER_MANAGEMENT_SERVICE_STATUS},
+      1,
+      ${USER_MANAGEMENT_SERVICE_DESCRIPTION},
+      ${now},
+      ${now}
+    );
+  `;
+
+  await executor`
+    UPDATE services
+    SET
+      name = ${USER_MANAGEMENT_SERVICE_NAME},
+      service_type = ${USER_MANAGEMENT_SERVICE_TYPE},
+      status = ${USER_MANAGEMENT_SERVICE_STATUS},
+      description = ${USER_MANAGEMENT_SERVICE_DESCRIPTION},
+      organization_count = CASE
+        WHEN organization_count < 1 THEN 1
+        ELSE organization_count
+      END,
+      updated_at = CASE
+        WHEN name != ${USER_MANAGEMENT_SERVICE_NAME}
+          OR service_type != ${USER_MANAGEMENT_SERVICE_TYPE}
+          OR status != ${USER_MANAGEMENT_SERVICE_STATUS}
+          OR organization_count < 1
+        THEN ${now}
+        ELSE updated_at
+      END
+    WHERE id = ${USER_MANAGEMENT_SERVICE_ID};
+  `;
+
+  const [row] = await executor`
+    SELECT id, name, service_type, status, organization_count, description, created_at, updated_at
+    FROM services
+    WHERE id = ${USER_MANAGEMENT_SERVICE_ID}
+    LIMIT 1;
+  `;
+
+  if (!row) {
+    throw new Error("failed to seed user management service");
+  }
+
+  return toService(row);
+}
+
+async function seedOrganizationServiceLink(
+  executor: SQL = sql,
+  organizationId: string = TESSARO_ORGANIZATION_ID,
+  serviceId: string = USER_MANAGEMENT_SERVICE_ID,
+) {
+  await executor`
+    INSERT OR IGNORE INTO organization_services (organization_id, service_id)
+    VALUES (${organizationId}, ${serviceId});
+  `;
+}
+
+async function seedDefaultRecords() {
+  await seedTessaroOrganization();
+  await seedUserManagementService();
+  await seedOrganizationServiceLink();
+}
+
 export async function initializeDatabase() {
   await sql`
     PRAGMA foreign_keys = ON;
@@ -175,6 +328,7 @@ export async function initializeDatabase() {
       service_type TEXT NOT NULL,
       status TEXT NOT NULL,
       organization_count INTEGER DEFAULT 0,
+      description TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
@@ -187,6 +341,16 @@ export async function initializeDatabase() {
       PRIMARY KEY (user_id, organization_id),
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    );
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS organization_services (
+      organization_id TEXT NOT NULL,
+      service_id TEXT NOT NULL,
+      PRIMARY KEY (organization_id, service_id),
+      FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
+      FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
     );
   `;
 
@@ -206,6 +370,8 @@ export async function initializeDatabase() {
       value TEXT NOT NULL
     );
   `;
+
+  await seedDefaultRecords();
 }
 
 export async function listUsers(): Promise<UserRecord[]> {
@@ -318,6 +484,8 @@ export async function createUser(input: CreateUserInput): Promise<UserRecord> {
   const organizationIds = uniqueValues(input.organization_ids) ?? [];
 
   await sql.begin(async (tx) => {
+    await ensureOrganizationsExist(tx, organizationIds);
+
     await tx`
       INSERT INTO users (id, name, email, role, avatar_url, created_at, updated_at)
       VALUES (${id}, ${input.name}, ${input.email}, ${input.role}, ${input.avatar_url ?? null}, ${now}, ${now});
@@ -358,6 +526,8 @@ export async function updateUser(id: string, input: UpdateUserInput): Promise<Us
     `;
 
     if (organizationIds) {
+      await ensureOrganizationsExist(tx, organizationIds);
+
       await tx`
         DELETE FROM user_organizations WHERE user_id = ${id};
       `;
@@ -384,6 +554,20 @@ export async function deleteUser(id: string): Promise<boolean> {
 export async function countUsers(): Promise<number> {
   const [row] = await sql`
     SELECT COUNT(*) AS count FROM users;
+  `;
+  return Number(row?.count ?? 0);
+}
+
+export async function countOrganizations(): Promise<number> {
+  const [row] = await sql`
+    SELECT COUNT(*) AS count FROM organizations;
+  `;
+  return Number(row?.count ?? 0);
+}
+
+export async function countServices(): Promise<number> {
+  const [row] = await sql`
+    SELECT COUNT(*) AS count FROM services;
   `;
   return Number(row?.count ?? 0);
 }
@@ -446,25 +630,46 @@ export async function deleteOrganization(id: string): Promise<boolean> {
   return getAffected(result) > 0;
 }
 
-export async function countOrganizations(): Promise<number> {
-  const [row] = await sql`
-    SELECT COUNT(*) AS count FROM organizations;
-  `;
-  return Number(row?.count ?? 0);
-}
-
 export async function listServices(): Promise<ServiceRecord[]> {
   const rows = await sql`
-    SELECT id, name, service_type, status, organization_count, created_at, updated_at
+    SELECT id, name, service_type, status, organization_count, description, created_at, updated_at
     FROM services
     ORDER BY created_at DESC;
   `;
   return rows.map(toService);
 }
 
+export async function listServicesForOrganizations(organizationIds: string[]): Promise<ServiceRecord[]> {
+  const unique = Array.from(new Set(organizationIds.filter((id) => typeof id === "string" && id.trim().length > 0)));
+  if (unique.length === 0) {
+    return [];
+  }
+
+  const serviceMap = new Map<string, ServiceRecord>();
+
+  for (const organizationId of unique) {
+    const rows = await sql`
+      SELECT s.id, s.name, s.service_type, s.status, s.organization_count, s.description, s.created_at, s.updated_at
+      FROM services s
+      INNER JOIN organization_services os ON os.service_id = s.id
+      WHERE os.organization_id = ${organizationId}
+      ORDER BY s.name;
+    `;
+
+    for (const row of rows) {
+      const service = toService(row);
+      if (!serviceMap.has(service.id)) {
+        serviceMap.set(service.id, service);
+      }
+    }
+  }
+
+  return Array.from(serviceMap.values());
+}
+
 export async function getServiceById(id: string): Promise<ServiceRecord | null> {
   const [row] = await sql`
-    SELECT id, name, service_type, status, organization_count, created_at, updated_at
+    SELECT id, name, service_type, status, organization_count, description, created_at, updated_at
     FROM services
     WHERE id = ${id}
     LIMIT 1;
@@ -476,10 +681,11 @@ export async function createService(input: CreateServiceInput): Promise<ServiceR
   const id = randomUUIDv7();
   const now = ISO();
   const count = input.organization_count ?? 0;
+  const description = input.description ?? null;
 
   await sql`
-    INSERT INTO services (id, name, service_type, status, organization_count, created_at, updated_at)
-    VALUES (${id}, ${input.name}, ${input.service_type}, ${input.status}, ${count}, ${now}, ${now});
+    INSERT INTO services (id, name, service_type, status, organization_count, description, created_at, updated_at)
+    VALUES (${id}, ${input.name}, ${input.service_type}, ${input.status}, ${count}, ${description}, ${now}, ${now});
   `;
 
   return (await getServiceById(id))!;
@@ -499,6 +705,7 @@ export async function updateService(id: string, input: UpdateServiceInput): Prom
         service_type = ${input.service_type ?? existing.service_type},
         status = ${input.status ?? existing.status},
         organization_count = ${input.organization_count ?? existing.organization_count},
+        description = ${input.description ?? existing.description},
         updated_at = ${now}
     WHERE id = ${id};
   `;
@@ -511,13 +718,6 @@ export async function deleteService(id: string): Promise<boolean> {
     DELETE FROM services WHERE id = ${id};
   `;
   return getAffected(result) > 0;
-}
-
-export async function countServices(): Promise<number> {
-  const [row] = await sql`
-    SELECT COUNT(*) AS count FROM services;
-  `;
-  return Number(row?.count ?? 0);
 }
 
 async function setMetric(key: string, value: string) {
@@ -594,3 +794,11 @@ export async function deleteSession(tokenHash: string) {
 }
 
 export { sql as database };
+
+export async function ensureTessaroOrganization() {
+  return seedTessaroOrganization();
+}
+
+export async function ensureUserManagementService() {
+  return seedUserManagementService();
+}

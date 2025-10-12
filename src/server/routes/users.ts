@@ -11,7 +11,13 @@ import {
   getMetricTimestamp,
   getMetricNumber,
 } from "../database";
-import type { CreateUserInput, UpdateUserInput } from "../database";
+import type { CreateUserInput, UpdateUserInput, UserRecord } from "../database";
+import {
+  AccessError,
+  requireUserManagementAccess,
+  type UserManagementContext,
+  type UserManagementScope,
+} from "../lib/access-control";
 import {
   errorResponse,
   formatHeaders,
@@ -25,6 +31,27 @@ const USER_LIST_HITS_KEY = "metrics.users.list_hits";
 const USER_LAST_MUTATION_KEY = "metrics.users.last_mutation_at";
 const USER_COUNT_KEY = "metrics.users.count";
 const USER_LAST_LIST_KEY = "metrics.users.last_list_at";
+
+async function resolveContextOrRespond(request: Request): Promise<UserManagementContext | Response> {
+  try {
+    return await requireUserManagementAccess(request);
+  } catch (error) {
+    if (error instanceof AccessError) {
+      return errorResponse(error.message, error.status);
+    }
+
+    throw error;
+  }
+}
+
+function userWithinScope(user: UserRecord, scope: UserManagementScope): boolean {
+  if (scope.kind === "global") {
+    return true;
+  }
+
+  const allowed = new Set(scope.organizationIds);
+  return user.organizations.some((organization) => allowed.has(organization.id));
+}
 
 function parseOrganizationIds(value: unknown): string[] | undefined {
   if (value === undefined) {
@@ -55,7 +82,14 @@ function parseOrganizationIds(value: unknown): string[] | undefined {
   return ids;
 }
 
-export async function listUsersRoute(_request: Request): Promise<Response> {
+export async function listUsersRoute(request: Request): Promise<Response> {
+  const context = await resolveContextOrRespond(request);
+  if (context instanceof Response) {
+    return context;
+  }
+
+  const { scope } = context;
+
   try {
     const [users, listHits, lastMutation, totalCount] = await Promise.all([
       listUsers(),
@@ -67,6 +101,14 @@ export async function listUsersRoute(_request: Request): Promise<Response> {
     const listedAt = new Date().toISOString();
     await setMetricTimestamp(USER_LAST_LIST_KEY, listedAt);
 
+    let visibleUsers = users;
+    if (scope.kind === "organization") {
+      const allowed = new Set(scope.organizationIds);
+      visibleUsers = users.filter((user) =>
+        user.organizations.some((organization) => allowed.has(organization.id)),
+      );
+    }
+
     const headers = formatHeaders({
       "x-users-list-hits": String(listHits),
       "x-users-last-list-at": listedAt,
@@ -76,11 +118,15 @@ export async function listUsersRoute(_request: Request): Promise<Response> {
       headers.set("x-users-last-mutation-at", lastMutation);
     }
 
-    if (typeof totalCount === "number" && Number.isFinite(totalCount)) {
+    if (scope.kind === "global" && typeof totalCount === "number" && Number.isFinite(totalCount)) {
       headers.set("x-users-total-count", String(totalCount));
     }
 
-    return Response.json(users, { status: 200, headers });
+    if (scope.kind === "organization") {
+      headers.set("x-users-visible-count", String(visibleUsers.length));
+    }
+
+    return Response.json(visibleUsers, { status: 200, headers });
   } catch (error) {
     console.error("Failed to list users", error);
     return errorResponse("Failed to list users");
@@ -116,6 +162,24 @@ export async function createUserRoute(request: Request): Promise<Response> {
     organization_ids: parsedOrganizationIds,
   };
 
+  const context = await resolveContextOrRespond(request);
+  if (context instanceof Response) {
+    return context;
+  }
+
+  const { scope } = context;
+  if (scope.kind === "organization") {
+    const allowed = new Set(scope.organizationIds);
+    const requested = parsedOrganizationIds ?? [];
+    const targetOrganizations = requested.length > 0 ? requested : scope.organizationIds;
+    const invalid = targetOrganizations.filter((organizationId) => !allowed.has(organizationId));
+    if (invalid.length > 0) {
+      return errorResponse("Cannot assign user to organizations outside your scope", 403);
+    }
+
+    input.organization_ids = targetOrganizations;
+  }
+
   try {
     const user = await createUser(input);
     await setMetricTimestamp(USER_LAST_MUTATION_KEY, user.updated_at);
@@ -145,10 +209,21 @@ export async function readUserRoute(request: Request): Promise<Response> {
     return errorResponse("Missing user id", 400);
   }
 
+  const context = await resolveContextOrRespond(request);
+  if (context instanceof Response) {
+    return context;
+  }
+
+  const { scope } = context;
+
   try {
     const user = await getUserById(id);
     if (!user) {
       return errorResponse("User not found", 404);
+    }
+
+    if (!userWithinScope(user, scope)) {
+      return errorResponse("User not accessible", 403);
     }
 
     return Response.json(user);
@@ -200,7 +275,31 @@ export async function updateUserRoute(request: Request): Promise<Response> {
     return errorResponse("No updatable fields provided", 400);
   }
 
+  const context = await resolveContextOrRespond(request);
+  if (context instanceof Response) {
+    return context;
+  }
+
+  const { scope } = context;
+
   try {
+    const existing = await getUserById(id);
+    if (!existing) {
+      return errorResponse("User not found", 404);
+    }
+
+    if (!userWithinScope(existing, scope)) {
+      return errorResponse("User not accessible", 403);
+    }
+
+    if (scope.kind === "organization" && updatePayload.organization_ids) {
+      const allowed = new Set(scope.organizationIds);
+      const invalid = updatePayload.organization_ids.filter((organizationId) => !allowed.has(organizationId));
+      if (invalid.length > 0) {
+        return errorResponse("Cannot assign user to organizations outside your scope", 403);
+      }
+    }
+
     const user = await updateUser(id, updatePayload);
     if (!user) {
       return errorResponse("User not found", 404);
@@ -230,7 +329,23 @@ export async function deleteUserRoute(request: Request): Promise<Response> {
     return errorResponse("Missing user id", 400);
   }
 
+  const context = await resolveContextOrRespond(request);
+  if (context instanceof Response) {
+    return context;
+  }
+
+  const { scope } = context;
+
   try {
+    const user = await getUserById(id);
+    if (!user) {
+      return errorResponse("User not found", 404);
+    }
+
+    if (!userWithinScope(user, scope)) {
+      return errorResponse("User not accessible", 403);
+    }
+
     const deleted = await deleteUser(id);
     if (!deleted) {
       return errorResponse("User not found", 404);

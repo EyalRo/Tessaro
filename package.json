@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@marko/compiler": "^5.39.40",
+    "marko": "^5.37.60"
+  }
+}

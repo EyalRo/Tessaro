@@ -1,0 +1,306 @@
+$ const {
+  title = "Tessaro Admin Console",
+  user,
+  stats = { users: 0, organizations: 0, services: 0 },
+  highlights = [],
+} = input;
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${title}</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Inter", system-ui, -apple-system, Segoe UI, sans-serif;
+        background: #020617;
+        color: #f8fafc;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+          radial-gradient(circle at 90% 15%, rgba(236, 72, 153, 0.12) 0%, transparent 45%),
+          linear-gradient(180deg, rgba(15, 23, 42, 1) 0%, rgba(2, 6, 23, 0.92) 100%);
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.5rem clamp(1.5rem, 5vw, 3rem);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+        backdrop-filter: blur(12px);
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: rgba(15, 23, 42, 0.85);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+      }
+
+      .brand-icon {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: radial-gradient(circle at 20% 20%, #6366f1 0%, #3b82f6 55%, #0ea5e9 100%);
+        color: #e0f2fe;
+        font-weight: 700;
+        box-shadow: 0 20px 40px -20px rgba(99, 102, 241, 0.65);
+      }
+
+      .brand h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        letter-spacing: -0.03em;
+      }
+
+      .user-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 1rem;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.12);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+      }
+
+      .user-chip span {
+        font-size: 0.95rem;
+      }
+
+      .user-chip button {
+        border: none;
+        background: none;
+        color: rgba(148, 163, 184, 0.85);
+        cursor: pointer;
+        font-size: 0.95rem;
+        padding: 0;
+      }
+
+      .user-chip button:hover {
+        color: #f87171;
+      }
+
+      main {
+        flex: 1;
+        padding: clamp(1.5rem, 4vw, 3rem);
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+      }
+
+      .intro-card {
+        padding: clamp(1.75rem, 4vw, 2.75rem);
+        border-radius: 22px;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.16), rgba(37, 99, 235, 0.05));
+        border: 1px solid rgba(96, 165, 250, 0.22);
+        box-shadow: 0 40px 80px -30px rgba(37, 99, 235, 0.45);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .intro-card::after {
+        content: "";
+        position: absolute;
+        inset: auto -40% -40% auto;
+        width: 320px;
+        height: 320px;
+        background: radial-gradient(circle, rgba(37, 99, 235, 0.45) 0%, transparent 65%);
+        opacity: 0.6;
+      }
+
+      .intro-card h2 {
+        margin: 0;
+        font-size: clamp(1.875rem, 5vw, 2.75rem);
+        letter-spacing: -0.035em;
+      }
+
+      .intro-card p {
+        margin-top: 1rem;
+        max-width: 48ch;
+        color: rgba(226, 232, 240, 0.8);
+        line-height: 1.6;
+      }
+
+      .stats-grid {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      }
+
+      .stat-card {
+        padding: 1.5rem;
+        border-radius: 18px;
+        background: rgba(15, 23, 42, 0.65);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        backdrop-filter: blur(10px);
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .stat-card .label {
+        font-size: 0.95rem;
+        color: rgba(148, 163, 184, 0.75);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .stat-card .value {
+        font-size: clamp(2rem, 5vw, 2.85rem);
+        font-weight: 700;
+        letter-spacing: -0.04em;
+      }
+
+      .stat-card .description {
+        font-size: 0.9rem;
+        color: rgba(148, 163, 184, 0.75);
+      }
+
+      .highlights {
+        display: grid;
+        gap: 1.25rem;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      }
+
+      .highlight-card {
+        padding: 1.75rem;
+        border-radius: 18px;
+        background: linear-gradient(160deg, rgba(37, 99, 235, 0.14), rgba(30, 64, 175, 0.18));
+        border: 1px solid rgba(96, 165, 250, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+      }
+
+      .highlight-card h3 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .highlight-card p {
+        margin: 0;
+        color: rgba(191, 219, 254, 0.85);
+        line-height: 1.55;
+      }
+
+      footer {
+        padding: 2rem clamp(1.5rem, 5vw, 3rem);
+        font-size: 0.85rem;
+        color: rgba(148, 163, 184, 0.65);
+        border-top: 1px solid rgba(148, 163, 184, 0.1);
+      }
+
+      @media (max-width: 640px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+        .user-chip {
+          align-self: flex-end;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <div class="brand-icon">TA</div>
+        <div>
+          <h1>Tessaro Admin</h1>
+          <small style="color: rgba(148, 163, 184, 0.8); font-size: 0.95rem;">Control center</small>
+        </div>
+      </div>
+      <div class="user-chip">
+        <span>
+          ${user?.name || "Admin"}
+          <span style="display: block; font-size: 0.8rem; color: rgba(148, 163, 184, 0.75);">
+            ${user?.email || "admin@tessaro.local"}
+          </span>
+        </span>
+        <button id="logout-button" type="button">Sign out</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro-card">
+        <h2>Hello, ${user?.name || "Administrator"}</h2>
+        <p>
+          You have full visibility into Tessaro's organizations, services, and user activity.
+          Review the quick metrics, then dive deeper using the navigation links coming soon.
+        </p>
+      </section>
+
+      <section class="stats-grid" aria-label="Platform overview">
+        <div class="stat-card">
+          <span class="label">Active users</span>
+          <span class="value">${stats.users}</span>
+          <span class="description">Total operators with platform access</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">Organizations</span>
+          <span class="value">${stats.organizations}</span>
+          <span class="description">Tenants provisioned across Tessaro</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">Services</span>
+          <span class="value">${stats.services}</span>
+          <span class="description">Integrations deployed and monitored</span>
+        </div>
+      </section>
+
+      <if(highlights && highlights.length)>
+        <section class="highlights" aria-label="Recent highlights">
+          <for|item| of=highlights>
+            <article class="highlight-card">
+              <h3>${item.title}</h3>
+              <p>${item.description}</p>
+            </article>
+          </for>
+        </section>
+      </if>
+    </main>
+
+    <footer>
+      Tessaro Admin Console — Observability & lifecycle tooling for platform administrators.
+    </footer>
+
+    <script>
+      const logoutButton = document.getElementById("logout-button");
+      logoutButton.addEventListener("click", async () => {
+        logoutButton.disabled = true;
+        logoutButton.textContent = "Signing out…";
+
+        try {
+          const response = await fetch("/api/auth/logout", {
+            method: "POST",
+            credentials: "include",
+          });
+
+          if (!response.ok) {
+            throw new Error("Logout failed");
+          }
+
+          window.location.href = "/admin/auth";
+        } catch (error) {
+          console.error(error);
+          logoutButton.textContent = "Try again";
+          logoutButton.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

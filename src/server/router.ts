@@ -20,6 +20,12 @@ import {
   updateServiceRoute,
   deleteServiceRoute,
 } from "./routes/services";
+import {
+  loginRoute,
+  logoutRoute,
+  sessionRoute,
+} from "./routes/auth";
+import { organizationContextRoute } from "./routes/org-app";
 
 const jsonHeaders = {
   "content-type": "application/json; charset=utf-8",
@@ -74,6 +80,11 @@ function createPattern(pathname: string): RoutePattern {
 }
 
 const routes: RouteDefinition[] = [
+  { method: "POST", pattern: createPattern("/api/auth/login"), handler: loginRoute },
+  { method: "POST", pattern: createPattern("/api/auth/logout"), handler: logoutRoute },
+  { method: "GET", pattern: createPattern("/api/auth/session"), handler: sessionRoute },
+  { method: "GET", pattern: createPattern("/api/app/context"), handler: organizationContextRoute },
+
   { method: "GET", pattern: createPattern("/api/users"), handler: listUsersRoute },
   { method: "POST", pattern: createPattern("/api/users"), handler: createUserRoute },
   { method: "GET", pattern: createPattern("/api/users/:id"), handler: readUserRoute },
