@@ -1,5 +1,5 @@
 include:
-- users/main.py
+- users
 kind: ArchiveUploadSpec
 name: tessaro-users-src
 
@@ -16,8 +16,6 @@ spec:
   environment:
     name: tessaro-users-python
     namespace: ""
-  source:
-    checksum: {}
 status:
   buildstatus: none
 
@@ -39,8 +37,11 @@ spec:
     namespace: ""
   functionTimeout: 10
   package:
-    functionName: main.main
+    functionName: users.main.main
     packageref:
       name: tessaro-users-pkg
       namespace: ""
   resources: {}
+  secrets:
+  - name: mongodb-auth
+    namespace: ""

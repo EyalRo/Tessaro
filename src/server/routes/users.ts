@@ -20,6 +20,7 @@ import {
   listUsersFromFission,
   readUserFromFission,
 } from "../lib/users-service";
+
 const USER_LIST_HITS_KEY = "metrics.users.list_hits";
 const USER_LAST_MUTATION_KEY = "metrics.users.last_mutation_at";
 const USER_COUNT_KEY = "metrics.users.count";
@@ -47,11 +48,9 @@ function userWithinScope(user: UserRecord, scope: UserManagementScope): boolean 
   return user.organizations.some((organization) => allowed.has(organization.id));
 }
 
-
-export async function createUserRoute(request: Request): Promise<Response> {
+export async function createUserRoute(_request: Request): Promise<Response> {
   return errorResponse(USER_MUTATION_DISABLED_MESSAGE, 503);
 }
-
 
 export async function listUsersRoute(request: Request): Promise<Response> {
   const context = await resolveContextOrRespond(request);
@@ -69,7 +68,10 @@ export async function listUsersRoute(request: Request): Promise<Response> {
     ]);
 
     const listedAt = new Date().toISOString();
-    await setMetricTimestamp(USER_LAST_LIST_KEY, listedAt);
+    await Promise.all([
+      setMetricTimestamp(USER_LAST_LIST_KEY, listedAt),
+      setMetricNumber(USER_COUNT_KEY, users.length),
+    ]);
 
     const totalCount = users.length;
     let visibleUsers = users;
@@ -97,15 +99,12 @@ export async function listUsersRoute(request: Request): Promise<Response> {
       headers.set("x-users-visible-count", String(visibleUsers.length));
     }
 
-    await setMetricNumber(USER_COUNT_KEY, totalCount);
-
     return Response.json(visibleUsers, { status: 200, headers });
   } catch (error) {
     console.error("Failed to list users", error);
     return errorResponse("Failed to list users");
   }
 }
-
 
 export async function readUserRoute(request: Request): Promise<Response> {
   const id = getParam(request, "id");
@@ -137,12 +136,10 @@ export async function readUserRoute(request: Request): Promise<Response> {
   }
 }
 
-export async function updateUserRoute(request: Request): Promise<Response> {
+export async function updateUserRoute(_request: Request): Promise<Response> {
   return errorResponse(USER_MUTATION_DISABLED_MESSAGE, 503);
 }
 
-export async function deleteUserRoute(request: Request): Promise<Response> {
+export async function deleteUserRoute(_request: Request): Promise<Response> {
   return errorResponse(USER_MUTATION_DISABLED_MESSAGE, 503);
 }
-
-

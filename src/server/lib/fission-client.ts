@@ -12,14 +12,14 @@ export class FissionRequestError extends Error {
   }
 }
 
-function getRouterUrl(): string {
-  const raw = Bun.env.FISSION_ROUTER_URL;
-  const url = typeof raw === "string" && raw.trim().length > 0 ? raw.trim() : DEFAULT_ROUTER_URL;
-  return url.endsWith("/") ? url.slice(0, -1) : url;
+function resolveRouterUrl(): string {
+  const configured = Bun.env.FISSION_ROUTER_URL;
+  const base = typeof configured === "string" && configured.trim().length > 0 ? configured.trim() : DEFAULT_ROUTER_URL;
+  return base.endsWith("/") ? base.slice(0, -1) : base;
 }
 
 export async function fissionFetch(pathname: string, init?: RequestInit): Promise<Response> {
-  const baseUrl = getRouterUrl();
+  const baseUrl = resolveRouterUrl();
   const path = pathname.startsWith("/") ? pathname : `/${pathname}`;
   const url = `${baseUrl}${path}`;
 
@@ -38,20 +38,20 @@ export async function fissionFetch(pathname: string, init?: RequestInit): Promis
     try {
       body = await response.clone().json();
     } catch {
-      body = await response.text();
+      try {
+        body = await response.text();
+      } catch {
+        body = null;
+      }
     }
+
     throw new FissionRequestError(`Fission request failed with status ${response.status}`, response.status, body);
   }
 
   return response;
 }
 
-export async function fissionJson<T>(
-  method: string,
-  pathname: string,
-  body?: unknown,
-  init?: RequestInit,
-): Promise<T> {
+export async function fissionJson<T>(method: string, pathname: string, body?: unknown, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers ?? {});
   if (body !== undefined && !headers.has("content-type")) {
     headers.set("content-type", "application/json");

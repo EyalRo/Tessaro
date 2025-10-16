@@ -20,14 +20,13 @@ function buildUsersPath(id?: string): string {
 }
 
 export async function listUsersFromFission(): Promise<UserRecord[]> {
-  const path = buildUsersPath();
-  return fissionJson<UserRecord[]>("GET", path);
+  return fissionJson<UserRecord[]>("GET", getUsersPath());
 }
 
 export async function readUserFromFission(id: string): Promise<UserRecord | null> {
-  const path = buildUsersPath(id);
   try {
-    return await fissionJson<UserRecord>("GET", path);
+    const users = await listUsersFromFission();
+    return users.find((user) => user.id === id) ?? null;
   } catch (error) {
     if (error instanceof FissionRequestError && error.status === 404) {
       return null;
@@ -40,6 +39,7 @@ export async function countUsersFromFission(): Promise<number> {
   const base = getUsersPath();
   const separator = base.includes("?") ? "&" : "?";
   const path = `${base}${separator}summary=count`;
+
   const result = await fissionJson<unknown>("GET", path);
 
   if (Array.isArray(result)) {
@@ -47,11 +47,11 @@ export async function countUsersFromFission(): Promise<number> {
   }
 
   if (result && typeof result === "object" && "count" in result) {
-    const value = (result as { count: unknown }).count;
-    if (typeof value === "number") {
-      return Number.isFinite(value) ? value : 0;
+    const rawValue = (result as { count: unknown }).count;
+    if (typeof rawValue === "number") {
+      return Number.isFinite(rawValue) ? rawValue : 0;
     }
-    const parsed = Number(value);
+    const parsed = Number(rawValue);
     return Number.isFinite(parsed) ? parsed : 0;
   }
 

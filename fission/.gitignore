@@ -1,3 +1,4 @@
 artifacts/
 random-int/__pycache__/
 users/__pycache__/
+users/vendor/__pycache__/
