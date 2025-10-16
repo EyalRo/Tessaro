@@ -1,0 +1,14 @@
+apiVersion: fission.io/v1
+kind: Environment
+metadata:
+  name: tessaro-users-python
+  namespace: ""
+spec:
+  builder:
+    image: fission/python-builder
+  imagepullsecret: ""
+  keeparchive: false
+  runtime:
+    image: fission/python-env
+  version: 3
+

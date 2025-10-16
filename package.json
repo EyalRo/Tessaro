@@ -1,6 +1,14 @@
 {
+  "scripts": {
+    "build:fission": "echo 'Python functions deployed via specs; no build step required.'"
+  },
   "dependencies": {
     "@marko/compiler": "^5.39.40",
     "marko": "^5.37.60"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.27.1",
+    "@types/node": "^24.7.2",
+    "typescript": "^5.9.3"
   }
 }

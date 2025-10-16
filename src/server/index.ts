@@ -3,7 +3,6 @@ import { fileURLToPath } from "node:url";
 import { handleApiRequest } from "./router";
 import {
   initializeDatabase,
-  countUsers,
   countOrganizations,
   countServices,
   getUserById,
@@ -16,9 +15,11 @@ import {
 } from "./lib/auth-session";
 import { ensureDefaultAdmin } from "./lib/default-admin";
 import { renderMarkoToString } from "./lib/marko-renderer";
+import { countUsersFromFission } from "./lib/users-service";
+import embeddedMainAppHtml from "../client/main-app.html";
 
-const mainHtmlFile = Bun.file(new URL("../client/main-app.html", import.meta.url));
 const publicDir = new URL("../client/public", import.meta.url);
+const embeddedMainHtml = embeddedMainAppHtml;
 
 const adminMainTemplatePath = fileURLToPath(
   new URL("../client/src/pages/admin/main.marko", import.meta.url),
@@ -27,11 +28,36 @@ const adminAuthTemplatePath = fileURLToPath(
   new URL("../client/src/pages/admin/auth.marko", import.meta.url),
 );
 
-const mainHtml = await mainHtmlFile.text();
+const mainHtml = await loadMainHtml();
 
 const htmlHeaders = {
   "content-type": "text/html; charset=utf-8",
 };
+
+async function loadMainHtml(): Promise<string> {
+  const fileUrl = new URL("../client/main-app.html", import.meta.url);
+  const file = Bun.file(fileUrl);
+
+  if (await file.exists()) {
+    return file.text();
+  }
+
+  if (embeddedMainHtml) {
+    if (typeof embeddedMainHtml === "string") {
+      return embeddedMainHtml;
+    }
+
+    const assetPath = (embeddedMainHtml as { index?: unknown }).index;
+    if (typeof assetPath === "string") {
+      const assetFile = Bun.file(assetPath);
+      if (await assetFile.exists()) {
+        return assetFile.text();
+      }
+    }
+  }
+
+  throw new Error("Unable to load client/main-app.html");
+}
 
 function renderMainApp() {
   return new Response(mainHtml, { status: 200, headers: htmlHeaders });
@@ -739,7 +765,10 @@ function renderUserManagementServiceHtml(options: {
           try {
             const response = await fetch("/api/users", {
               method: "POST",
-              headers: { "content-type": "application/json" },
+              headers: {
+                "content-type": "application/json",
+                "x-svc-user-management-action": "user_management:add_user",
+              },
               credentials: "include",
               body: JSON.stringify({
                 name,
@@ -888,7 +917,7 @@ async function renderServiceWorkspace(request: Request): Promise<Response> {
 async function renderAdminDashboardPage(session: AuthenticatedSession) {
   const user = await resolveAdminUser(session);
   const [usersCount, organizationsCount, servicesCount] = await Promise.all([
-    countUsers(),
+    countUsersFromFission(),
     countOrganizations(),
     countServices(),
   ]);

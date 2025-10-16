@@ -1,0 +1,43 @@
+include:
+- random-int/main.py
+kind: ArchiveUploadSpec
+name: random-int-src
+
+---
+apiVersion: fission.io/v1
+kind: Package
+metadata:
+  name: random-int-pkg
+spec:
+  deployment:
+    checksum: {}
+    type: url
+    url: archive://random-int-src
+  environment:
+    name: random-int-python
+    namespace: ""
+status:
+  buildstatus: none
+
+---
+apiVersion: fission.io/v1
+kind: Function
+metadata:
+  name: random-int
+spec:
+  InvokeStrategy:
+    ExecutionStrategy:
+      ExecutorType: newdeploy
+      MaxScale: 1
+      MinScale: 1
+      SpecializationTimeout: 120
+    StrategyType: execution
+  environment:
+    name: random-int-python
+    namespace: ""
+  functionTimeout: 10
+  package:
+    functionName: main.main
+    packageref:
+      name: random-int-pkg
+      namespace: ""
