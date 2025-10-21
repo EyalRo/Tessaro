@@ -84,6 +84,7 @@ export type CreateServiceInput = {
   status: string;
   organization_count?: number;
   description?: string | null;
+  organization_ids?: string[];
 };
 
 export type UpdateServiceInput = Partial<CreateServiceInput>;
@@ -179,10 +180,8 @@ export async function initializeDatabase() {
 }
 
 async function ensureSeedData() {
-  await Promise.all([
-    ensureTessaroOrganization(),
-    ensureUserManagementService(),
-  ]);
+  await ensureTessaroOrganization();
+  await ensureUserManagementService();
   await ensureStagsAdminUser();
 }
 
@@ -201,12 +200,29 @@ export async function getUserById(id: string): Promise<UserRecord | null> {
 }
 
 export async function getUserByEmail(email: string): Promise<UserRecord | null> {
-  const { status, data } = await fissionRequest<UserRecord>(
+  const result = await fissionRequest<UserRecord | UserRecord[]>(
     `/tessaro/users?email=${encodeURIComponent(email)}`,
     { method: "GET", acceptStatuses: [404] },
   );
 
-  return status === 404 ? null : data;
+  if (result.status === 404) {
+    return null;
+  }
+
+  const { data } = result;
+  if (!data) {
+    return null;
+  }
+
+  if (Array.isArray(data)) {
+    if (data.length === 0) {
+      return null;
+    }
+    const match = data.find((user) => user.email.toLowerCase() === email.toLowerCase());
+    return match ?? null;
+  }
+
+  return data;
 }
 
 export async function createUser(input: CreateUserInput): Promise<UserRecord> {
@@ -224,7 +240,7 @@ export async function createUser(input: CreateUserInput): Promise<UserRecord> {
 
 export async function updateUser(id: string, input: UpdateUserInput): Promise<UserRecord | null> {
   const { status, data } = await fissionRequest<UserRecord>(`/tessaro/users/${encodeURIComponent(id)}`, {
-    method: "PATCH",
+    method: "PUT",
     body: JSON.stringify(input),
     acceptStatuses: [404],
   });
@@ -275,7 +291,7 @@ export async function updateOrganization(id: string, input: UpdateOrganizationIn
   const { status, data } = await fissionRequest<OrganizationRecord>(
     `/tessaro/organizations/${encodeURIComponent(id)}`,
     {
-      method: "PATCH",
+      method: "PUT",
       body: JSON.stringify(input),
       acceptStatuses: [404],
     },
@@ -327,7 +343,7 @@ export async function createService(input: CreateServiceInput): Promise<ServiceR
 export async function updateService(id: string, input: UpdateServiceInput): Promise<ServiceRecord | null> {
   const { status, data } = await fissionRequest<ServiceRecord>(
     `/tessaro/services/${encodeURIComponent(id)}`,
-    { method: "PATCH", body: JSON.stringify(input), acceptStatuses: [404] },
+    { method: "PUT", body: JSON.stringify(input), acceptStatuses: [404] },
   );
   return status === 404 ? null : data;
 }
@@ -464,7 +480,15 @@ export async function ensureTessaroOrganization(): Promise<OrganizationRecord> {
 export async function ensureUserManagementService(): Promise<ServiceRecord> {
   const existing = await getServiceById(USER_MANAGEMENT_SERVICE_ID);
   if (existing) {
-    return existing;
+    await updateService(USER_MANAGEMENT_SERVICE_ID, {
+      name: USER_MANAGEMENT_SERVICE_NAME,
+      service_type: USER_MANAGEMENT_SERVICE_TYPE,
+      status: USER_MANAGEMENT_SERVICE_STATUS,
+      description: USER_MANAGEMENT_SERVICE_DESCRIPTION,
+      organization_ids: [TESSARO_ORGANIZATION_ID],
+      organization_count: 1,
+    });
+    return (await getServiceById(USER_MANAGEMENT_SERVICE_ID))!;
   }
 
   return createService({
@@ -474,6 +498,7 @@ export async function ensureUserManagementService(): Promise<ServiceRecord> {
     status: USER_MANAGEMENT_SERVICE_STATUS,
     organization_count: 1,
     description: USER_MANAGEMENT_SERVICE_DESCRIPTION,
+    organization_ids: [TESSARO_ORGANIZATION_ID],
   });
 }
 
@@ -516,8 +541,15 @@ async function ensureStagsAdminUser(): Promise<UserRecord> {
 }
 
 async function upsertUserCredential(userId: string, password: string) {
+  if (!userId || typeof userId !== "string") {
+    throw new Error(`Cannot upsert credential; invalid user id: ${String(userId)}`);
+  }
   await fissionRequest("/tessaro/user-credentials", {
     method: "POST",
     body: JSON.stringify({ user_id: userId, password }),
   });
+}
+
+export async function setUserPassword(userId: string, password: string) {
+  await upsertUserCredential(userId, password);
 }

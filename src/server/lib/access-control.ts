@@ -23,6 +23,7 @@ export type UserManagementScope =
 export type UserManagementContext = {
   actor: UserRecord;
   scope: UserManagementScope;
+  sessionOrganizationId: string | null;
 };
 
 export async function requireUserManagementAccess(request: Request): Promise<UserManagementContext> {
@@ -48,12 +49,14 @@ export async function requireUserManagementAccess(request: Request): Promise<Use
       return {
         actor,
         scope: { kind: "organization", organizationIds: [selectedOrganizationId] },
+        sessionOrganizationId: selectedOrganizationId,
       } satisfies UserManagementContext;
     }
 
     return {
       actor,
       scope: { kind: "global" },
+      sessionOrganizationId: null,
     } satisfies UserManagementContext;
   }
 
@@ -74,6 +77,7 @@ export async function requireUserManagementAccess(request: Request): Promise<Use
     return {
       actor,
       scope: { kind: "organization", organizationIds: [selectedOrganizationId] },
+      sessionOrganizationId: selectedOrganizationId,
     } satisfies UserManagementContext;
   }
 

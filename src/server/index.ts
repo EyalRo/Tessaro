@@ -1,4 +1,4 @@
-import { serve } from "bun";
+import { serve, type Server } from "bun";
 import { fileURLToPath } from "node:url";
 import { handleApiRequest } from "./router";
 import {
@@ -33,6 +33,30 @@ const mainHtml = await loadMainHtml();
 const htmlHeaders = {
   "content-type": "text/html; charset=utf-8",
 };
+
+function watchForQuit(server: Server) {
+  if (!Bun.stdin.isTTY) {
+    return;
+  }
+
+  console.log("Press q then enter to stop the server.");
+  const decoder = new TextDecoder();
+
+  void (async () => {
+    try {
+      for await (const chunk of Bun.stdin.stream()) {
+        const input = decoder.decode(chunk).trim().toLowerCase();
+        if (input === "q") {
+          console.log("Shutting down Tessaro server...");
+          server.stop(true);
+          Bun.exit(0);
+        }
+      }
+    } catch (error) {
+      console.warn("Quit watcher stopped", error);
+    }
+  })();
+}
 
 async function loadMainHtml(): Promise<string> {
   const fileUrl = new URL("../client/main-app.html", import.meta.url);
@@ -322,13 +346,16 @@ function renderServiceNotFoundHtml(serviceId: string) {
 function renderUserManagementServiceHtml(options: {
   serviceName: string;
   description: string;
-  organizations: Array<{
+  organization: {
     id: string;
     name: string;
     isAdmin: boolean;
-  }>;
+  } | null;
 }) {
-  const bootstrap = escapeHtml(JSON.stringify(options));
+  const organizationLabel = options.organization
+    ? `Organization: ${escapeHtml(options.organization.name)}`
+    : "No organization assigned";
+  const bootstrap = JSON.stringify(options).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
   return `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -381,29 +408,6 @@ function renderUserManagementServiceHtml(options: {
       .muted {
         color: rgba(226, 232, 240, 0.78);
         line-height: 1.6;
-      }
-
-      .toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 1rem;
-        margin-top: 1.5rem;
-      }
-
-      .organization-field {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .organization-field select {
-        min-width: 14rem;
-      }
-
-      .organization-name {
-        font-weight: 600;
-        color: rgba(226, 232, 240, 0.92);
-        padding: 0.6rem 0;
       }
 
       select,
@@ -469,6 +473,16 @@ function renderUserManagementServiceHtml(options: {
         gap: 0.5rem;
       }
 
+      .secondary {
+        background: transparent;
+        border-color: rgba(148, 163, 184, 0.4);
+        color: rgba(226, 232, 240, 0.9);
+      }
+
+      .secondary:hover {
+        background: rgba(148, 163, 184, 0.18);
+      }
+
       .danger {
         background: linear-gradient(135deg, #f87171, #ef4444);
         color: #0f172a;
@@ -525,14 +539,7 @@ function renderUserManagementServiceHtml(options: {
           <h1>${escapeHtml(options.serviceName)}</h1>
           <p class="muted">${escapeHtml(options.description)}</p>
         </div>
-        <div class="toolbar">
-          <label class="organization-field">
-            <span class="muted" style="display:block;font-size:0.85rem;margin-bottom:0.4rem;">Organization</span>
-            <select id="organization-select"></select>
-            <span id="organization-name" class="organization-name" hidden></span>
-          </label>
-          <button id="refresh-button" type="button">Refresh</button>
-        </div>
+        <p class="muted">${organizationLabel}</p>
         <div id="info-line" class="status" role="status" aria-live="polite"></div>
       </section>
       <section class="panel">
@@ -543,13 +550,50 @@ function renderUserManagementServiceHtml(options: {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
-                <th>Organizations</th>
                 <th id="actions-header">Actions</th>
               </tr>
             </thead>
             <tbody id="users-body"></tbody>
           </table>
           <div id="users-empty" class="empty" hidden>No users found for this organization.</div>
+        </div>
+        <div id="edit-form-section" hidden>
+          <h2 style="margin:2rem 0 0.75rem;font-size:1.3rem;">Edit a user</h2>
+          <form id="edit-user-form">
+            <div class="form-grid">
+              <label>
+                <span class="muted" style="display:block;font-size:0.85rem;margin-bottom:0.4rem;">Name</span>
+                <input id="edit-name" name="name" type="text" autocomplete="name" required />
+              </label>
+              <label>
+                <span class="muted" style="display:block;font-size:0.85rem;margin-bottom:0.4rem;">Email</span>
+                <input id="edit-email" name="email" type="email" autocomplete="email" required />
+              </label>
+              <label>
+                <span class="muted" style="display:block;font-size:0.85rem;margin-bottom:0.4rem;">Role</span>
+                <select id="edit-role" name="role">
+                  <option value="member">Member</option>
+                  <option value="organization_admin">Organization administrator</option>
+                  <option value="admin">Administrator</option>
+                </select>
+              </label>
+              <label>
+                <span class="muted" style="display:block;font-size:0.85rem;margin-bottom:0.4rem;">Password</span>
+                <input
+                  id="edit-password"
+                  name="password"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="Leave blank to keep the current password"
+                />
+              </label>
+            </div>
+            <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+              <button type="submit">Save changes</button>
+              <button type="button" id="cancel-edit" class="secondary">Cancel</button>
+              <span id="edit-status" class="status" role="status" aria-live="polite"></span>
+            </div>
+          </form>
         </div>
         <div id="create-form-section">
           <h2 style="margin:2rem 0 0.75rem;font-size:1.3rem;">Add a user</h2>
@@ -586,11 +630,8 @@ function renderUserManagementServiceHtml(options: {
     <script>
       (() => {
         const bootstrapScript = document.getElementById("service-bootstrap");
-        const bootstrap = bootstrapScript ? JSON.parse(bootstrapScript.textContent || "{}"): {};
-        const orgSelect = document.getElementById("organization-select");
-        const organizationName = document.getElementById("organization-name");
+        const bootstrap = bootstrapScript ? JSON.parse(bootstrapScript.textContent || "{}") : {};
         const infoLine = document.getElementById("info-line");
-        const refreshButton = document.getElementById("refresh-button");
         const usersBody = document.getElementById("users-body");
         const usersEmpty = document.getElementById("users-empty");
         const actionsHeader = document.getElementById("actions-header");
@@ -598,11 +639,20 @@ function renderUserManagementServiceHtml(options: {
         const form = document.getElementById("create-user-form");
         const formStatus = document.getElementById("form-status");
         const notAdminNote = document.getElementById("not-admin-note");
+        const editFormSection = document.getElementById("edit-form-section");
+        const editForm = document.getElementById("edit-user-form");
+        const editStatus = document.getElementById("edit-status");
+        const editNameInput = document.getElementById("edit-name");
+        const editEmailInput = document.getElementById("edit-email");
+        const editRoleSelect = document.getElementById("edit-role");
+        const editPasswordInput = document.getElementById("edit-password");
+        const cancelEditButton = document.getElementById("cancel-edit");
 
         const state = {
-          selectedOrganizationId: null,
-          organizations: bootstrap.organizations || [],
-          isAdminForSelected: false,
+          organizationId: bootstrap.organization ? bootstrap.organization.id : null,
+          isAdmin: Boolean(bootstrap.organization?.isAdmin),
+          users: [],
+          editingUserId: null,
         };
 
         function updateStatus(element, message, kind = "info") {
@@ -618,54 +668,68 @@ function renderUserManagementServiceHtml(options: {
           }
         }
 
-        function populateOrganizations() {
-          if (!orgSelect) {
+        function getInputValue(input) {
+          if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
+            return input.value.trim();
+          }
+          if (input instanceof HTMLSelectElement) {
+            return input.value.trim();
+          }
+          return "";
+        }
+
+        function setInputValue(input, value) {
+          if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
+            input.value = value ?? "";
+          } else if (input instanceof HTMLSelectElement) {
+            input.value = value ?? "";
+          }
+        }
+
+        function getEditingUser() {
+          if (!state.editingUserId) {
+            return null;
+          }
+          return state.users.find((candidate) => candidate.id === state.editingUserId) ?? null;
+        }
+
+        function exitEditMode() {
+          state.editingUserId = null;
+          if (editForm instanceof HTMLFormElement) {
+            editForm.reset();
+          }
+          if (editFormSection) {
+            editFormSection.hidden = true;
+          }
+          if (editStatus) {
+            updateStatus(editStatus, "");
+          }
+        }
+
+        function syncEditForm() {
+          if (!state.isAdmin || !editFormSection) {
             return;
           }
 
-          orgSelect.innerHTML = "";
-          state.organizations.forEach((organization, index) => {
-            const option = document.createElement("option");
-            option.value = organization.id;
-            option.textContent = organization.name;
-            if (index === 0) {
-              option.selected = true;
-              state.selectedOrganizationId = organization.id;
-              state.isAdminForSelected = Boolean(organization.isAdmin);
-            }
-            orgSelect.appendChild(option);
-          });
-
-          if (state.organizations.length === 0) {
-            updateStatus(infoLine, "You are not assigned to an organization yet.", "error");
-            if (formSection) {
-              formSection.hidden = true;
-            }
-            if (actionsHeader) {
-              actionsHeader.hidden = true;
-            }
-            if (organizationName) {
-              organizationName.hidden = true;
-              organizationName.textContent = "";
-            }
-            orgSelect.hidden = false;
+          const editingUser = getEditingUser();
+          if (!editingUser) {
+            exitEditMode();
             return;
           }
 
-          if (state.organizations.length === 1) {
-            orgSelect.hidden = true;
-            if (organizationName) {
-              organizationName.textContent = state.organizations[0].name;
-              organizationName.hidden = false;
-            }
-            return;
+          editFormSection.hidden = false;
+          setInputValue(editNameInput, editingUser.name ?? "");
+          setInputValue(editEmailInput, editingUser.email ?? "");
+          setInputValue(editRoleSelect, editingUser.role ?? "member");
+          setInputValue(editPasswordInput, "");
+          if (editStatus) {
+            updateStatus(editStatus, "");
           }
+        }
 
-          orgSelect.hidden = false;
-          if (organizationName) {
-            organizationName.hidden = true;
-            organizationName.textContent = "";
-          }
+        function beginEdit(user) {
+          state.editingUserId = user.id;
+          syncEditForm();
         }
 
         function renderUsers(users) {
@@ -673,10 +737,14 @@ function renderUserManagementServiceHtml(options: {
             return;
           }
 
+          state.users = Array.isArray(users) ? [...users] : [];
           usersBody.innerHTML = "";
 
           if (!users.length) {
             usersEmpty.hidden = false;
+            if (state.editingUserId) {
+              exitEditMode();
+            }
             return;
           }
 
@@ -696,14 +764,18 @@ function renderUserManagementServiceHtml(options: {
             roleCell.textContent = user.role;
             row.appendChild(roleCell);
 
-            const orgCell = document.createElement("td");
-            orgCell.textContent = (user.organizations || []).map((org) => org.name).join(", ");
-            row.appendChild(orgCell);
-
             const actionsCell = document.createElement("td");
             actionsCell.className = "actions-cell";
 
-            if (state.isAdminForSelected) {
+            if (state.isAdmin) {
+              const editButton = document.createElement("button");
+              editButton.type = "button";
+              editButton.textContent = "Edit";
+              editButton.addEventListener("click", () => {
+                beginEdit(user);
+              });
+              actionsCell.appendChild(editButton);
+
               const removeButton = document.createElement("button");
               removeButton.type = "button";
               removeButton.textContent = "Remove";
@@ -721,6 +793,9 @@ function renderUserManagementServiceHtml(options: {
                   if (!response.ok && response.status !== 404) {
                     throw new Error("Failed with status " + response.status);
                   }
+                  if (state.editingUserId === user.id) {
+                    exitEditMode();
+                  }
                   updateStatus(infoLine, user.name + " removed.", "success");
                   await loadUsers();
                 } catch (error) {
@@ -729,19 +804,21 @@ function renderUserManagementServiceHtml(options: {
                 }
               });
               actionsCell.appendChild(removeButton);
-            }
-
-            if (!state.isAdminForSelected) {
+            } else {
               actionsCell.textContent = "—";
             }
 
             row.appendChild(actionsCell);
             usersBody.appendChild(row);
           });
+
+          if (state.editingUserId) {
+            syncEditForm();
+          }
         }
 
         async function loadUsers(displayStatus = true) {
-          if (!state.selectedOrganizationId) {
+          if (!state.organizationId) {
             return;
           }
 
@@ -766,7 +843,8 @@ function renderUserManagementServiceHtml(options: {
 
             const users = await response.json();
             const filtered = users.filter((user) =>
-              Array.isArray(user.organizations) && user.organizations.some((org) => org.id === state.selectedOrganizationId),
+              Array.isArray(user.organizations) &&
+              user.organizations.some((org) => org.id === state.organizationId)
             );
             renderUsers(filtered);
 
@@ -780,10 +858,85 @@ function renderUserManagementServiceHtml(options: {
           }
         }
 
+        async function handleEditSubmit(event) {
+          event.preventDefault();
+
+          if (!state.isAdmin) {
+            return;
+          }
+
+          const editingUser = getEditingUser();
+          if (!editingUser) {
+            updateStatus(editStatus, "Select a user to edit first.", "error");
+            return;
+          }
+
+          const name = getInputValue(editNameInput);
+          const email = getInputValue(editEmailInput).toLowerCase();
+          const role = getInputValue(editRoleSelect) || editingUser.role;
+          const password = getInputValue(editPasswordInput);
+
+          if (!name) {
+            updateStatus(editStatus, "Name is required.", "error");
+            return;
+          }
+
+          if (!email) {
+            updateStatus(editStatus, "Email is required.", "error");
+            return;
+          }
+
+          const payload = {};
+          if (name !== editingUser.name) {
+            payload.name = name;
+          }
+          if (email !== editingUser.email) {
+            payload.email = email;
+          }
+          if (role && role !== editingUser.role) {
+            payload.role = role;
+          }
+          if (password) {
+            payload.password = password;
+          }
+
+          if (Object.keys(payload).length === 0) {
+            updateStatus(editStatus, "No changes to save.", "error");
+            return;
+          }
+
+          updateStatus(editStatus, "Saving changes...", "info");
+
+          try {
+            const response = await fetch("/api/users/" + encodeURIComponent(editingUser.id), {
+              method: "PATCH",
+              headers: {
+                "content-type": "application/json",
+                "x-svc-user-management-action": "user_management:update_user",
+              },
+              credentials: "include",
+              body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+              const message = await response.json().catch(() => null);
+              const text = message?.message ?? "Failed with status " + response.status;
+              throw new Error(text);
+            }
+
+            updateStatus(infoLine, "User updated.", "success");
+            exitEditMode();
+            await loadUsers(false);
+          } catch (error) {
+            console.error("Failed to update user", error);
+            updateStatus(editStatus, error instanceof Error ? error.message : "Unable to update user.", "error");
+          }
+        }
+
         async function handleCreate(event) {
           event.preventDefault();
 
-          if (!state.selectedOrganizationId) {
+          if (!state.organizationId) {
             updateStatus(formStatus, "Select an organization first.", "error");
             return;
           }
@@ -812,7 +965,7 @@ function renderUserManagementServiceHtml(options: {
                 name,
                 email,
                 role,
-                organization_ids: [state.selectedOrganizationId],
+                organization_ids: [state.organizationId],
               }),
             });
 
@@ -831,64 +984,57 @@ function renderUserManagementServiceHtml(options: {
           }
         }
 
-        function onOrganizationChange(event) {
-          const value = event.target.value;
-          state.selectedOrganizationId = value;
-          const selected = state.organizations.find((org) => org.id === value);
-          state.isAdminForSelected = Boolean(selected?.isAdmin);
-          if (state.isAdminForSelected) {
-            if (formSection) {
-              formSection.hidden = false;
-            }
-            if (actionsHeader) {
-              actionsHeader.hidden = false;
-            }
-            if (notAdminNote) {
-              notAdminNote.hidden = true;
-            }
-          } else {
-            if (formSection) {
-              formSection.hidden = true;
-            }
-            if (actionsHeader) {
-              actionsHeader.hidden = true;
-            }
-            if (notAdminNote) {
-              notAdminNote.hidden = false;
-            }
-          }
-          loadUsers();
-        }
-
-        if (state.organizations.length > 0) {
-          populateOrganizations();
-          loadUsers();
-          if (!state.isAdminForSelected) {
-            if (formSection) {
-              formSection.hidden = true;
-            }
-            if (actionsHeader) {
-              actionsHeader.hidden = true;
-            }
-            if (notAdminNote) {
-              notAdminNote.hidden = false;
-            }
-          }
-        } else {
+        if (!state.organizationId) {
+          updateStatus(infoLine, "You are not assigned to an organization yet.", "error");
           if (formSection) {
             formSection.hidden = true;
           }
           if (actionsHeader) {
             actionsHeader.hidden = true;
           }
+          if (editFormSection) {
+            editFormSection.hidden = true;
+          }
           if (usersBody) {
             usersBody.innerHTML = "";
           }
+          return;
         }
 
-        orgSelect?.addEventListener("change", onOrganizationChange);
-        refreshButton?.addEventListener("click", () => loadUsers());
-        form?.addEventListener("submit", handleCreate);
+        if (!state.isAdmin) {
+          if (formSection) {
+            formSection.hidden = true;
+          }
+          if (actionsHeader) {
+            actionsHeader.hidden = true;
+          }
+          if (editFormSection) {
+            editFormSection.hidden = true;
+          }
+          if (notAdminNote) {
+            notAdminNote.hidden = false;
+          }
+          exitEditMode();
+        } else if (notAdminNote) {
+          notAdminNote.hidden = true;
+        }
+
+        loadUsers();
+
+        if (form instanceof HTMLFormElement) {
+          form.addEventListener("submit", handleCreate);
+        }
+
+        if (editForm instanceof HTMLFormElement) {
+          editForm.addEventListener("submit", handleEditSubmit);
+        }
+
+        if (cancelEditButton instanceof HTMLButtonElement) {
+          cancelEditButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            exitEditMode();
+          });
+        }
       })();
     </script>
   </body>
@@ -938,18 +1084,16 @@ async function renderServiceWorkspace(request: Request): Promise<Response> {
   let html: string;
 
   if (service.service_type === "user_management") {
-    const organizations = [
-      {
-        id: selectedOrganization.id,
-        name: selectedOrganization.name,
-        isAdmin: user.role === "admin" || user.role === "organization_admin",
-      },
-    ];
+    const organization = {
+      id: selectedOrganization.id,
+      name: selectedOrganization.name,
+      isAdmin: user.role === "admin" || user.role === "organization_admin",
+    };
 
     html = renderUserManagementServiceHtml({
       serviceName: service.name,
       description: service.description ?? "Manage organization users and access.",
-      organizations,
+      organization,
     });
   } else {
     html = renderGenericServiceHtml({
@@ -1036,7 +1180,7 @@ await initializeDatabase();
 
 const port = Number.parseInt(Bun.env.PORT ?? "3000", 10);
 
-serve({
+const server = serve({
   port,
   development: process.env.NODE_ENV !== "production",
   fetch: async (request) => {
@@ -1090,5 +1234,7 @@ serve({
     return new Response("Not Found", { status: 404 });
   },
 });
+
+watchForQuit(server);
 
 console.info(`Tessaro Bun server listening on http://localhost:${port}`);

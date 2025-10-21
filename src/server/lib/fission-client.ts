@@ -21,14 +21,18 @@ function resolveRouterUrl(): string {
 export async function fissionFetch(pathname: string, init?: RequestInit): Promise<Response> {
   const baseUrl = resolveRouterUrl();
   const path = pathname.startsWith("/") ? pathname : `/${pathname}`;
-  const url = `${baseUrl}${path}`;
+  const url = new URL("/tessaro", `${baseUrl}/`);
+  if (path !== "/tessaro") {
+    url.searchParams.set("__path", path);
+  }
 
   const headers = new Headers(init?.headers ?? {});
   if (!headers.has("accept")) {
     headers.set("accept", "application/json");
   }
+  headers.set("x-tessaro-path", path);
 
-  const response = await fetch(url, {
+  const response = await fetch(url.toString(), {
     ...init,
     headers,
   });

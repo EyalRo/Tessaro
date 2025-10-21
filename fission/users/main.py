@@ -140,7 +140,7 @@ def user_doc_to_response(doc: Dict[str, Any], organizations_map: Dict[str, Dict[
     ]
 
     return {
-        "id": doc["_id"],
+        "id": str(doc.get("_id")),
         "name": doc.get("name"),
         "email": doc.get("email"),
         "role": doc.get("role"),
@@ -153,7 +153,7 @@ def user_doc_to_response(doc: Dict[str, Any], organizations_map: Dict[str, Dict[
 
 def organization_doc_to_response(doc: Dict[str, Any]) -> Dict[str, Any]:
     return {
-        "id": doc["_id"],
+        "id": str(doc.get("_id")),
         "name": doc.get("name"),
         "plan": doc.get("plan"),
         "status": doc.get("status"),
@@ -169,7 +169,7 @@ def service_doc_to_response(doc: Dict[str, Any]) -> Dict[str, Any]:
         organization_count = len(organization_ids)
 
     return {
-        "id": doc["_id"],
+        "id": str(doc.get("_id")),
         "name": doc.get("name"),
         "service_type": doc.get("service_type"),
         "status": doc.get("status"),
@@ -223,12 +223,14 @@ def parse_json_body(data: Any, request_dict: Dict[str, Any]) -> Dict[str, Any]:
     if candidate is None and flask_request is not None:
         try:
             if flask_request.is_json:  # type: ignore[attr-defined]
-                parsed = flask_request.get_json(silent=True)  # type: ignore[attr-defined]
+                parsed = flask_request.get_json(silent=True, cache=True)  # type: ignore[attr-defined]
+                print("[tessaro-api] flask parsed json", parsed)
                 if isinstance(parsed, dict):
                     return parsed
                 if parsed is not None:
                     return {"value": parsed}
-            raw = flask_request.get_data(cache=False, as_text=True)  # type: ignore[attr-defined]
+            raw = flask_request.get_data(cache=True, as_text=True)  # type: ignore[attr-defined]
+            print("[tessaro-api] flask raw body", raw)
             candidate = raw if raw else None
         except RuntimeError:
             candidate = None
@@ -300,6 +302,9 @@ def parse_request(context: Any) -> Tuple[str, str, Dict[str, List[str]], Dict[st
     if "__path" in query:
         override_path = first_value(query, "__path")
         query.pop("__path", None)
+        if override_path:
+            from urllib.parse import unquote
+            override_path = unquote(unquote(override_path))
 
     if override_path is None:
         headers = request_dict.get("headers")
@@ -340,7 +345,13 @@ def first_value(query: Dict[str, List[str]], key: str) -> Optional[str]:
     for value in values:
         normalized = normalize_string(value)
         if normalized is not None:
-            return normalized
+            from urllib.parse import unquote_plus
+            try:
+                from urllib.parse import unquote_plus
+                decoded = unquote_plus(normalized)
+                return unquote_plus(decoded) if "%" in decoded else decoded
+            except Exception:
+                return normalized
     return None
 
 
@@ -387,10 +398,19 @@ def handle_users(method: str, segments: List[str], query: Dict[str, List[str]], 
     organizations = get_collection("organizations")
 
     user_id = segments[2] if len(segments) > 2 else None
+    organization_filter = first_value(query, "organization_id")
+
+    def should_include(doc) -> bool:
+        org_ids = doc.get("organization_ids") or []
+        if not org_ids:
+            return False
+        if organization_filter and organization_filter not in org_ids:
+            return False
+        return True
 
     if method == "GET" and user_id:
         doc = users.find_one({"_id": user_id})
-        if not doc:
+        if not doc or not should_include(doc):
             return make_error(404, "User not found")
 
         org_map = collect_organizations_map(doc.get("organization_ids") or [])
@@ -399,25 +419,34 @@ def handle_users(method: str, segments: List[str], query: Dict[str, List[str]], 
     if method == "GET":
         summary = first_value(query, "summary")
         if summary == "count":
-            count = users.count_documents({})
-            return make_response(200, {"count": count})
+            docs = [doc for doc in users.find({}) if should_include(doc)]
+            return make_response(200, {"count": len(docs)})
 
         email = first_value(query, "email")
         if email:
             doc = users.find_one({"email": email})
-            if not doc:
+            if not doc or not should_include(doc):
                 return make_error(404, "User not found")
             org_map = collect_organizations_map(doc.get("organization_ids") or [])
             return make_response(200, user_doc_to_response(doc, org_map))
 
-        cursor = users.find({})
-        docs = list(cursor)
+        docs = [doc for doc in users.find({}) if should_include(doc)]
         all_org_ids: List[str] = []
         for doc in docs:
             all_org_ids.extend(doc.get("organization_ids") or [])
         org_map = collect_organizations_map(list(set(all_org_ids)))
         payload = [user_doc_to_response(doc, org_map) for doc in docs]
-        return make_response(200, payload)
+        try:
+            return make_response(200, payload)
+        except Exception as error:
+            safe_payload = []
+            for doc in docs:
+                try:
+                    safe_payload.append(user_doc_to_response(doc, org_map))
+                except Exception:
+                    print("[tessaro-api] skipping unserializable user", doc.get("_id"), doc)
+            print("[tessaro-api] encountered non-serializable user documents", error)
+            return make_response(200, safe_payload)
 
     if method == "POST":
         name = normalize_string(body.get("name")) or "Unnamed"
@@ -431,6 +460,8 @@ def handle_users(method: str, segments: List[str], query: Dict[str, List[str]], 
         organization_ids, missing = resolve_organization_ids(body.get("organization_ids"))
         if missing:
             raise ValidationError(f"organizations not found: {', '.join(missing)}")
+        if not organization_ids:
+            raise ValidationError("organization_ids required")
 
         identifier = sanitize_identifier(body.get("id")) or str(uuid.uuid4())
         timestamp = iso_now()
@@ -456,7 +487,7 @@ def handle_users(method: str, segments: List[str], query: Dict[str, List[str]], 
         org_map = collect_organizations_map(organization_ids)
         return make_response(201, user_doc_to_response(doc, org_map))
 
-    if method == "PATCH" and user_id:
+    if method in ("PATCH", "PUT") and user_id:
         doc = users.find_one({"_id": user_id})
         if not doc:
             return make_error(404, "User not found")
@@ -553,7 +584,7 @@ def handle_organizations(method: str, segments: List[str], query: Dict[str, List
 
         return make_response(201, organization_doc_to_response(doc))
 
-    if method == "PATCH" and organization_id:
+    if method in ("PATCH", "PUT") and organization_id:
         doc = organizations.find_one({"_id": organization_id})
         if not doc:
             return make_error(404, "Organization not found")
@@ -659,7 +690,7 @@ def handle_services(method: str, segments: List[str], body: Dict[str, Any], quer
 
         return make_response(201, service_doc_to_response(doc))
 
-    if method == "PATCH" and service_id:
+    if method in ("PATCH", "PUT") and service_id:
         doc = services.find_one({"_id": service_id})
         if not doc:
             return make_error(404, "Service not found")
@@ -720,8 +751,8 @@ def handle_metrics_increment(body: Dict[str, Any]):
         {"_id": key, "kind": "number"},
         {
             "$inc": {"value": 1},
-            "$set": {"updated_at": timestamp},
-            "$setOnInsert": {"created_at": timestamp, "kind": "number"},
+            "$set": {"updated_at": timestamp, "key": key, "kind": "number"},
+            "$setOnInsert": {"created_at": timestamp},
         },
         upsert=True,
         return_document=ReturnDocument.AFTER,
@@ -746,8 +777,8 @@ def handle_metrics_number(method: str, query: Dict[str, List[str]], body: Dict[s
         metrics.update_one(
             {"_id": key, "kind": "number"},
             {
-                "$set": {"value": value, "updated_at": timestamp},
-                "$setOnInsert": {"created_at": timestamp, "kind": "number"},
+                "$set": {"value": value, "updated_at": timestamp, "key": key, "kind": "number"},
+                "$setOnInsert": {"created_at": timestamp},
             },
             upsert=True,
         )
@@ -780,8 +811,8 @@ def handle_metrics_timestamp(method: str, query: Dict[str, List[str]], body: Dic
         metrics.update_one(
             {"_id": key, "kind": "timestamp"},
             {
-                "$set": {"value": value, "updated_at": timestamp},
-                "$setOnInsert": {"created_at": timestamp, "kind": "timestamp"},
+                "$set": {"value": value, "updated_at": timestamp, "key": key, "kind": "timestamp"},
+                "$setOnInsert": {"created_at": timestamp},
             },
             upsert=True,
         )

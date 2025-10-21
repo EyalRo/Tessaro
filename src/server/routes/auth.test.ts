@@ -306,7 +306,7 @@ function createFissionStub() {
         return existing ? jsonResponse(existing) : notFound();
       }
 
-      if (method === "PATCH") {
+      if (method === "PATCH" || method === "PUT") {
         if (!existing) {
           return notFound();
         }
@@ -398,7 +398,7 @@ function createFissionStub() {
         });
       }
 
-      if (method === "PATCH") {
+      if (method === "PATCH" || method === "PUT") {
         if (!existing) {
           return notFound();
         }
@@ -474,7 +474,7 @@ function createFissionStub() {
         return existing ? jsonResponse(hydrateUser(existing)) : notFound("User not found");
       }
 
-      if (method === "PATCH") {
+      if (method === "PATCH" || method === "PUT") {
         if (!existing) {
           return notFound("User not found");
         }
