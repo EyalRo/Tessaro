@@ -1,9 +1,11 @@
 # Tessaro Fission Functions
 
-This directory hosts the Fission specs and source files for Tessaro's serverless endpoints. Two functions are currently deployed:
+This directory hosts the Fission specs and source files for Tessaro's serverless endpoints. **All Tessaro persistence flows through these functions** — the Bun server delegates every read/write to Fission, which in turn persists to MongoDB.
 
-- `/tessaro/users` – a Python function that reads the `users` collection from MongoDB and exposes the list/read APIs consumed by the admin UI.
-- `/random-int` – the sample Marko console helper that returns a random integer.
+The currently deployed functions include:
+
+- `/tessaro/users` – a Python handler that fronts the `users` collection in MongoDB and services the platform/user APIs.
+- `/random-int` – the sample Marko console helper that returns a random integer (legacy demo; safe to remove when no longer needed).
 
 ## Environments and secrets
 
@@ -37,12 +39,12 @@ The apply step builds the Python packages (using `requirements.txt` when present
 
 | Path | Purpose |
 | --- | --- |
-| `users/main.py` | Mongo-backed GET handler for `/tessaro/users` (list, count via `?summary=count`, and `/tessaro/users/:id`). Mutating routes currently return `503 Service Unavailable` until the write path is restored. |
+| `users/main.py` | Mongo-backed handler for `/tessaro/users` (list, count via `?summary=count`, read by ID/email, and the mutation routes consumed by the Bun server). |
 | `users/vendor/` | Vendored copy of `pymongo` used by the users function. |
 | `random-int/main.py` | Sample Python function for `/random-int`. |
-| `specs/*.yaml` | Declarative definitions for Fission environments, packages, functions, and HTTP triggers. |
+| `specs/*.yaml` | Declarative definitions for Fission environments, packages, functions, and HTTP triggers. Extend these specs as additional Tessaro data domains move into Fission. |
 
 ## Notes for future work
 
-- `src/server/routes/users.ts` proxies only the list/read operations to Fission. Creation, update, and deletion remain disabled while the write flow is rebuilt.
-- Once server-side writes are ready, extend the Python handler (or replace it with a Node function) to forward create/update/delete operations to MongoDB and remove the temporary `503` guards in the Bun routes.
+- The Bun data layer (`src/server/database.ts`) now expects companion routes for organizations, services, metrics, sessions, and credentials. Mirror those contracts when adding new Fission functions so the server continues to operate exclusively through MongoDB.
+- When iterating locally, stub `fetch` in tests instead of pointing at a live cluster. Keep the stub responses aligned with the production Fission contracts to avoid drift.

@@ -41,7 +41,16 @@ export async function requireUserManagementAccess(request: Request): Promise<Use
     throw new AccessError(503, "User management service unavailable");
   }
 
+  const selectedOrganizationId = session.organization_id ?? null;
+
   if (actor.role === "admin") {
+    if (selectedOrganizationId) {
+      return {
+        actor,
+        scope: { kind: "organization", organizationIds: [selectedOrganizationId] },
+      } satisfies UserManagementContext;
+    }
+
     return {
       actor,
       scope: { kind: "global" },
@@ -49,14 +58,22 @@ export async function requireUserManagementAccess(request: Request): Promise<Use
   }
 
   if (actor.role === "organization_admin") {
+    if (!selectedOrganizationId) {
+      throw new AccessError(403, "Organization selection required");
+    }
+
     const organizationIds = Array.from(new Set(actor.organizations.map((org) => org.id))).filter(Boolean);
     if (organizationIds.length === 0) {
       throw new AccessError(403, "Organization assignment required");
     }
 
+    if (!organizationIds.includes(selectedOrganizationId)) {
+      throw new AccessError(403, "Organization selection invalid");
+    }
+
     return {
       actor,
-      scope: { kind: "organization", organizationIds },
+      scope: { kind: "organization", organizationIds: [selectedOrganizationId] },
     } satisfies UserManagementContext;
   }
 

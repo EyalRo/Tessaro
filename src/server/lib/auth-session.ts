@@ -111,8 +111,14 @@ function computeExpiry(ttlMs = DEFAULT_TTL_MS) {
   };
 }
 
-export async function createAuthSession(userId: string, ttlMs = DEFAULT_TTL_MS) {
+export type CreateAuthSessionOptions = {
+  organizationId?: string | null;
+  ttlMs?: number;
+};
+
+export async function createAuthSession(userId: string, options?: CreateAuthSessionOptions) {
   const secret = await loadSecret();
+  const ttlMs = options?.ttlMs ?? DEFAULT_TTL_MS;
   const { issued_at, expires_at } = computeExpiry(ttlMs);
   const token = CSRF.generate(secret, { encoding: "base64", expiresIn: ttlMs });
   const tokenHash = await hashToken(token);
@@ -120,6 +126,7 @@ export async function createAuthSession(userId: string, ttlMs = DEFAULT_TTL_MS) 
   const record: SessionRecord = {
     token_hash: tokenHash,
     user_id: userId,
+    organization_id: options?.organizationId ?? null,
     issued_at,
     expires_at,
   };
@@ -130,6 +137,7 @@ export async function createAuthSession(userId: string, ttlMs = DEFAULT_TTL_MS) 
     token,
     issued_at,
     expires_at,
+    organization_id: record.organization_id,
   };
 }
 
@@ -157,6 +165,7 @@ export async function renewAuthSession(token: string, ttlMs = DEFAULT_TTL_MS) {
   const updated: SessionRecord = {
     token_hash: tokenHash,
     user_id: session.user_id,
+    organization_id: session.organization_id ?? null,
     issued_at,
     expires_at,
   };
@@ -168,6 +177,7 @@ export async function renewAuthSession(token: string, ttlMs = DEFAULT_TTL_MS) {
     issued_at,
     expires_at,
     user_id: session.user_id,
+    organization_id: session.organization_id ?? null,
   };
 }
 

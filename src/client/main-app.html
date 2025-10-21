@@ -55,6 +55,45 @@
         gap: 1rem;
       }
 
+      .organization-picker {
+        margin-top: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .organization-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .organization-option {
+        appearance: none;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        background: rgba(15, 23, 42, 0.5);
+        padding: 0.85rem 1.25rem;
+        border-radius: 12px;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+        transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+      }
+
+      .organization-option:hover,
+      .organization-option:focus-visible {
+        transform: translateY(-1px);
+        border-color: rgba(56, 189, 248, 0.6);
+        background: rgba(30, 41, 59, 0.6);
+        outline: none;
+      }
+
+      .organization-option:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
       button {
         appearance: none;
         border: none;
@@ -287,6 +326,10 @@
         <div class="actions">
           <button id="login-button" type="button">Continue as Tessaro Admin</button>
         </div>
+        <div id="organization-picker" class="organization-picker" hidden>
+          <p class="muted">Select an organization to continue.</p>
+          <div id="organization-options" class="organization-options"></div>
+        </div>
         <div id="login-status" class="status-line" role="status" aria-live="polite"></div>
         <p class="helper-text muted">
           Need to administer the entire platform?
@@ -322,6 +365,8 @@
         const userName = document.getElementById("user-name");
         const userRoleLine = document.getElementById("user-role");
         const organizationsContainer = document.getElementById("organizations-container");
+        const organizationPicker = document.getElementById("organization-picker");
+        const organizationOptions = document.getElementById("organization-options");
         const state = { context: null };
 
         function updateStatus(element, message, kind = "info") {
@@ -339,16 +384,59 @@
           }
         }
 
+        function resetOrganizationPicker() {
+          if (organizationPicker) {
+            organizationPicker.setAttribute("hidden", "");
+          }
+          if (organizationOptions) {
+            organizationOptions.innerHTML = "";
+          }
+        }
+
+        function setOrganizationOptionsDisabled(disabled) {
+          if (!organizationOptions) {
+            return;
+          }
+
+          const buttons = organizationOptions.querySelectorAll("button");
+          buttons.forEach((button) => {
+            if (button instanceof HTMLButtonElement) {
+              button.disabled = disabled;
+            }
+          });
+        }
+
+        function showOrganizationPicker(organizations) {
+          if (!organizationPicker || !organizationOptions) {
+            return;
+          }
+
+          organizationOptions.innerHTML = "";
+          organizations.forEach((organization) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "organization-option";
+            button.textContent = organization.name;
+            button.addEventListener("click", () => performLogin(organization.id));
+            organizationOptions.appendChild(button);
+          });
+
+          organizationPicker.removeAttribute("hidden");
+        }
+
         function toggleView(view) {
           if (view === "dashboard") {
+            resetOrganizationPicker();
             loginCard?.setAttribute("hidden", "");
             dashboardCard?.removeAttribute("hidden");
           } else {
+            resetOrganizationPicker();
             loginCard?.removeAttribute("hidden");
             dashboardCard?.setAttribute("hidden", "");
             if (loginButton) {
               loginButton.disabled = false;
             }
+            setOrganizationOptionsDisabled(false);
           }
         }
 
@@ -510,8 +598,19 @@
             userRoleLine.textContent = formatRole(context.user.role);
           }
 
-          renderOrganizations(context.organizations);
-          updateStatus(dashboardStatus, "You're signed in to your organization workspace.", "success");
+          const organizations = context.organization ? [context.organization] : [];
+          renderOrganizations(organizations);
+
+          if (context.organization) {
+            updateStatus(dashboardStatus, "You're signed in to your organization workspace.", "success");
+          } else {
+            updateStatus(
+              dashboardStatus,
+              "Your account is not currently assigned to an organization.",
+              "info",
+            );
+          }
+
           toggleView("dashboard");
         }
 
@@ -547,26 +646,73 @@
           }
         }
 
-        async function handleLoginClick() {
-          if (!loginButton) {
-            return;
+        async function performLogin(organizationId) {
+          if (loginButton) {
+            loginButton.disabled = true;
           }
 
-          loginButton.disabled = true;
+          setOrganizationOptionsDisabled(true);
           updateStatus(loginStatus, "Signing you in to Tessaro...", "info");
+
+          const payload = organizationId ? { organization_id: organizationId } : {};
 
           try {
             const response = await fetch("/api/auth/login", {
               method: "POST",
               headers: { "content-type": "application/json" },
               credentials: "include",
-              body: JSON.stringify({}),
+              body: JSON.stringify(payload),
             });
+
+            if (response.status === 400) {
+              let data = null;
+              try {
+                data = await response.json();
+              } catch {
+                data = null;
+              }
+
+              if (
+                data &&
+                data.code === "organization_selection_required" &&
+                Array.isArray(data.organizations)
+              ) {
+                showOrganizationPicker(data.organizations);
+                updateStatus(loginStatus, "Select an organization to continue.", "info");
+                setOrganizationOptionsDisabled(false);
+                if (loginButton) {
+                  loginButton.disabled = false;
+                }
+                return;
+              }
+
+              throw new Error(data?.message ?? "Organization selection required.");
+            }
+
+            if (response.status === 403) {
+              let data = null;
+              try {
+                data = await response.json();
+              } catch {
+                data = null;
+              }
+
+              updateStatus(
+                loginStatus,
+                data?.message ?? "You do not have access to that organization.",
+                "error",
+              );
+              if (loginButton) {
+                loginButton.disabled = false;
+              }
+              return;
+            }
 
             if (!response.ok) {
               throw new Error(`Login failed with status ${response.status}`);
             }
 
+            resetOrganizationPicker();
             updateStatus(loginStatus, "Signed in successfully.", "success");
             const loaded = await loadContext();
             if (!loaded && loginButton) {
@@ -582,7 +728,13 @@
             if (loginButton) {
               loginButton.disabled = false;
             }
+          } finally {
+            setOrganizationOptionsDisabled(false);
           }
+        }
+
+        function handleLoginClick() {
+          performLogin();
         }
 
         async function handleLogoutClick() {

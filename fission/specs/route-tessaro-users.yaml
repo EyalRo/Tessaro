@@ -9,5 +9,9 @@ spec:
     type: name
   host: ""
   methods:
+  - DELETE
   - GET
-  prefix: /tessaro/users
+  - PATCH
+  - POST
+  - PUT
+  relativeurl: /tessaro

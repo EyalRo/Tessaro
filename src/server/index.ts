@@ -391,6 +391,21 @@ function renderUserManagementServiceHtml(options: {
         margin-top: 1.5rem;
       }
 
+      .organization-field {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .organization-field select {
+        min-width: 14rem;
+      }
+
+      .organization-name {
+        font-weight: 600;
+        color: rgba(226, 232, 240, 0.92);
+        padding: 0.6rem 0;
+      }
+
       select,
       input,
       button {
@@ -511,9 +526,10 @@ function renderUserManagementServiceHtml(options: {
           <p class="muted">${escapeHtml(options.description)}</p>
         </div>
         <div class="toolbar">
-          <label>
+          <label class="organization-field">
             <span class="muted" style="display:block;font-size:0.85rem;margin-bottom:0.4rem;">Organization</span>
             <select id="organization-select"></select>
+            <span id="organization-name" class="organization-name" hidden></span>
           </label>
           <button id="refresh-button" type="button">Refresh</button>
         </div>
@@ -572,6 +588,7 @@ function renderUserManagementServiceHtml(options: {
         const bootstrapScript = document.getElementById("service-bootstrap");
         const bootstrap = bootstrapScript ? JSON.parse(bootstrapScript.textContent || "{}"): {};
         const orgSelect = document.getElementById("organization-select");
+        const organizationName = document.getElementById("organization-name");
         const infoLine = document.getElementById("info-line");
         const refreshButton = document.getElementById("refresh-button");
         const usersBody = document.getElementById("users-body");
@@ -627,6 +644,27 @@ function renderUserManagementServiceHtml(options: {
             if (actionsHeader) {
               actionsHeader.hidden = true;
             }
+            if (organizationName) {
+              organizationName.hidden = true;
+              organizationName.textContent = "";
+            }
+            orgSelect.hidden = false;
+            return;
+          }
+
+          if (state.organizations.length === 1) {
+            orgSelect.hidden = true;
+            if (organizationName) {
+              organizationName.textContent = state.organizations[0].name;
+              organizationName.hidden = false;
+            }
+            return;
+          }
+
+          orgSelect.hidden = false;
+          if (organizationName) {
+            organizationName.hidden = true;
+            organizationName.textContent = "";
           }
         }
 
@@ -875,8 +913,17 @@ async function renderServiceWorkspace(request: Request): Promise<Response> {
     return redirectResponse("/", 303);
   }
 
-  const organizationIds = user.organizations.map((organization) => organization.id);
-  const services = await listServicesForOrganizations(organizationIds);
+  const selectedOrganizationId = session.organization_id ?? (user.organizations.length === 1 ? user.organizations[0].id : null);
+  if (!selectedOrganizationId) {
+    return redirectResponse("/", 303);
+  }
+
+  const selectedOrganization = user.organizations.find((organization) => organization.id === selectedOrganizationId);
+  if (!selectedOrganization) {
+    return redirectResponse("/", 303);
+  }
+
+  const services = await listServicesForOrganizations([selectedOrganizationId]);
   const service = services.find((entry) => entry.id === serviceId);
 
   if (!service) {
@@ -886,16 +933,18 @@ async function renderServiceWorkspace(request: Request): Promise<Response> {
     });
   }
 
-  const organizationNames = user.organizations.map((organization) => organization.name).join(", ");
+  const organizationName = selectedOrganization.name;
 
   let html: string;
 
   if (service.service_type === "user_management") {
-    const organizations = user.organizations.map((organization) => ({
-      id: organization.id,
-      name: organization.name,
-      isAdmin: user.role === "admin" || user.role === "organization_admin",
-    }));
+    const organizations = [
+      {
+        id: selectedOrganization.id,
+        name: selectedOrganization.name,
+        isAdmin: user.role === "admin" || user.role === "organization_admin",
+      },
+    ];
 
     html = renderUserManagementServiceHtml({
       serviceName: service.name,
@@ -907,7 +956,7 @@ async function renderServiceWorkspace(request: Request): Promise<Response> {
       serviceName: service.name,
       description: service.description ?? "No description provided yet.",
       status: service.status,
-      organizationNames,
+      organizationNames: organizationName,
     });
   }
 

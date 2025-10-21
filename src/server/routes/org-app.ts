@@ -30,7 +30,7 @@ type ContextResponse = {
     role: string;
     isPlatformAdmin: boolean;
   };
-  organizations: OrganizationSummary[];
+  organization: OrganizationSummary | null;
 };
 
 function mapServiceRecord(service: ServiceRecord) {
@@ -43,24 +43,40 @@ function mapServiceRecord(service: ServiceRecord) {
   };
 }
 
-async function buildContextPayload(user: UserRecord): Promise<ContextResponse> {
+async function buildOrganizationSummary(
+  user: UserRecord,
+  organizationId: string | null,
+): Promise<OrganizationSummary | null> {
+  if (!organizationId) {
+    return null;
+  }
+
+  const organization = user.organizations.find((entry) => entry.id === organizationId);
+  if (!organization) {
+    return null;
+  }
+
   const isPlatformAdmin = user.role === "admin";
   const isOrganizationAdmin = user.role === "organization_admin" || isPlatformAdmin;
 
-  const organizations = await Promise.all(
-    user.organizations.map(async (organization) => {
-      const services = await listServicesForOrganizations([organization.id]);
+  const services = await listServicesForOrganizations([organization.id]);
 
-      return {
-        id: organization.id,
-        name: organization.name,
-        plan: organization.plan,
-        status: organization.status,
-        isAdmin: isOrganizationAdmin,
-        services: services.map(mapServiceRecord),
-      } satisfies OrganizationSummary;
-    }),
-  );
+  return {
+    id: organization.id,
+    name: organization.name,
+    plan: organization.plan,
+    status: organization.status,
+    isAdmin: isOrganizationAdmin,
+    services: services.map(mapServiceRecord),
+  } satisfies OrganizationSummary;
+}
+
+async function buildContextPayload(
+  user: UserRecord,
+  organizationId: string | null,
+): Promise<ContextResponse> {
+  const isPlatformAdmin = user.role === "admin";
+  const organization = await buildOrganizationSummary(user, organizationId);
 
   return {
     user: {
@@ -70,7 +86,7 @@ async function buildContextPayload(user: UserRecord): Promise<ContextResponse> {
       role: user.role,
       isPlatformAdmin,
     },
-    organizations,
+    organization,
   } satisfies ContextResponse;
 }
 
@@ -85,6 +101,7 @@ export const organizationContextRoute: ApiHandler = async (request) => {
     return Response.json({ message: "User not found" }, { status: 404 });
   }
 
+  const organizationIdFromSession = session.organization_id ?? null;
   if (user.organizations.length === 0) {
     return Response.json(
       {
@@ -95,12 +112,15 @@ export const organizationContextRoute: ApiHandler = async (request) => {
           role: user.role,
           isPlatformAdmin: user.role === "admin",
         },
-        organizations: [],
+        organization: null,
       } satisfies ContextResponse,
       { status: 200 },
     );
   }
 
-  const payload = await buildContextPayload(user);
+  const effectiveOrganizationId = organizationIdFromSession
+    ?? (user.organizations.length === 1 ? user.organizations[0].id : null);
+  const payload = await buildContextPayload(user, effectiveOrganizationId);
+
   return Response.json(payload, { status: 200 });
 };
