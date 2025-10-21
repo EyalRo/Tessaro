@@ -4,8 +4,8 @@ import {
   deleteSession,
   getSession,
   replaceSession,
-} from "../database";
-import type { SessionRecord } from "../database";
+} from "../database/sessions";
+import type { SessionRecord } from "../database/sessions";
 
 const DEFAULT_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 const SECRET_SERVICE = "tessaro";

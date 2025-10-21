@@ -1,12 +1,6 @@
-import {
-  createUser,
-  ensureTessaroOrganization,
-  ensureUserManagementService,
-  getUserByEmail,
-  TESSARO_ORGANIZATION_ID,
-  type CreateUserInput,
-  type UserRecord,
-} from "../database";
+import { ensureTessaroOrganization, ensureUserManagementService, TESSARO_ORGANIZATION_ID } from "../database/seed";
+import { createUser, getUserByEmail } from "../database/users";
+import type { CreateUserInput, UserRecord } from "../database/users";
 
 export const DEFAULT_ADMIN_EMAIL = "admin@tessaro.local";
 export const DEFAULT_ADMIN_USER: CreateUserInput = {

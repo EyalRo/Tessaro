@@ -8,7 +8,8 @@ import {
   getAuthenticatedSession,
   readSessionToken,
 } from "../lib/auth-session";
-import { getUserById, type OrganizationRecord } from "../database";
+import { getUserById } from "../database/users";
+import type { OrganizationRecord } from "../database/organizations";
 
 const jsonHeaders = {
   "content-type": "application/json; charset=utf-8",

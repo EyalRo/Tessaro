@@ -1,11 +1,8 @@
 import type { ApiHandler } from "../router";
 import { getAuthenticatedSession } from "../lib/auth-session";
-import {
-  getUserById,
-  listServicesForOrganizations,
-  type ServiceRecord,
-  type UserRecord,
-} from "../database";
+import { listServicesForOrganizations, type ServiceRecord } from "../database/services";
+import { getUserById } from "../database/users";
+import type { UserRecord } from "../database/users";
 
 type OrganizationSummary = {
   id: string;
