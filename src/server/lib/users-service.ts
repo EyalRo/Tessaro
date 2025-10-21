@@ -1,4 +1,4 @@
-import type { UserRecord } from "../database";
+import type { UserRecord } from "../database/users";
 import { fissionJson, FissionRequestError } from "./fission-client";
 
 const DEFAULT_USERS_PATH = "/tessaro/users";

@@ -1,16 +1,12 @@
+import { getMetricTimestamp, incrementMetric, setMetricNumber, setMetricTimestamp } from "../database/metrics";
 import {
-  setMetricNumber,
-  setMetricTimestamp,
-  incrementMetric,
-  getMetricTimestamp,
   createUser,
   updateUser,
   deleteUser,
   getUserById,
-  type UpdateUserInput,
   setUserPassword,
-} from "../database";
-import type { UserRecord } from "../database";
+} from "../database/users";
+import type { UpdateUserInput, UserRecord } from "../database/users";
 import {
   AccessError,
   requireUserManagementAccess,

@@ -5,13 +5,15 @@ import {
   getServiceById,
   listServices,
   updateService,
+} from "../database/services";
+import type { CreateServiceInput, UpdateServiceInput } from "../database/services";
+import {
+  getMetricNumber,
+  getMetricTimestamp,
   incrementMetric,
   setMetricNumber,
   setMetricTimestamp,
-  getMetricTimestamp,
-  getMetricNumber,
-} from "../database";
-import type { CreateServiceInput, UpdateServiceInput } from "../database";
+} from "../database/metrics";
 import {
   errorResponse,
   formatHeaders,

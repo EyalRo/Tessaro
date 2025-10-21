@@ -5,13 +5,15 @@ import {
   getOrganizationById,
   listOrganizations,
   updateOrganization,
+} from "../database/organizations";
+import type { CreateOrganizationInput, UpdateOrganizationInput } from "../database/organizations";
+import {
+  getMetricNumber,
+  getMetricTimestamp,
   incrementMetric,
   setMetricNumber,
   setMetricTimestamp,
-  getMetricTimestamp,
-  getMetricNumber,
-} from "../database";
-import type { CreateOrganizationInput, UpdateOrganizationInput } from "../database";
+} from "../database/metrics";
 import {
   errorResponse,
   formatHeaders,

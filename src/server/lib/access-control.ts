@@ -1,10 +1,8 @@
 import { getAuthenticatedSession } from "./auth-session";
-import {
-  getServiceById,
-  getUserById,
-  USER_MANAGEMENT_SERVICE_ID,
-  type UserRecord,
-} from "../database";
+import { getServiceById } from "../database/services";
+import { USER_MANAGEMENT_SERVICE_ID } from "../database/seed";
+import { getUserById } from "../database/users";
+import type { UserRecord } from "../database/users";
 
 export class AccessError extends Error {
   status: number;
