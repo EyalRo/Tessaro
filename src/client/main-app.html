@@ -455,17 +455,24 @@
           return status === "active" ? "badge badge--success" : "badge badge--warning";
         }
 
+        function logAction(message) {
+          console.log("[AdminConsole]", message);
+        }
+
         function launchService(service) {
+          logAction(`Launch button pressed for service ${service.id}`);
           updateStatus(dashboardStatus, `Launching ${service.name}...`, "info");
           window.location.href = `/services/${encodeURIComponent(service.id)}`;
         }
 
         function manageService(service) {
+          logAction(`Manage button pressed for service ${service.id}`);
           updateStatus(dashboardStatus, `Opening management tools for ${service.name} in a new tab...`, "info");
           window.open(`/admin#service-${encodeURIComponent(service.id)}`, "_blank", "noopener");
         }
 
         function manageOrganization(organization) {
+          logAction(`Manage organization button pressed for ${organization.id}`);
           updateStatus(dashboardStatus, `Opening ${organization.name} administration in a new tab...`, "info");
           window.open(`/admin#organization-${encodeURIComponent(organization.id)}`, "_blank", "noopener");
         }

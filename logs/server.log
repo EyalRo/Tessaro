@@ -1,0 +1,11 @@
+2025-10-21T21:05:50.357Z [INFO] Tessaro Bun server started {"port":3000,"development":true}
+2025-10-21T21:06:09.074Z [INFO] API request received {"requestId":"8b3529d7-3e77-427c-bbb3-04ffe1d76905","method":"GET","path":"/api/app/context","search":null}
+2025-10-21T21:06:09.074Z [DEBUG] API route matched {"requestId":"8b3529d7-3e77-427c-bbb3-04ffe1d76905","method":"GET","path":"/api/app/context","search":null,"route":"GET /api/app/context","params":{}}
+2025-10-21T21:06:09.159Z [INFO] API response produced {"requestId":"8b3529d7-3e77-427c-bbb3-04ffe1d76905","method":"GET","path":"/api/app/context","search":null,"route":"GET /api/app/context","status":200,"durationMs":85}
+2025-10-21T21:06:16.464Z [INFO] [UserMgmt] Rendering service workspace {"serviceId":"svc_user_management","organizationId":"org_tessaro","userId":"7b970625-ba92-4401-a09b-dde1537a44e0"}
+2025-10-21T21:06:37.175Z [INFO] [UserMgmt] Rendering service workspace {"serviceId":"svc_user_management","organizationId":"org_tessaro","userId":"7b970625-ba92-4401-a09b-dde1537a44e0"}
+2025-10-21T21:42:03.963Z [INFO] Tessaro Bun server started {"port":3000,"development":true}
+2025-10-21T21:42:13.776Z [INFO] API request received {"requestId":"a26c79c0-e61d-4117-bad9-a9463d20142d","method":"GET","path":"/api/app/context","search":null}
+2025-10-21T21:42:13.777Z [DEBUG] API route matched {"requestId":"a26c79c0-e61d-4117-bad9-a9463d20142d","method":"GET","path":"/api/app/context","search":null,"route":"GET /api/app/context","params":{}}
+2025-10-21T21:42:13.829Z [INFO] API response produced {"requestId":"a26c79c0-e61d-4117-bad9-a9463d20142d","method":"GET","path":"/api/app/context","search":null,"route":"GET /api/app/context","status":200,"durationMs":53}
+2025-10-21T21:42:15.822Z [INFO] [UserMgmt] Rendering service workspace {"serviceId":"svc_user_management","organizationId":"org_tessaro","userId":"7b970625-ba92-4401-a09b-dde1537a44e0"}

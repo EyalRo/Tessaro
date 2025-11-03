@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { RouteParams } from "./routes/utils";
 import {
   listUsersRoute,
@@ -26,6 +27,7 @@ import {
   sessionRoute,
 } from "./routes/auth";
 import { organizationContextRoute } from "./routes/org-app";
+import { logger } from "./lib/logger";
 
 const jsonHeaders = {
   "content-type": "application/json; charset=utf-8",
@@ -39,8 +41,19 @@ type RoutePattern = {
 
 type RouteDefinition = {
   method: string;
+  path: string;
   pattern: RoutePattern;
   handler: ApiHandler;
+};
+
+type LogContext = {
+  requestId: string;
+  route?: string;
+};
+
+type RequestWithContext = Request & {
+  params?: RouteParams;
+  logContext?: LogContext;
 };
 
 function createPattern(pathname: string): RoutePattern {
@@ -80,32 +93,32 @@ function createPattern(pathname: string): RoutePattern {
 }
 
 const routes: RouteDefinition[] = [
-  { method: "POST", pattern: createPattern("/api/auth/login"), handler: loginRoute },
-  { method: "POST", pattern: createPattern("/api/auth/logout"), handler: logoutRoute },
-  { method: "GET", pattern: createPattern("/api/auth/session"), handler: sessionRoute },
-  { method: "GET", pattern: createPattern("/api/app/context"), handler: organizationContextRoute },
+  { method: "POST", path: "/api/auth/login", pattern: createPattern("/api/auth/login"), handler: loginRoute },
+  { method: "POST", path: "/api/auth/logout", pattern: createPattern("/api/auth/logout"), handler: logoutRoute },
+  { method: "GET", path: "/api/auth/session", pattern: createPattern("/api/auth/session"), handler: sessionRoute },
+  { method: "GET", path: "/api/app/context", pattern: createPattern("/api/app/context"), handler: organizationContextRoute },
 
-  { method: "GET", pattern: createPattern("/api/users"), handler: listUsersRoute },
-  { method: "POST", pattern: createPattern("/api/users"), handler: createUserRoute },
-  { method: "GET", pattern: createPattern("/api/users/:id"), handler: readUserRoute },
-  { method: "PATCH", pattern: createPattern("/api/users/:id"), handler: updateUserRoute },
-  { method: "DELETE", pattern: createPattern("/api/users/:id"), handler: deleteUserRoute },
+  { method: "GET", path: "/api/users", pattern: createPattern("/api/users"), handler: listUsersRoute },
+  { method: "POST", path: "/api/users", pattern: createPattern("/api/users"), handler: createUserRoute },
+  { method: "GET", path: "/api/users/:id", pattern: createPattern("/api/users/:id"), handler: readUserRoute },
+  { method: "PATCH", path: "/api/users/:id", pattern: createPattern("/api/users/:id"), handler: updateUserRoute },
+  { method: "DELETE", path: "/api/users/:id", pattern: createPattern("/api/users/:id"), handler: deleteUserRoute },
 
-  { method: "GET", pattern: createPattern("/api/organizations"), handler: listOrganizationsRoute },
-  { method: "POST", pattern: createPattern("/api/organizations"), handler: createOrganizationRoute },
-  { method: "GET", pattern: createPattern("/api/organizations/:id"), handler: readOrganizationRoute },
-  { method: "PATCH", pattern: createPattern("/api/organizations/:id"), handler: updateOrganizationRoute },
-  { method: "DELETE", pattern: createPattern("/api/organizations/:id"), handler: deleteOrganizationRoute },
+  { method: "GET", path: "/api/organizations", pattern: createPattern("/api/organizations"), handler: listOrganizationsRoute },
+  { method: "POST", path: "/api/organizations", pattern: createPattern("/api/organizations"), handler: createOrganizationRoute },
+  { method: "GET", path: "/api/organizations/:id", pattern: createPattern("/api/organizations/:id"), handler: readOrganizationRoute },
+  { method: "PATCH", path: "/api/organizations/:id", pattern: createPattern("/api/organizations/:id"), handler: updateOrganizationRoute },
+  { method: "DELETE", path: "/api/organizations/:id", pattern: createPattern("/api/organizations/:id"), handler: deleteOrganizationRoute },
 
-  { method: "GET", pattern: createPattern("/api/services"), handler: listServicesRoute },
-  { method: "POST", pattern: createPattern("/api/services"), handler: createServiceRoute },
-  { method: "GET", pattern: createPattern("/api/services/:id"), handler: readServiceRoute },
-  { method: "PATCH", pattern: createPattern("/api/services/:id"), handler: updateServiceRoute },
-  { method: "DELETE", pattern: createPattern("/api/services/:id"), handler: deleteServiceRoute },
+  { method: "GET", path: "/api/services", pattern: createPattern("/api/services"), handler: listServicesRoute },
+  { method: "POST", path: "/api/services", pattern: createPattern("/api/services"), handler: createServiceRoute },
+  { method: "GET", path: "/api/services/:id", pattern: createPattern("/api/services/:id"), handler: readServiceRoute },
+  { method: "PATCH", path: "/api/services/:id", pattern: createPattern("/api/services/:id"), handler: updateServiceRoute },
+  { method: "DELETE", path: "/api/services/:id", pattern: createPattern("/api/services/:id"), handler: deleteServiceRoute },
 ];
 
 function attachParams(request: Request, params: RouteParams) {
-  const requestWithParams = request as Request & { params?: RouteParams };
+  const requestWithParams = request as RequestWithContext;
 
   if (requestWithParams.params === params) {
     return requestWithParams;
@@ -120,11 +133,40 @@ function attachParams(request: Request, params: RouteParams) {
   return requestWithParams;
 }
 
+function attachLogContext(request: Request, context: LogContext) {
+  const requestWithContext = request as RequestWithContext;
+
+  if (requestWithContext.logContext === context) {
+    return requestWithContext;
+  }
+
+  Object.defineProperty(requestWithContext, "logContext", {
+    value: context,
+    enumerable: false,
+    configurable: true,
+  });
+
+  return requestWithContext;
+}
+
 function notFound(message = "Not Found", status = 404) {
   return Response.json({ message }, { status, headers: jsonHeaders });
 }
 
 export async function handleApiRequest(request: Request): Promise<Response> {
+  const url = new URL(request.url);
+  const method = request.method.toUpperCase();
+  const requestId = request.headers.get("x-request-id") ?? randomUUID();
+  const startedAt = performance.now();
+  const baseLogPayload = {
+    requestId,
+    method,
+    path: url.pathname,
+    search: url.search || null,
+  };
+
+  logger.info("API request received", baseLogPayload);
+
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
@@ -139,7 +181,7 @@ export async function handleApiRequest(request: Request): Promise<Response> {
   }
 
   for (const route of routes) {
-    if (route.method !== request.method.toUpperCase()) {
+    if (route.method !== method) {
       continue;
     }
 
@@ -148,9 +190,30 @@ export async function handleApiRequest(request: Request): Promise<Response> {
       continue;
     }
 
+    const logContext: LogContext = { requestId, route: `${route.method} ${route.path}` };
     const params = match.pathname.groups as RouteParams;
-    const requestWithParams = attachParams(request, params);
+    const requestWithContext = attachLogContext(request, logContext);
+    const requestWithParams = attachParams(requestWithContext, params);
+
+    logger.debug("API route matched", {
+      ...baseLogPayload,
+      route: `${route.method} ${route.path}`,
+      params,
+    });
+
     const response = await route.handler(requestWithParams);
+    const durationMs = Math.round(performance.now() - startedAt);
+
+    logger.info("API response produced", {
+      ...baseLogPayload,
+      route: `${route.method} ${route.path}`,
+      status: response.status,
+      durationMs,
+    });
+
+    if (!response.headers.has("x-request-id")) {
+      response.headers.set("x-request-id", requestId);
+    }
 
     if (!response.headers.has("access-control-allow-origin")) {
       response.headers.set("access-control-allow-origin", request.headers.get("origin") ?? "*");
@@ -169,6 +232,13 @@ export async function handleApiRequest(request: Request): Promise<Response> {
   }
 
   const response = notFound();
+  const durationMs = Math.round(performance.now() - startedAt);
+
+  logger.warn("API route not found", {
+    ...baseLogPayload,
+    durationMs,
+  });
+
   response.headers.set("access-control-allow-origin", request.headers.get("origin") ?? "*");
   response.headers.set("access-control-allow-credentials", "true");
   response.headers.set(
@@ -179,5 +249,6 @@ export async function handleApiRequest(request: Request): Promise<Response> {
     "access-control-allow-headers",
     request.headers.get("access-control-request-headers") ?? "content-type",
   );
+  response.headers.set("x-request-id", requestId);
   return response;
 }

@@ -1,6 +1,7 @@
 import { getUserById, listServicesForOrganizations } from "../database";
-import { getAuthenticatedSession } from "../lib/auth-session";
+import { ensureSessionOrganization, getAuthenticatedSession } from "../lib/auth-session";
 import { redirectResponse } from "../lib/server-utils";
+import { logger } from "../lib/logger";
 
 const htmlHeaders = {
   "content-type": "text/html; charset=utf-8",
@@ -533,6 +534,38 @@ function renderUserManagementServiceHtml(options: {
           editingUserId: null,
         };
 
+        function logButton(action) {
+          console.log("[UserMgmt] Button pressed:", action);
+        }
+
+        function formatTimestamp(value) {
+          if (typeof value !== "string" || value.length === 0) {
+            return null;
+          }
+          const date = new Date(value);
+          if (Number.isNaN(date.getTime())) {
+            return null;
+          }
+          try {
+            return date.toLocaleString();
+          } catch {
+            return date.toISOString();
+          }
+        }
+
+        async function callApi(url, init) {
+          const method = (init?.method ?? "GET").toUpperCase();
+          console.log("[UserMgmt] API request:", method, url);
+          try {
+            const response = await fetch(url, init);
+            console.log("[UserMgmt] API response:", method, url, "->", response.status);
+            return response;
+          } catch (error) {
+            console.error("[UserMgmt] API error:", method, url, error);
+            throw error;
+          }
+        }
+
         function updateStatus(element, message, kind = "info") {
           if (!element) {
             return;
@@ -606,6 +639,7 @@ function renderUserManagementServiceHtml(options: {
         }
 
         function beginEdit(user) {
+          logButton("Edit user " + (user.email || user.id));
           state.editingUserId = user.id;
           syncEditForm();
         }
@@ -659,12 +693,13 @@ function renderUserManagementServiceHtml(options: {
               removeButton.textContent = "Remove";
               removeButton.className = "danger";
               removeButton.addEventListener("click", async () => {
+                logButton("Remove user " + (user.email || user.id));
                 const confirmRemove = window.confirm("Remove " + user.name + " from the organization?");
                 if (!confirmRemove) {
                   return;
                 }
                 try {
-                  const response = await fetch("/api/users/" + encodeURIComponent(user.id), {
+                  const response = await callApi("/api/users/" + encodeURIComponent(user.id), {
                     method: "DELETE",
                     credentials: "include",
                   });
@@ -705,7 +740,7 @@ function renderUserManagementServiceHtml(options: {
           }
 
           try {
-            const response = await fetch("/api/users", {
+            const response = await callApi("/api/users", {
               method: "GET",
               credentials: "include",
             });
@@ -720,6 +755,11 @@ function renderUserManagementServiceHtml(options: {
             }
 
             const users = await response.json();
+            const visibleCountHeader = response.headers.get("x-users-visible-count");
+            const totalCountHeader = response.headers.get("x-users-total-count");
+            const listHitsHeader = response.headers.get("x-users-list-hits");
+            const lastListAtHeader = response.headers.get("x-users-last-list-at");
+            const mutationHeader = response.headers.get("x-users-last-mutation-at");
             const filtered = users.filter((user) =>
               Array.isArray(user.organizations) &&
               user.organizations.some((org) => org.id === state.organizationId)
@@ -728,7 +768,28 @@ function renderUserManagementServiceHtml(options: {
 
             if (displayStatus) {
               const suffix = filtered.length === 1 ? "" : "s";
-              updateStatus(infoLine, "Loaded " + filtered.length + " user" + suffix + ".", "success");
+              const parts = [];
+              if (listHitsHeader) {
+                parts.push("request #" + listHitsHeader);
+              }
+              const visibleLabel = visibleCountHeader ?? totalCountHeader;
+              if (visibleLabel) {
+                parts.push(visibleLabel + " visible");
+              }
+              const listedAt = formatTimestamp(lastListAtHeader);
+              if (listedAt) {
+                parts.push("listed " + listedAt);
+              }
+              const lastMutation = formatTimestamp(mutationHeader);
+              if (lastMutation) {
+                parts.push("last change " + lastMutation);
+              }
+              const detailSuffix = parts.length ? " (" + parts.join("; ") + ")" : "";
+              updateStatus(
+                infoLine,
+                "Loaded " + filtered.length + " user" + suffix + "." + detailSuffix,
+                "success",
+              );
             }
           } catch (error) {
             console.error("Failed to load users", error);
@@ -749,6 +810,7 @@ function renderUserManagementServiceHtml(options: {
             return;
           }
 
+          logButton("Save changes for user " + (editingUser.email || editingUser.id));
           const name = getInputValue(editNameInput);
           const email = getInputValue(editEmailInput).toLowerCase();
           const role = getInputValue(editRoleSelect) || editingUser.role;
@@ -786,7 +848,7 @@ function renderUserManagementServiceHtml(options: {
           updateStatus(editStatus, "Saving changes...", "info");
 
           try {
-            const response = await fetch("/api/users/" + encodeURIComponent(editingUser.id), {
+            const response = await callApi("/api/users/" + encodeURIComponent(editingUser.id), {
               method: "PATCH",
               headers: {
                 "content-type": "application/json",
@@ -804,7 +866,7 @@ function renderUserManagementServiceHtml(options: {
 
             updateStatus(infoLine, "User updated.", "success");
             exitEditMode();
-            await loadUsers(false);
+            await loadUsers();
           } catch (error) {
             console.error("Failed to update user", error);
             updateStatus(
@@ -817,6 +879,7 @@ function renderUserManagementServiceHtml(options: {
 
         async function handleCreate(event) {
           event.preventDefault();
+          logButton("Add user submit");
 
           if (!state.organizationId) {
             updateStatus(formStatus, "Select an organization first.", "error");
@@ -836,7 +899,7 @@ function renderUserManagementServiceHtml(options: {
           updateStatus(formStatus, "Adding user...", "info");
 
           try {
-            const response = await fetch("/api/users", {
+            const response = await callApi("/api/users", {
               method: "POST",
               headers: {
                 "content-type": "application/json",
@@ -859,7 +922,7 @@ function renderUserManagementServiceHtml(options: {
 
             form.reset();
             updateStatus(formStatus, "User added.", "success");
-            await loadUsers(false);
+            await loadUsers();
           } catch (error) {
             console.error("Failed to create user", error);
             updateStatus(
@@ -918,6 +981,7 @@ function renderUserManagementServiceHtml(options: {
         if (cancelEditButton instanceof HTMLButtonElement) {
           cancelEditButton.addEventListener("click", (event) => {
             event.preventDefault();
+            logButton("Cancel edit");
             exitEditMode();
           });
         }
@@ -935,7 +999,7 @@ export async function renderServiceWorkspace(request: Request): Promise<Response
     return redirectResponse("/", 303);
   }
 
-  const session = await getAuthenticatedSession(request);
+  let session = await getAuthenticatedSession(request);
   if (!session) {
     return redirectResponse("/", 303);
   }
@@ -958,6 +1022,14 @@ export async function renderServiceWorkspace(request: Request): Promise<Response
     return redirectResponse("/", 303);
   }
 
+  if (session.organization_id !== selectedOrganizationId) {
+    session = await ensureSessionOrganization(session, selectedOrganizationId);
+    logger.info("[UserMgmt] Session organization aligned", {
+      userId: session.user_id,
+      organizationId: selectedOrganizationId,
+    });
+  }
+
   const services = await listServicesForOrganizations([selectedOrganizationId]);
   const service = services.find((entry) => entry.id === serviceId);
 
@@ -978,6 +1050,12 @@ export async function renderServiceWorkspace(request: Request): Promise<Response
       name: selectedOrganization.name,
       isAdmin: user.role === "admin" || user.role === "organization_admin",
     };
+
+    logger.info("[UserMgmt] Rendering service workspace", {
+      serviceId,
+      organizationId: organization.id,
+      userId: session.user_id,
+    });
 
     html = renderUserManagementServiceHtml({
       serviceName: service.name,

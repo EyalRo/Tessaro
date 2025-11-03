@@ -11,6 +11,7 @@ import {
   watchForQuit,
 } from "./lib/server-utils";
 import embeddedMainAppHtml from "../client/main-app.html";
+import { logger } from "./lib/logger";
 
 const publicDir = new URL("../client/public", import.meta.url);
 const embeddedMainHtml = embeddedMainAppHtml;
@@ -111,4 +112,7 @@ const server: Server = serve({
 
 watchForQuit(server);
 
-console.info(`Tessaro Bun server listening on http://localhost:${port}`);
+logger.info("Tessaro Bun server started", {
+  port,
+  development: process.env.NODE_ENV !== "production",
+});

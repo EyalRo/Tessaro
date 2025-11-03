@@ -284,4 +284,30 @@ export async function getAuthenticatedSession(request: Request): Promise<Authent
   } satisfies AuthenticatedSession;
 }
 
+export async function ensureSessionOrganization(
+  session: AuthenticatedSession,
+  organizationId: string | null,
+): Promise<AuthenticatedSession> {
+  const normalizedOrganizationId = organizationId ?? null;
+
+  if (session.organization_id === normalizedOrganizationId) {
+    return session;
+  }
+
+  const updatedRecord: SessionRecord = {
+    token_hash: session.token_hash,
+    user_id: session.user_id,
+    organization_id: normalizedOrganizationId,
+    issued_at: session.issued_at,
+    expires_at: session.expires_at,
+  };
+
+  await replaceSession(updatedRecord);
+
+  return {
+    ...session,
+    ...updatedRecord,
+  };
+}
+
 export { DEFAULT_TTL_MS as SESSION_TTL_MS, SESSION_COOKIE };

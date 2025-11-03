@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { getMetricTimestamp, incrementMetric, setMetricNumber, setMetricTimestamp } from "../database/metrics";
 import {
   createUser,
@@ -22,6 +23,7 @@ import {
   listUsersFromFission,
   readUserFromFission,
 } from "../lib/users-service";
+import { logger } from "../lib/logger";
 
 const USER_LIST_HITS_KEY = "metrics.users.list_hits";
 const USER_LAST_MUTATION_KEY = "metrics.users.last_mutation_at";
@@ -33,6 +35,12 @@ async function resolveContextOrRespond(request: Request): Promise<UserManagement
     return await requireUserManagementAccess(request);
   } catch (error) {
     if (error instanceof AccessError) {
+      const requestLog = buildRequestLog(request);
+      logger.warn("[UserMgmt] Access denied", {
+        ...requestLog,
+        status: error.status,
+        message: error.message,
+      });
       return errorResponse(error.message, error.status);
     }
 
@@ -49,11 +57,36 @@ function userWithinScope(user: UserRecord, scope: UserManagementScope): boolean 
   return user.organizations.some((organization) => allowed.has(organization.id));
 }
 
+type RequestLogContext = { requestId: string };
+
+function getRequestLogContext(request: Request): RequestLogContext {
+  const requestWithContext = request as Request & { logContext?: RequestLogContext };
+  const requestId = requestWithContext.logContext?.requestId
+    ?? request.headers.get("x-request-id")
+    ?? randomUUID();
+
+  return { requestId };
+}
+
+function buildRequestLog(request: Request) {
+  const url = new URL(request.url);
+  const { requestId } = getRequestLogContext(request);
+
+  return {
+    requestId,
+    method: request.method,
+    path: url.pathname,
+    search: url.search || null,
+  };
+}
+
 export async function createUserRoute(_request: Request): Promise<Response> {
   const context = await resolveContextOrRespond(_request);
   if (context instanceof Response) {
     return context;
   }
+
+  const requestLog = buildRequestLog(_request);
 
   let payload: any;
   try {
@@ -93,45 +126,108 @@ export async function createUserRoute(_request: Request): Promise<Response> {
   try {
     const user = await createUser(createPayload);
     await setMetricTimestamp(USER_LAST_MUTATION_KEY, user.updated_at);
+    logger.info("[UserMgmt] Created user", {
+      ...requestLog,
+      actorId: context.actor.id,
+      userId: user.id,
+      email: user.email,
+      organizationIds: user.organizations.map((organization) => organization.id),
+    });
     return Response.json(user, { status: 201 });
   } catch (error) {
     if (error instanceof Error && error.message.includes("already exists")) {
       return errorResponse("User already exists", 409);
     }
-    console.error("Failed to create user via Fission", error);
+    logger.error("[UserMgmt] Failed to create user", {
+      ...requestLog,
+      actorId: context.actor.id,
+      error,
+    });
     return errorResponse("Failed to create user");
   }
 }
 
 export async function listUsersRoute(request: Request): Promise<Response> {
+  const url = new URL(request.url);
+  const requestLog = {
+    ...buildRequestLog(request),
+    path: url.pathname,
+    search: url.search || null,
+  };
+  logger.info("[UserMgmt] List users request received", requestLog);
+
   const context = await resolveContextOrRespond(request);
   if (context instanceof Response) {
+    logger.warn("[UserMgmt] List users responded early", {
+      ...requestLog,
+      status: context.status,
+    });
     return context;
   }
 
-  const { scope, sessionOrganizationId } = context;
+  const { actor, scope, sessionOrganizationId } = context;
   const organizationId = scope.kind === "organization" ? sessionOrganizationId : null;
 
   try {
-    const [users, listHits, lastMutation] = await Promise.all([
-      listUsersFromFission(organizationId),
+    const users = await listUsersFromFission(organizationId);
+
+    let listHits: number | null = null;
+    let lastMutation: string | null = null;
+
+    const metricReads = await Promise.allSettled([
       incrementMetric(USER_LIST_HITS_KEY),
       getMetricTimestamp(USER_LAST_MUTATION_KEY),
     ]);
 
+    const [listHitsResult, lastMutationResult] = metricReads;
+
+    if (listHitsResult.status === "fulfilled") {
+      const value = Number(listHitsResult.value);
+      listHits = Number.isFinite(value) ? value : null;
+    } else {
+      logger.warn("[UserMgmt] List users metric increment failed", {
+        ...requestLog,
+        error: listHitsResult.reason,
+      });
+    }
+
+    if (lastMutationResult.status === "fulfilled") {
+      lastMutation = lastMutationResult.value ?? null;
+    } else {
+      logger.warn("[UserMgmt] List users metric read failed", {
+        ...requestLog,
+        error: lastMutationResult.reason,
+      });
+    }
+
     const listedAt = new Date().toISOString();
-    await Promise.all([
+
+    const metricWrites = await Promise.allSettled([
       setMetricTimestamp(USER_LAST_LIST_KEY, listedAt),
       setMetricNumber(USER_COUNT_KEY, users.length),
     ]);
 
+    for (const result of metricWrites) {
+      if (result.status === "rejected") {
+        logger.warn("[UserMgmt] List users metric write failed", {
+          ...requestLog,
+          error: result.reason,
+        });
+      }
+    }
+
     const totalCount = users.length;
     const visibleUsers = users;
 
-    const headers = formatHeaders({
-      "x-users-list-hits": String(listHits),
+    const headersInit: Record<string, string> = {
       "x-users-last-list-at": listedAt,
-    });
+    };
+
+    if (typeof listHits === "number") {
+      headersInit["x-users-list-hits"] = String(listHits);
+    }
+
+    const headers = formatHeaders(headersInit);
 
     if (lastMutation) {
       headers.set("x-users-last-mutation-at", lastMutation);
@@ -145,9 +241,23 @@ export async function listUsersRoute(request: Request): Promise<Response> {
       headers.set("x-users-visible-count", String(visibleUsers.length));
     }
 
+    logger.info("[UserMgmt] Listed users", {
+      actorId: actor.id,
+      organizationId: organizationId ?? "global",
+      returned: visibleUsers.length,
+      listHits,
+      requestId: requestLog.requestId,
+    });
+
     return Response.json(visibleUsers, { status: 200, headers });
   } catch (error) {
-    console.error("Failed to list users", error);
+    logger.error("[UserMgmt] List users failed", {
+      ...requestLog,
+      actorId: actor.id,
+      scope: scope.kind,
+      organizationId: organizationId ?? "global",
+      error,
+    });
     return errorResponse("Failed to list users");
   }
 }
@@ -164,6 +274,10 @@ export async function readUserRoute(request: Request): Promise<Response> {
   }
 
   const { scope } = context;
+  const requestLog = {
+    ...buildRequestLog(request),
+    userId: id,
+  };
 
   try {
     const user = await getUserById(id);
@@ -177,7 +291,10 @@ export async function readUserRoute(request: Request): Promise<Response> {
 
     return Response.json(user);
   } catch (error) {
-    console.error("Failed to load user", error);
+    logger.error("[UserMgmt] Failed to load user", {
+      ...requestLog,
+      error,
+    });
     return errorResponse("Failed to load user");
   }
 }
@@ -192,6 +309,11 @@ export async function updateUserRoute(_request: Request): Promise<Response> {
   if (!id) {
     return errorResponse("Missing user id", 400);
   }
+
+  const requestLog = {
+    ...buildRequestLog(_request),
+    userId: id,
+  };
 
   let payload: any;
   try {
@@ -286,11 +408,32 @@ export async function updateUserRoute(_request: Request): Promise<Response> {
     return errorResponse("No changes provided", 400);
   }
 
+  const changedFields = Object.keys(updates);
+  const updatePayload: UpdateUserInput = { ...updates };
+
+  if (
+    Object.keys(updatePayload).length > 0 &&
+    updatePayload.organization_ids === undefined
+  ) {
+    const existingOrganizationIds = existing.organizations
+      .map((organization) => organization.id)
+      .filter((organizationId): organizationId is string => typeof organizationId === "string" && organizationId.length > 0);
+
+    if (existingOrganizationIds.length > 0) {
+      if (context.scope.kind === "organization") {
+        const allowed = new Set(context.scope.organizationIds);
+        updatePayload.organization_ids = existingOrganizationIds.filter((organizationId) => allowed.has(organizationId));
+      } else {
+        updatePayload.organization_ids = existingOrganizationIds;
+      }
+    }
+  }
+
   try {
     let updatedUser = existing;
 
-    if (Object.keys(updates).length > 0) {
-      const result = await updateUser(id, updates);
+    if (Object.keys(updatePayload).length > 0) {
+      const result = await updateUser(id, updatePayload);
       if (!result) {
         return errorResponse("User not found", 404);
       }
@@ -299,19 +442,33 @@ export async function updateUserRoute(_request: Request): Promise<Response> {
 
     if (shouldUpdatePassword) {
       await setUserPassword(id, password);
-      if (Object.keys(updates).length === 0) {
+      if (Object.keys(updatePayload).length === 0) {
         updatedUser = updatedUser ?? existing;
       }
     }
 
-    const mutationTimestamp = Object.keys(updates).length > 0
+    const mutationTimestamp = Object.keys(updatePayload).length > 0
       ? updatedUser.updated_at
       : new Date().toISOString();
 
     await setMetricTimestamp(USER_LAST_MUTATION_KEY, mutationTimestamp);
+    const loggedFields = [...changedFields];
+    if (shouldUpdatePassword) {
+      loggedFields.push("password");
+    }
+    logger.info("[UserMgmt] Updated user", {
+      ...requestLog,
+      actorId: context.actor.id,
+      userId: updatedUser.id,
+      updatedFields: loggedFields,
+    });
     return Response.json(updatedUser, { status: 200 });
   } catch (error) {
-    console.error("Failed to update user via Fission", error);
+    logger.error("[UserMgmt] Failed to update user", {
+      ...requestLog,
+      actorId: context.actor.id,
+      error,
+    });
     if (error instanceof Error && /already exists|email already in use/i.test(error.message)) {
       return errorResponse("Email already in use", 409);
     }
@@ -329,6 +486,11 @@ export async function deleteUserRoute(_request: Request): Promise<Response> {
   if (!id) {
     return errorResponse("Missing user id", 400);
   }
+
+  const requestLog = {
+    ...buildRequestLog(_request),
+    userId: id,
+  };
 
   try {
     const user = await readUserFromFission(id);
@@ -350,9 +512,18 @@ export async function deleteUserRoute(_request: Request): Promise<Response> {
     }
 
     await setMetricTimestamp(USER_LAST_MUTATION_KEY);
+    logger.info("[UserMgmt] Deleted user", {
+      ...requestLog,
+      actorId: context.actor.id,
+      userId: id,
+    });
     return Response.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete user", error);
+    logger.error("[UserMgmt] Failed to delete user", {
+      ...requestLog,
+      actorId: context.actor.id,
+      error,
+    });
     return errorResponse("Failed to delete user");
   }
 }
